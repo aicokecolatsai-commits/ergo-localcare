@@ -80,12 +80,9 @@
 
       <!-- 人體圖渲染容器 (緊湊白底外框，手機一屏全覽) -->
       <div class="ergo-card p-3 md:p-4 border border-slate-200 bg-white flex flex-col items-center shadow-sm">
-        <!-- 快速無不適選擇按鈕 (防呆：避免無症狀者被迫亂按) -->
         <div class="w-full flex items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-100">
-          <span class="text-[10px] md:text-[11px] text-slate-500">💡 提示：點擊部位或上方橫滑膠囊</span>
-          <button id="btn-bodymap-clear-all" type="button" class="px-2.5 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-bold transition-all flex items-center gap-1 touch-press shadow-sm">
-            <span>✨ 我目前全身舒暢 (全無酸痛)</span>
-          </button>
+          <span class="text-[10px] md:text-[11px] font-semibold text-slate-600">💡 提示：點擊部位或上方橫滑膠囊設定程度</span>
+          <span class="text-[10px] text-slate-400">左右兩側獨立評估</span>
         </div>
 
         <div id="student-bodymap-container" class="w-full flex justify-center"></div>
@@ -93,6 +90,13 @@
         <!-- 選取部位即時狀態摘要 -->
         <div id="bodymap-summary" class="w-full mt-2.5 pt-2 border-t border-slate-100 text-center text-xs text-slate-600">
           目前尚未選取任何部位（若完全無症狀，可直接點擊下一步）
+        </div>
+
+        <!-- 快速無不適選擇按鈕 (擺在底部，避免在點擊頸肩頭部時誤觸) -->
+        <div class="w-full mt-2 pt-2 border-t border-slate-100 flex justify-center">
+          <button id="btn-bodymap-clear-all" type="button" class="px-3.5 py-1.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold transition-all flex items-center gap-1.5 touch-press shadow-xs">
+            <span>✨ 我目前全身舒暢 (全無酸痛，一鍵進入檢核)</span>
+          </button>
         </div>
       </div>
 
@@ -149,13 +153,26 @@
           <span id="res-score" class="text-5xl md:text-6xl font-black text-slate-900">
             --
           </span>
-          <span class="text-sm font-semibold text-slate-500">/ 100 分</span>
+          <span class="text-sm font-bold text-slate-500">/ 100 分滿分</span>
         </div>
 
-        <h3 id="res-title" class="text-lg font-bold text-slate-900 mt-1">健康度狀態</h3>
-        <p id="res-subtitle" class="text-xs text-slate-500 mt-0.5">狀態說明</p>
+        <!-- 分數高低意義清楚說明 (分數越高越健康) -->
+        <div class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-[11px] text-slate-700 font-bold mb-2">
+          <span>🏆 健康評分制：分數越高越健康、人因傷害風險越低</span>
+        </div>
 
-        <p id="res-analysis" class="text-xs md:text-sm text-slate-700 leading-relaxed mt-4 p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-left">
+        <h3 id="res-title" class="text-lg font-black text-slate-900 mt-1">健康度狀態</h3>
+        <p id="res-subtitle" class="text-xs font-medium text-slate-500 mt-0.5">狀態說明</p>
+
+        <!-- 四階分級指引條 (讓使用者秒懂高低分區間) -->
+        <div class="grid grid-cols-4 gap-1 text-[10px] font-bold text-center mt-3 p-1 rounded-lg bg-slate-100 border border-slate-200">
+          <span class="py-1 rounded text-emerald-800 bg-emerald-100/90">85~100 優良</span>
+          <span class="py-1 rounded text-amber-800 bg-amber-100/90">70~84 輕度</span>
+          <span class="py-1 rounded text-orange-800 bg-orange-100/90">50~69 中度</span>
+          <span class="py-1 rounded text-rose-800 bg-rose-100/90">0~49 重度</span>
+        </div>
+
+        <p id="res-analysis" class="text-xs md:text-sm text-slate-700 leading-relaxed mt-3.5 p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-left">
           分析載入中...
         </p>
       </div>
@@ -178,6 +195,29 @@
         <ul id="res-action-guides" class="space-y-3">
           <!-- 由 app.js 動態渲染指引項目 -->
         </ul>
+      </div>
+
+      <!-- 德國主要關鍵指標法 KIM 2019 進階危害評估專區 (蔡健儀 專屬研發工具連結) -->
+      <div id="kim-recommendation-card" class="ergo-card p-4 md:p-5 border-2 border-indigo-200 bg-gradient-to-r from-indigo-50/80 to-sky-50/80 shadow-sm space-y-2.5">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl md:text-2xl">📐</span>
+            <div>
+              <h4 class="text-xs md:text-sm font-black text-indigo-950 flex items-center gap-1.5">
+                <span>德國主要關鍵指標法 KIM 2019 線上評估系統</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-600 text-white shadow-xs">勞動部認可工程法</span>
+              </h4>
+              <p class="text-[11px] text-indigo-900/80 font-medium">蔡健儀 人因工程專家專屬建置研發</p>
+            </div>
+          </div>
+          <a href="https://aicokecolatsai-commits.github.io/KIM2019/" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1 touch-press flex-shrink-0">
+            <span>開啟 KIM 評估工具</span>
+            <span>↗</span>
+          </a>
+        </div>
+        <p class="text-[11px] text-slate-700 leading-relaxed pt-2 border-t border-indigo-100">
+          💡 <strong>何時需要進一步評估 KIM？</strong> 當您的作業現場涉及「<strong>物料人工抬舉搬運 (LHC)</strong>」、「<strong>大型台車拉推 (PP)</strong>」或「<strong>手部高頻重複施力 (MHO)</strong>」且已出現下背/肩肘酸痛時，需以 KIM 精確計算重量、時間頻率與身體姿勢評點，判定法定人因危害等級並進行工程改善。
+        </p>
       </div>
 
       <!-- 合規醫療與健康免責警語 -->

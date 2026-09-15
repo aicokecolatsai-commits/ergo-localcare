@@ -112,69 +112,69 @@ class BodyMapComponent {
 
         <!-- 手機原生級底部滑出抽屜 (白底莫蘭迪 Bottom Sheet Modal) -->
         ${this.interactive ? `
-          <!-- 半透明 Backdrop 遮罩 -->
-          <div id="bodymap-sheet-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 hidden opacity-0 transition-opacity duration-200"></div>
+          <!-- 半透明 Backdrop 遮罩 (加深對比，凸顯白底抽屜) -->
+          <div id="bodymap-sheet-backdrop" class="fixed inset-0 bg-slate-950/70 backdrop-blur-xs z-40 hidden opacity-0 transition-opacity duration-200"></div>
 
-          <!-- 底部彈出抽屜 (拇指最佳操作熱區，支援條件展開) -->
-          <div id="zone-scale-drawer" class="fixed inset-x-0 bottom-0 z-50 p-4 pb-8 bg-white/98 border-t border-slate-200 rounded-t-2xl shadow-2xl transition-all duration-200 transform translate-y-full opacity-0 pointer-events-none max-w-lg mx-auto max-h-[88vh] overflow-y-auto no-scrollbar">
+          <!-- 底部彈出抽屜 (純白不透明底色 + 實體邊框與高對比按鈕) -->
+          <div id="zone-scale-drawer" class="fixed inset-x-0 bottom-0 z-50 p-4 pb-8 bg-white border-t-2 border-slate-300 rounded-t-2xl shadow-2xl transition-all duration-200 transform translate-y-full opacity-0 pointer-events-none max-w-lg mx-auto max-h-[88vh] overflow-y-auto no-scrollbar">
             <!-- 頂部手柄條 -->
             <div class="w-10 h-1.5 bg-slate-300 rounded-full mx-auto mb-3.5"></div>
             
             <div class="flex items-center justify-between mb-3 px-1">
               <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-[#4a7c9d]"></span>
-                <span id="active-zone-title" class="text-sm md:text-base font-bold text-slate-900 tracking-wide">
+                <span class="w-3 h-3 rounded-full bg-[#4a7c9d] shadow-xs"></span>
+                <span id="active-zone-title" class="text-sm md:text-base font-black text-slate-900 tracking-wide">
                   設定部位酸痛狀況
                 </span>
               </div>
-              <button id="btn-close-drawer" type="button" class="w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition-colors text-sm font-bold">
+              <button id="btn-close-drawer" type="button" class="w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200 transition-colors text-sm font-bold shadow-xs">
                 ✕
               </button>
             </div>
             
-            <!-- 6段莫蘭迪情境按鈕 (白底卡片 + 圓形色標) -->
-            <div class="grid grid-cols-2 gap-2" id="scale-options-container">
+            <!-- 6段莫蘭迪情境按鈕 (純白底色 + 實體粗邊框 + 鮮明色標) -->
+            <div class="grid grid-cols-2 gap-2.5" id="scale-options-container">
               ${NMQ_SEVERITY_LEVELS.map(l => `
                 <button 
                   type="button" 
                   data-level="${l.level}" 
-                  class="scale-btn text-left p-3 rounded-xl border border-slate-200/90 bg-slate-50/80 hover:bg-slate-100/90 hover:border-slate-300 transition-all flex flex-col justify-between touch-press group min-h-[64px] shadow-xs">
+                  class="scale-btn text-left p-3 rounded-xl border-2 border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 transition-all flex flex-col justify-between touch-press group min-h-[66px] shadow-xs">
                   <div class="flex items-center justify-between w-full mb-1">
-                    <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                      <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: ${l.color}"></span>
+                    <span class="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                      <span class="w-3 h-3 rounded-full flex-shrink-0 shadow-xs" style="background-color: ${l.color}"></span>
                       <span>${l.level}分 · ${l.label}</span>
                     </span>
                   </div>
-                  <span class="text-[10px] text-slate-500 leading-tight">
+                  <span class="text-[10.5px] text-slate-600 leading-snug font-medium">
                     ${l.desc}
                   </span>
                 </button>
               `).join("")}
             </div>
 
-            <!-- 台灣勞安所 NMQ 關鍵指標條件追問區 (方案B：僅在 >= 3 分時平滑展開) -->
-            <div id="nmq-deep-dive-box" class="hidden mt-3 p-3.5 rounded-xl bg-sky-50/70 border border-sky-200 transition-all duration-200 shadow-xs">
+            <!-- 台灣勞安所 NMQ 關鍵指標條件追問區 (純色高對比卡片) -->
+            <div id="nmq-deep-dive-box" class="hidden mt-3 p-3.5 rounded-xl bg-sky-50 border-2 border-sky-300 transition-all duration-200 shadow-sm">
               <div class="flex items-center justify-between mb-2.5">
                 <div class="flex items-center gap-1.5">
-                  <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-600 text-white">NMQ 危害指標</span>
-                  <span class="text-xs font-bold text-sky-950">高風險痛點深度檢核</span>
+                  <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-600 text-white shadow-xs">NMQ 危害指標</span>
+                  <span class="text-xs font-black text-sky-950">高風險痛點深度檢核</span>
                 </div>
-                <span class="text-[10px] text-sky-700 font-medium">（已達顯著危害閾值）</span>
+                <span class="text-[10px] text-sky-800 font-bold">（已達顯著危害閾值）</span>
               </div>
 
               <!-- 追問 1：過去一年累積不適天數 -->
               <div class="mb-3">
-                <label class="block text-[11px] font-semibold text-slate-800 mb-1.5">
+                <label class="block text-[11px] font-bold text-slate-800 mb-1.5">
                   1. 過去 1 年內，該部位累積酸痛/麻木天數？
                 </label>
                 <div class="grid grid-cols-3 gap-1.5" id="nmq-days-group">
-                  <button type="button" data-days="lt7" class="nmq-btn-days py-2 px-1 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 font-medium hover:border-sky-300 transition-all text-center touch-press shadow-xs">
+                  <button type="button" data-days="lt7" class="nmq-btn-days py-2 px-1 rounded-lg border-2 border-slate-200 bg-white text-[11px] text-slate-800 font-bold hover:border-sky-400 transition-all text-center touch-press shadow-xs">
                     未滿 7 天
                   </button>
-                  <button type="button" data-days="8to30" class="nmq-btn-days py-2 px-1 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 font-medium hover:border-sky-300 transition-all text-center touch-press shadow-xs">
+                  <button type="button" data-days="8to30" class="nmq-btn-days py-2 px-1 rounded-lg border-2 border-slate-200 bg-white text-[11px] text-slate-800 font-bold hover:border-sky-400 transition-all text-center touch-press shadow-xs">
                     8 ~ 30 天
                   </button>
-                  <button type="button" data-days="gt30" class="nmq-btn-days py-2 px-1 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 font-medium hover:border-sky-300 transition-all text-center touch-press shadow-xs">
+                  <button type="button" data-days="gt30" class="nmq-btn-days py-2 px-1 rounded-lg border-2 border-slate-200 bg-white text-[11px] text-slate-800 font-bold hover:border-sky-400 transition-all text-center touch-press shadow-xs">
                     超過 30 天
                   </button>
                 </div>
@@ -182,14 +182,14 @@ class BodyMapComponent {
 
               <!-- 追問 2：是否曾就醫、復健或服藥 -->
               <div class="mb-3">
-                <label class="block text-[11px] font-semibold text-slate-800 mb-1.5">
+                <label class="block text-[11px] font-bold text-slate-800 mb-1.5">
                   2. 是否曾因此就醫、接受物理治療或服藥？
                 </label>
                 <div class="grid grid-cols-2 gap-2" id="nmq-med-group">
-                  <button type="button" data-medical="yes" class="nmq-btn-med py-2 px-2 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 font-medium hover:border-sky-300 transition-all text-center touch-press shadow-xs">
+                  <button type="button" data-medical="yes" class="nmq-btn-med py-2 px-2 rounded-lg border-2 border-slate-200 bg-white text-[11px] text-slate-800 font-bold hover:border-sky-400 transition-all text-center touch-press shadow-xs">
                     🏥 是，曾就醫或治療
                   </button>
-                  <button type="button" data-medical="no" class="nmq-btn-med py-2 px-2 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 font-medium hover:border-sky-300 transition-all text-center touch-press shadow-xs">
+                  <button type="button" data-medical="no" class="nmq-btn-med py-2 px-2 rounded-lg border-2 border-slate-200 bg-white text-[11px] text-slate-800 font-bold hover:border-sky-400 transition-all text-center touch-press shadow-xs">
                     🌱 否，未曾就醫
                   </button>
                 </div>

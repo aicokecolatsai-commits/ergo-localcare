@@ -15,15 +15,15 @@ const ERGO_CONFIG = {
       desc: "每日電腦作業超過 6 小時，常見前傾伸頸（烏龜頸）、滑鼠手腕壓迫與久坐腰臀酸麻。",
       badge: "久坐 / 螢幕作業",
       morandi: {
-        color: "#2f5c7a",
-        border: "#cbdff2",
-        hoverBorder: "#4a7c9d",
-        bg: "linear-gradient(135deg, #f0f6fa 0%, #ffffff 100%)",
-        badgeBg: "#dbe8f5",
-        badgeText: "#1e4663",
-        seqColor: "#2f5c7a",
-        titleColor: "#0f2942",
-        descColor: "#334e68"
+        color: "#1d4e73",
+        border: "#7eaecb",
+        hoverBorder: "#2d6994",
+        bg: "linear-gradient(135deg, #d3e5f2 0%, #e8f2f9 100%)",
+        badgeBg: "#b8d5ec",
+        badgeText: "#0b2942",
+        seqColor: "#1d4e73",
+        titleColor: "#071d30",
+        descColor: "#183c59"
       }
     },
     {
@@ -35,15 +35,15 @@ const ERGO_CONFIG = {
       desc: "長時間低頭視角過低、伏案書寫與背負重物，肩胛骨縫膏肓緊繃與下背支撐不足。",
       badge: "課堂 / 考生自習",
       morandi: {
-        color: "#2e573d",
-        border: "#cae8d5",
-        hoverBorder: "#508264",
-        bg: "linear-gradient(135deg, #f0f7f3 0%, #ffffff 100%)",
-        badgeBg: "#d5ede0",
-        badgeText: "#184527",
-        seqColor: "#2e573d",
-        titleColor: "#0d2b17",
-        descColor: "#2b4c37"
+        color: "#245735",
+        border: "#80bf97",
+        hoverBorder: "#327848",
+        bg: "linear-gradient(135deg, #d1ebd8 0%, #e7f5ec 100%)",
+        badgeBg: "#b2dfc0",
+        badgeText: "#0a2e16",
+        seqColor: "#245735",
+        titleColor: "#06210f",
+        descColor: "#154224"
       }
     },
     {
@@ -55,15 +55,15 @@ const ERGO_CONFIG = {
       desc: "每日站立走動逾 4 小時，腰椎持續承受重力剪力，下肢循環受阻、膝關節微彎與足底疲累。",
       badge: "久站 / 走動作業",
       morandi: {
-        color: "#7c5113",
-        border: "#eedbc2",
-        hoverBorder: "#b57e2a",
-        bg: "linear-gradient(135deg, #fdf7ee 0%, #ffffff 100%)",
-        badgeBg: "#faebd7",
-        badgeText: "#633e08",
-        seqColor: "#7c5113",
-        titleColor: "#3d2303",
-        descColor: "#5c421b"
+        color: "#6e4308",
+        border: "#dfb679",
+        hoverBorder: "#996515",
+        bg: "linear-gradient(135deg, #fae4be 0%, #fbf1de 100%)",
+        badgeBg: "#f2d299",
+        badgeText: "#452903",
+        seqColor: "#6e4308",
+        titleColor: "#2b1901",
+        descColor: "#4d330f"
       }
     },
     {
@@ -75,15 +75,15 @@ const ERGO_CONFIG = {
       desc: "頻繁重複性手部動作、特定手腕扭力或重物搬運，上肢前臂肌肉高張力與下背力矩過大。",
       badge: "重複操作 / 搬運",
       morandi: {
-        color: "#7a2c3a",
-        border: "#f4ccd1",
-        hoverBorder: "#ad4e29",
-        bg: "linear-gradient(135deg, #fcf2f2 0%, #ffffff 100%)",
-        badgeBg: "#fadadd",
-        badgeText: "#631724",
-        seqColor: "#7a2c3a",
-        titleColor: "#3d0a13",
-        descColor: "#5c2a33"
+        color: "#7a2333",
+        border: "#e29aa6",
+        hoverBorder: "#a8394e",
+        bg: "linear-gradient(135deg, #f7d4da 0%, #fbe8eb 100%)",
+        badgeBg: "#efb8c2",
+        badgeText: "#470f1a",
+        seqColor: "#7a2333",
+        titleColor: "#2e070e",
+        descColor: "#541c25"
       }
     }
   ],
@@ -547,6 +547,13 @@ const ERGO_CONFIG = {
     const knees = Math.max(nmqData.knee_l || 0, nmqData.knee_r || 0);
     const ankles = Math.max(nmqData.ankle_l || 0, nmqData.ankle_r || 0);
     const hips = Math.max(nmqData.hip_l || 0, nmqData.hip_r || 0);
+
+    // 規則 0：物料搬運與技術操作人因解法 (MMH 生物力學控制)
+    if (role === "technician" || (lowerback >= 3 && (role === "technician" || role === "standing"))) {
+      guides.push(
+        "【物料搬運力量區控制（MMH）】：抬舉物料時務必緊貼身體中軸（肚臍 25 公分內），腰椎椎間盤力矩可即刻降低 50% 以上；轉身搬運時嚴禁「彎腰＋腰椎扭轉」，務必以「雙腳跨步轉向」；超過 20 公斤物料務必雙人協作或善用升降台車，將垂直抬舉轉化為水平推移滾動。"
+      );
+    }
 
     // 規則 1：右側單側失衡 (滑鼠外展與手腕前伸症候群)
     if ((rShoulder >= 3 || rWrist >= 3) && (rShoulder - lShoulder >= 2 || rWrist - lWrist >= 2 || traps.trap_chair)) {

@@ -19,21 +19,21 @@ const NMQ_SEVERITY_LEVELS = [
 ];
 
 const NMQ_ZONES = [
-  { id: "neck", name: "頸部", isBilateral: false, cx: 100, cy: 55, r: 13 },
-  { id: "shoulder_l", name: "左肩", isBilateral: true, cx: 65, cy: 75, r: 14 },
-  { id: "shoulder_r", name: "右肩", isBilateral: true, cx: 135, cy: 75, r: 14 },
-  { id: "upperback", name: "上背部", isBilateral: false, cx: 100, cy: 95, r: 16 },
-  { id: "elbow_l", name: "左手肘", isBilateral: true, cx: 48, cy: 125, r: 13 },
-  { id: "elbow_r", name: "右手肘", isBilateral: true, cx: 152, cy: 125, r: 13 },
-  { id: "lowerback", name: "下背/腰部", isBilateral: false, cx: 100, cy: 135, r: 16 },
-  { id: "wrist_l", name: "左手腕", isBilateral: true, cx: 35, cy: 165, r: 12 },
-  { id: "wrist_r", name: "右手腕", isBilateral: true, cx: 165, cy: 165, r: 12 },
-  { id: "hip_l", name: "左臀/髖部", isBilateral: true, cx: 80, cy: 170, r: 15 },
-  { id: "hip_r", name: "右臀/髖部", isBilateral: true, cx: 120, cy: 170, r: 15 },
-  { id: "knee_l", name: "左膝", isBilateral: true, cx: 82, cy: 235, r: 14 },
-  { id: "knee_r", name: "右膝", isBilateral: true, cx: 118, cy: 235, r: 14 },
-  { id: "ankle_l", name: "左踝/足部", isBilateral: true, cx: 82, cy: 300, r: 13 },
-  { id: "ankle_r", name: "右踝/足部", isBilateral: true, cx: 118, cy: 300, r: 13 }
+  { id: "neck", name: "頸部", shortName: "頸部", isBilateral: false, cx: 100, cy: 55, r: 13 },
+  { id: "shoulder_l", name: "左肩", shortName: "左肩", isBilateral: true, cx: 65, cy: 75, r: 14 },
+  { id: "shoulder_r", name: "右肩", shortName: "右肩", isBilateral: true, cx: 135, cy: 75, r: 14 },
+  { id: "upperback", name: "上背部", shortName: "上背", isBilateral: false, cx: 100, cy: 95, r: 16 },
+  { id: "elbow_l", name: "左手肘", shortName: "左肘", isBilateral: true, cx: 48, cy: 125, r: 13 },
+  { id: "elbow_r", name: "右手肘", shortName: "右肘", isBilateral: true, cx: 152, cy: 125, r: 13 },
+  { id: "lowerback", name: "下背/腰部", shortName: "下背", isBilateral: false, cx: 100, cy: 135, r: 16 },
+  { id: "wrist_l", name: "左手腕", shortName: "左腕", isBilateral: true, cx: 35, cy: 165, r: 12 },
+  { id: "wrist_r", name: "右手腕", shortName: "右腕", isBilateral: true, cx: 165, cy: 165, r: 12 },
+  { id: "hip_l", name: "左臀/髖部", shortName: "左髖", isBilateral: true, cx: 80, cy: 170, r: 15 },
+  { id: "hip_r", name: "右臀/髖部", shortName: "右髖", isBilateral: true, cx: 120, cy: 170, r: 15 },
+  { id: "knee_l", name: "左膝", shortName: "左膝", isBilateral: true, cx: 82, cy: 235, r: 14 },
+  { id: "knee_r", name: "右膝", shortName: "右膝", isBilateral: true, cx: 118, cy: 235, r: 14 },
+  { id: "ankle_l", name: "左踝/足部", shortName: "左踝", isBilateral: true, cx: 82, cy: 300, r: 13 },
+  { id: "ankle_r", name: "右踝/足部", shortName: "右踝", isBilateral: true, cx: 118, cy: 300, r: 13 }
 ];
 
 class BodyMapComponent {
@@ -95,8 +95,8 @@ class BodyMapComponent {
                   <!-- 放大點擊熱區，手機更易擊中 -->
                   <circle cx="${z.cx}" cy="${z.cy}" r="${z.r + 7}" fill="transparent" />
                   <circle cx="${z.cx}" cy="${z.cy}" r="${z.r}" class="zone-circle transition-all duration-200" fill="#f8fafc" fill-opacity="0.95" stroke="#94a3b8" stroke-width="1.5" />
-                  <text x="${z.cx}" y="${z.cy + 3.5}" text-anchor="middle" class="zone-text text-[9px] font-bold fill-slate-700 pointer-events-none select-none">
-                    ${z.name.replace("左", "L").replace("右", "R")}
+                  <text x="${z.cx}" y="${z.cy}" text-anchor="middle" dominant-baseline="central" font-size="7.5" font-weight="bold" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" class="zone-text fill-slate-700 pointer-events-none select-none">
+                    ${z.shortName || z.name}
                   </text>
                 </g>
               `).join("")}

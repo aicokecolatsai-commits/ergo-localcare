@@ -1052,6 +1052,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 <td style="color: #059669; text-align: right; width: 25%;">85~100 (健康優良)</td>
               </tr>
             </table>
+
+            <!-- 計分機制與加權說明註解 -->
+            <div style="margin-top: 6px; padding: 4px 8px; background: #f8fafc; border-radius: 4px; border: 1px solid #e2e8f0; font-size: 8px; color: #475569; line-height: 1.35; text-align: left;">
+              🧮 <strong>計分機制：</strong>基準滿分 100 分 ＝ 100 － NMQ 肌肉骨骼負載加權扣分 (上限 40 分) － 工作站環境危害扣分 (上限 60 分)。
+            </div>
           </div>
         </div>
 
@@ -1193,7 +1198,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <!-- 第五層：法律免責與官方認證 Footer -->
         <div style="border-top: 1px solid #cbd5e1; padding-top: 6px; font-size: 8.5px; color: #64748b; line-height: 1.3; text-align: center;">
           ⚠️ 免責聲明：本報告係依據北歐肌肉骨骼問卷 (NMQ) 與人因人體測量學原理設計之自我健康檢核指標，供工作站環境改善與自主健康促進參考，非屬醫療診斷行為。若已有持續性神經壓迫或臨床病症請諮詢專科醫師。<br>
-          © 人因小管家 (Noah) 蔡健儀 人因工程專家 研發建置 ｜ 專案認證 A4 戰情室 ｜ 未經授權禁止商用翻印
+          © 人因小管家 (Noah) 蔡健儀 人因工程專家 研發建置 ｜ 專案認證 A4 戰情室 ｜ 人因小管家 參考職安署網站另行建置研發
         </div>
 
       </div>
@@ -1276,7 +1281,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  // 螢幕全頁預覽戰情室 Modal (讓 LINE 或手機學員能隨時截圖、放大切換)
+  // 螢幕全頁預覽戰情室 Modal (支援自動適應手機螢幕尺寸、縮放切換、永不裁切)
   async function showWarRoomPreviewModal() {
     const existing = document.getElementById("warroom-preview-modal");
     if (existing) existing.remove();
@@ -1288,21 +1293,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const modal = document.createElement("div");
     modal.id = "warroom-preview-modal";
-    modal.className = "fixed inset-0 z-[210] bg-slate-900/80 backdrop-blur-xs flex flex-col items-center justify-start p-2 md:p-6 overflow-y-auto";
+    modal.className = "fixed inset-0 z-[210] bg-slate-900/80 backdrop-blur-xs flex flex-col items-center justify-start p-1.5 sm:p-4 overflow-y-auto";
     modal.innerHTML = `
-      <div class="w-full max-w-3xl bg-white rounded-3xl shadow-2xl flex flex-col my-auto border-2 border-sky-400 overflow-hidden">
+      <div class="w-full max-w-4xl bg-white rounded-3xl shadow-2xl flex flex-col my-auto border-2 border-sky-400 overflow-hidden">
         
         <!-- 頂部操作導覽列 -->
-        <div class="p-3 md:p-4 bg-slate-900 text-white flex items-center justify-between flex-shrink-0">
+        <div class="p-3 md:p-4 bg-slate-900 text-white flex items-center justify-between flex-shrink-0 flex-wrap gap-2">
           <div class="flex items-center gap-2">
             <span class="text-xl">📊</span>
             <div>
               <div class="font-black text-xs md:text-sm">個人 A4 人因戰情室・全畫面預覽</div>
-              <div class="text-[10px] text-sky-300">支援縮放・可長按或快捷鍵截圖保存</div>
+              <div class="text-[10px] text-sky-300">支援左右滑動與一鍵適配手機寬度</div>
             </div>
           </div>
-          <div class="flex items-center gap-2">
-            <button type="button" id="btn-preview-download" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs flex items-center gap-1">
+          <div class="flex items-center gap-1.5">
+            <button type="button" id="btn-preview-toggle-fit" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-600/50 font-bold text-xs flex items-center gap-1">
+              <span id="fit-icon">📱</span>
+              <span id="fit-text">全幅適應</span>
+            </button>
+            <button type="button" id="btn-preview-download" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs flex items-center gap-1 shadow-sm">
               <span>📥 下載 PDF</span>
             </button>
             <button type="button" id="btn-preview-close" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-base">
@@ -1312,19 +1321,21 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <!-- 提示橫幅 -->
-        <div class="bg-amber-50 px-3 py-2 border-b border-amber-200 text-amber-900 text-[11px] flex items-center justify-between">
+        <div class="bg-amber-50 px-3 py-2 border-b border-amber-200 text-amber-900 text-[11px] flex items-center justify-between flex-wrap gap-1">
           <span>💡 <strong>保存提示：</strong>在手機上長按螢幕或同時按下「電源鍵 + 音量鍵」即可立即截圖儲存！</span>
         </div>
 
-        <!-- 戰情室內容預覽滾動區 -->
-        <div class="p-2 md:p-4 overflow-x-auto bg-slate-100 flex justify-center">
-          <div class="bg-white shadow-md rounded-xl overflow-hidden" style="transform-origin: top center;">
-            ${warRoomHtml}
+        <!-- 戰情室內容預覽滾動區 (徹底修正 justify-center 導致左側被切除問題) -->
+        <div id="warroom-scroll-container" class="p-2 sm:p-4 overflow-x-auto bg-slate-100 flex justify-start md:justify-center w-full min-h-[400px]">
+          <div id="warroom-scale-wrapper" class="bg-white shadow-md rounded-xl overflow-hidden transition-all duration-200" style="margin: 0 auto;">
+            <div id="warroom-preview-inner" style="width: 746px;">
+              ${warRoomHtml}
+            </div>
           </div>
         </div>
 
         <!-- 底部關閉 -->
-        <div class="p-3 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+        <div class="p-3 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 flex-wrap">
           <button type="button" id="btn-preview-native-print" class="px-4 py-2 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-900 font-bold text-xs">
             🖨️ 列印 / 存為 PDF
           </button>
@@ -1338,7 +1349,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.body.appendChild(modal);
 
-    const closeHandler = () => modal.remove();
+    // 適配縮放狀態控制
+    let isFitMode = window.innerWidth < 768;
+    const scrollContainer = modal.querySelector("#warroom-scroll-container");
+    const scaleWrapper = modal.querySelector("#warroom-scale-wrapper");
+    const previewInner = modal.querySelector("#warroom-preview-inner");
+    const btnToggleFit = modal.querySelector("#btn-preview-toggle-fit");
+    const fitIcon = modal.querySelector("#fit-icon");
+    const fitText = modal.querySelector("#fit-text");
+
+    function updatePreviewScaling() {
+      if (!previewInner || !scaleWrapper) return;
+      const containerWidth = scrollContainer.clientWidth - 16;
+      if (isFitMode && containerWidth < 746) {
+        const scale = containerWidth / 746;
+        previewInner.style.transform = `scale(${scale})`;
+        previewInner.style.transformOrigin = "top left";
+        scaleWrapper.style.width = `${746 * scale}px`;
+        scaleWrapper.style.height = `${previewInner.offsetHeight * scale}px`;
+        fitIcon.innerText = "🔍";
+        fitText.innerText = "原始 100%";
+      } else {
+        previewInner.style.transform = "none";
+        previewInner.style.transformOrigin = "top center";
+        scaleWrapper.style.width = "746px";
+        scaleWrapper.style.height = "auto";
+        fitIcon.innerText = "📱";
+        fitText.innerText = "全幅適應";
+      }
+    }
+
+    // 初次載入適配
+    setTimeout(updatePreviewScaling, 60);
+    window.addEventListener("resize", updatePreviewScaling, { passive: true });
+
+    btnToggleFit.onclick = () => {
+      isFitMode = !isFitMode;
+      updatePreviewScaling();
+    };
+
+    const closeHandler = () => {
+      window.removeEventListener("resize", updatePreviewScaling);
+      modal.remove();
+    };
     modal.querySelector("#btn-preview-close").onclick = closeHandler;
     modal.querySelector("#btn-preview-close-footer").onclick = closeHandler;
     modal.querySelector("#btn-preview-download").onclick = () => {

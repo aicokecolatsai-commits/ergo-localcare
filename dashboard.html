@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>【現場大螢幕】工作站與肌肉骨骼人因即時戰情看板</title>
+  <title>【人因小管家】現場即時人因工程大數據看板</title>
+  <link rel="icon" type="image/png" href="assets/logo.png">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
@@ -31,28 +32,38 @@
 <body class="bg-[#0d1117] text-slate-100 min-h-screen overflow-x-hidden flex flex-col justify-between selection:bg-sky-600 selection:text-white">
 
   <!-- 頂部狀態列 -->
-  <header class="border-b border-[#30363d] bg-[#161b22]/90 backdrop-blur px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+  <header class="border-b border-[#30363d] bg-[#161b22]/90 backdrop-blur px-4 md:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-50">
     <div class="flex items-center gap-3">
+      <img src="assets/logo.png" alt="人因小管家" class="w-10 h-10 md:w-11 md:h-11 object-contain drop-shadow flex-shrink-0">
       <div>
-        <h1 class="text-base md:text-lg font-bold tracking-tight text-white flex items-center gap-2">
-          <span>工作站與肌肉骨骼人因即時看板</span>
+        <h1 class="text-sm md:text-base font-bold tracking-tight text-white flex items-center gap-2">
+          <span>人因小管家 • 即時人因大數據看板</span>
           <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800">
             ● LIVE 即時連線
           </span>
         </h1>
-        <p id="dash-session-title" class="text-xs text-slate-400">場次載入中...</p>
+        <div class="flex items-center gap-2 text-[11px] text-slate-400">
+          <span id="dash-session-title">場次載入中...</span>
+          <span class="text-slate-600">|</span>
+          <span class="text-sky-300 font-medium">主講 / 系統開發：蔡健儀 人因工程專家</span>
+        </div>
       </div>
     </div>
 
-    <div class="flex items-center gap-3">
-      <div class="hidden md:flex items-center gap-2 text-xs text-slate-400">
-        <span>快捷鍵: <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">D</kbd> 模擬數據 / <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">C</kbd> 清空</span>
+    <div class="flex items-center gap-2 md:gap-3 flex-wrap">
+      <!-- 防亂點過濾開關 -->
+      <button id="btn-toggle-filter" class="px-2.5 py-1.5 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm" title="點擊切換：自動排除作答時間小於 8 秒或全身 15 部位極端滿分的異常灌水數據">
+        <span id="filter-status-indicator">🛡️ 防亂點過濾：ON</span>
+      </button>
+
+      <div class="hidden xl:flex items-center gap-2 text-xs text-slate-400">
+        <span>快捷鍵: <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">D</kbd> 模擬 / <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">C</kbd> 清空</span>
       </div>
       <button onclick="document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition-colors">
-        ⛶ 全螢幕投影
+        ⛶ 全螢幕
       </button>
-      <a href="admin.html" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-400 border border-slate-700 transition-colors">
-        ⚙️ 場次管理
+      <a id="nav-btn-admin" href="admin.html" class="px-3 py-1.5 rounded-lg bg-sky-950/80 hover:bg-sky-900 text-xs font-semibold text-sky-300 border border-sky-800 transition-colors flex items-center gap-1">
+        <span>⚙️ 場次管理</span>
       </a>
     </div>
   </header>
@@ -179,9 +190,15 @@
   </main>
 
   <!-- 底部資訊列 -->
-  <footer class="border-t border-[#30363d] bg-[#161b22] px-6 py-2.5 flex items-center justify-between text-[11px] text-slate-400">
-    <div>職場人因工程與健康促進 ｜ 工作站生物力學自我檢視系統</div>
-    <div>提示：按鍵盤 <kbd class="px-1 bg-slate-800 text-slate-300 rounded border border-slate-700">D</kbd> 注入模擬數據，按 <kbd class="px-1 bg-slate-800 text-slate-300 rounded border border-slate-700">C</kbd> 清空</div>
+  <footer class="border-t border-[#30363d] bg-[#161b22] px-6 py-2.5 flex flex-col md:flex-row items-center justify-between text-[11px] text-slate-400 gap-2">
+    <div class="flex items-center gap-1.5">
+      <span>© 人因小管家 (Noah) 蔡健儀 專屬系統</span>
+      <span class="text-slate-600">｜</span>
+      <span>人因工學智財保護・未經授權禁止抄襲商用</span>
+    </div>
+    <div class="text-slate-500">
+      快捷控制：按 <kbd class="px-1 bg-slate-800 text-slate-300 rounded border border-slate-700">D</kbd> 注入模擬數據，按 <kbd class="px-1 bg-slate-800 text-slate-300 rounded border border-slate-700">C</kbd> 清空
+    </div>
   </footer>
 
   <!-- 腳本引入 -->

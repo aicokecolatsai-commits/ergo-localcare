@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>工作站與肌肉骨骼人因檢測系統</title>
+  <title>人因小管家・工作站與肌肉骨骼人因檢測系統</title>
+  <link rel="icon" type="image/png" href="assets/logo.png">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
@@ -30,10 +31,16 @@
 
   <!-- 頂部導航列 -->
   <header class="border-b border-[#30363d] bg-[#161b22]/90 backdrop-blur sticky top-0 z-50">
-    <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
-      <div>
-        <h1 class="text-sm md:text-base font-bold tracking-tight text-white">工作站與肌肉骨骼人因檢測</h1>
-        <p class="text-[11px] text-slate-400">北歐肌肉骨骼問卷 (NMQ) 實證人因工程架構</p>
+    <div class="max-w-xl mx-auto px-4 py-2.5 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <img src="assets/logo.png" alt="人因小管家" class="w-10 h-10 object-contain drop-shadow-sm flex-shrink-0">
+        <div>
+          <h1 class="text-sm md:text-base font-bold tracking-tight text-white flex items-center gap-1.5">
+            <span>人因小管家</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded bg-sky-950 text-sky-300 border border-sky-800 font-medium">人因檢測</span>
+          </h1>
+          <p class="text-[10px] text-slate-400">北歐肌肉骨骼問卷 (NMQ) 實證架構</p>
+        </div>
       </div>
       <div id="session-badge" class="text-xs font-medium px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-slate-300">
         載入中...
@@ -73,6 +80,14 @@
 
       <!-- 人體圖渲染容器 -->
       <div class="ergo-card p-4 border border-[#30363d] bg-[#161b22] flex flex-col items-center">
+        <!-- 快速無不適選擇按鈕 (防呆：避免無症狀者不知所措而亂點) -->
+        <div class="w-full flex items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-800/80">
+          <span class="text-[11px] text-slate-400">💡 提示：點擊部位可設定程度</span>
+          <button id="btn-bodymap-clear-all" type="button" class="px-2.5 py-1 rounded-md bg-emerald-950/60 hover:bg-emerald-900/80 text-emerald-300 border border-emerald-800 text-[11px] font-semibold transition-colors flex items-center gap-1">
+            <span>✨ 我目前全身舒暢 (全無酸痛)</span>
+          </button>
+        </div>
+
         <div id="student-bodymap-container" class="w-full flex justify-center"></div>
         
         <!-- 選取部位即時狀態摘要 -->
@@ -118,7 +133,13 @@
     <section id="step-result" class="hidden space-y-5 py-2">
       
       <!-- 總分與評級主卡片 -->
-      <div class="ergo-card p-6 text-center border border-[#30363d] bg-[#161b22]">
+      <div class="ergo-card p-6 text-center border border-[#30363d] bg-[#161b22] relative overflow-hidden">
+        <!-- 品牌浮水印標籤 -->
+        <div class="flex items-center justify-center gap-2 mb-3 pb-2.5 border-b border-slate-800/80">
+          <img src="assets/logo.png" alt="人因小管家" class="w-7 h-7 object-contain">
+          <span class="text-xs font-bold text-sky-300 tracking-wide">人因小管家 (Noah) 專屬個人評估報告</span>
+        </div>
+
         <span id="res-score-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold border mb-2">
           等級評定中...
         </span>
@@ -176,8 +197,10 @@
   </main>
 
   <!-- 底部版權 -->
-  <footer class="border-t border-[#30363d] py-3 text-center text-[11px] text-slate-500">
-    職場人因工程與健康促進 ｜ 工作站生物力學自我檢視系統
+  <footer class="border-t border-[#30363d] py-3 text-center text-[11px] text-slate-400 flex flex-col sm:flex-row items-center justify-center gap-1">
+    <span>© 人因小管家 (Noah) 蔡健儀 專屬研發</span>
+    <span class="hidden sm:inline">｜</span>
+    <span>人因工學智慧財產權保護・未經授權禁止商用翻印</span>
   </footer>
 
   <!-- 腳本引入 (加入 bodymap.js) -->

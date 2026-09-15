@@ -161,12 +161,18 @@ class DataBridge {
       const role = roles[Math.floor(Math.random() * roles.length)];
       const score = Math.floor(Math.random() * 45) + 50;
       
+      const isSpeedrunOutlier = i === 3; // 第 3 筆為模擬極速作答惡搞樣本
+      const duration = isSpeedrunOutlier ? 4 : (Math.floor(Math.random() * 45) + 15);
+      const quality = isSpeedrunOutlier ? "Speedrun" : "Valid";
+
       dummyList.push({
         id: "demo_" + i,
         sessionId: this.sessionId,
         role: role,
         totalScore: score,
         tier: score >= 85 ? "tier_green" : (score >= 70 ? "tier_yellow" : (score >= 50 ? "tier_orange" : "tier_red")),
+        durationSeconds: duration,
+        qualityFlag: quality,
         nmqData: {
           neck: Math.random() > 0.3 ? (Math.random() > 0.5 ? 3 : 2) : 0,
           shoulder_l: Math.random() > 0.75 ? 2 : 0,

@@ -51,9 +51,38 @@ document.addEventListener("DOMContentLoaded", () => {
     elQrLink.href = studentUrl;
   }
 
+  // 設置場次管理直通連結 (確保傳遞目前 session)
+  const elNavAdmin = document.getElementById("nav-btn-admin");
+  if (elNavAdmin) {
+    elNavAdmin.href = `admin.html?session=${encodeURIComponent(sessionId)}`;
+  }
+
+  // 防亂點與異常數據過濾控制
+  const elBtnToggleFilter = document.getElementById("btn-toggle-filter");
+  const elFilterStatus = document.getElementById("filter-status-indicator");
+  let filterOutliers = true; // 預設開啟過濾，保護演講現場大螢幕信度
+  let cachedSubmissions = [];
+
+  if (elBtnToggleFilter && elFilterStatus) {
+    elBtnToggleFilter.addEventListener("click", () => {
+      filterOutliers = !filterOutliers;
+      if (filterOutliers) {
+        elBtnToggleFilter.className = "px-2.5 py-1.5 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm";
+        elFilterStatus.innerText = "🛡️ 防亂點過濾：ON";
+        elBtnToggleFilter.title = "已開啟：自動排除作答小於8秒或全身15部位極端滿分的灌水數據";
+      } else {
+        elBtnToggleFilter.className = "px-2.5 py-1.5 rounded-lg bg-amber-950/80 hover:bg-amber-900 border border-amber-700 text-amber-300 text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm";
+        elFilterStatus.innerText = "⚠️ 防亂點過濾：OFF (全納入)";
+        elBtnToggleFilter.title = "已關閉：顯示全體原始數據（包含極速填答）";
+      }
+      updateDashboard(cachedSubmissions);
+    });
+  }
+
   // 監聽即時數據變更
   dataBridge.onDataChange((submissions) => {
-    updateDashboard(submissions);
+    cachedSubmissions = submissions || [];
+    updateDashboard(cachedSubmissions);
   });
 
   // 快捷鍵支援：按 'D' 注入模擬數據測試，按 'C' 清空
@@ -68,15 +97,33 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 更新看板所有視圖
-  function updateDashboard(list) {
+  function updateDashboard(rawList) {
+    cachedSubmissions = rawList;
+    const rawTotal = rawList.length;
+
+    // 執行防亂點與異常資料過濾
+    let list = rawList;
+    let filteredCount = 0;
+    if (filterOutliers && rawTotal > 0) {
+      list = rawList.filter((sub) => {
+        if (sub.qualityFlag === "Speedrun") return false;
+        if (sub.qualityFlag === "Extreme") return false;
+        if (sub.durationSeconds && sub.durationSeconds < 8) return false;
+        return true;
+      });
+      filteredCount = rawTotal - list.length;
+    }
+
     const total = list.length;
     animateValue(elTotalCount, parseInt(elTotalCount.innerText) || 0, total, 400);
 
     if (total === 0) {
       elAvgScore.innerText = "--";
-      elStatusBadge.innerText = "等待學員連線中...";
+      elStatusBadge.innerText = rawTotal > 0 ? "所有資料皆被標記異常" : "等待學員連線中...";
       elStatusBadge.className = "px-3 py-0.5 rounded-full text-xs font-semibold border border-slate-700 bg-slate-800 text-slate-400";
-      elStatusInsight.innerText = "請全場掃描左側 QR Code，開始 60 秒工作站人因檢核。";
+      elStatusInsight.innerText = rawTotal > 0
+        ? `目前 ${rawTotal} 筆資料皆為極速作答（<8秒），如需檢視請將上方「防亂點過濾」設為 OFF。`
+        : "請全場掃描左側 QR Code，開始 60 秒工作站人因檢核。";
       renderEmptyState();
       return;
     }
@@ -125,8 +172,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const topZoneObj = NMQ_ZONES.find((z) => z.id === sortedZones[0][0]);
     const topName = topZoneObj ? topZoneObj.name : "頸肩部";
     const topPercent = Math.round((sortedZones[0][1] / total) * 100);
+    let filterNotice = "";
+    if (filteredCount > 0) {
+      filterNotice = `<div class="mt-1 text-xs text-emerald-300 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span>已過濾 ${filteredCount} 筆極速或異常亂點樣本，目前呈現 ${total} 位學員有效數據。</span></div>`;
+    }
     elStatusInsight.innerHTML = `
-      🚨 <strong class="text-rose-400">現場統計警示：</strong> 全場高達 <span class="text-sky-400 font-bold">${topPercent}%</span> 的學員在「<strong>${topName}</strong>」出現顯著過載！整體作業風險落在「${tier.subtitle}」。
+      <div>🚨 <strong class="text-rose-400">現場統計警示：</strong> 全場高達 <span class="text-sky-400 font-bold">${topPercent}%</span> 的學員在「<strong>${topName}</strong>」出現顯著過載！整體作業風險落在「${tier.subtitle}」。</div>
+      ${filterNotice}
     `;
 
     // 6. 工作站環境盲點 (Traps)

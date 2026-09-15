@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>【後台管理】工作站人因檢測・場次管理與專屬 QR Code</title>
+  <title>【人因小管家】場次管理與專屬 QR Code 控制台</title>
+  <link rel="icon" type="image/png" href="assets/logo.png">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- QRCode.js CDN -->
@@ -29,20 +30,28 @@
 <body class="bg-[#0d1117] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-sky-600 selection:text-white">
 
   <!-- 頂部導航 -->
-  <header class="border-b border-[#30363d] bg-[#161b22]/90 backdrop-blur px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+  <header class="border-b border-[#30363d] bg-[#161b22]/90 backdrop-blur px-4 md:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-50">
     <div class="flex items-center gap-3">
+      <img src="assets/logo.png" alt="人因小管家" class="w-10 h-10 object-contain drop-shadow flex-shrink-0">
       <div>
-        <h1 class="text-base font-bold text-white">工作站人因檢測・場次控制台</h1>
-        <p class="text-xs text-slate-400">專屬 Session 生成、QR Code 產出與數據匯出</p>
+        <h1 class="text-sm md:text-base font-bold text-white flex items-center gap-2">
+          <span>人因小管家 • 場次管理控制台</span>
+        </h1>
+        <p class="text-[11px] text-slate-400">蔡健儀 專屬研習系統・QR Code 生成、即時連線與 NMQ 數據匯出</p>
       </div>
     </div>
-    <a href="index.html" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition-colors">
-      📱 前往學員測驗頁
-    </a>
+    <div class="flex items-center gap-2">
+      <a id="nav-goto-dashboard" href="dashboard.html" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-xs font-bold text-white transition-colors flex items-center gap-1.5 shadow-sm">
+        <span>🖥️</span> 前往大螢幕看板 (Live)
+      </a>
+      <a id="nav-goto-student" href="index.html" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 border border-slate-700 transition-colors flex items-center gap-1">
+        <span>📱</span> 學員測驗頁
+      </a>
+    </div>
   </header>
 
   <!-- 主控制面板 -->
-  <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-grow space-y-5">
+  <main class="max-w-4xl mx-auto px-4 py-6 w-full flex-grow space-y-5">
     
     <!-- 建立與切換場次 -->
     <div class="ergo-card p-6 border border-[#30363d] bg-[#161b22] space-y-4">
@@ -86,7 +95,7 @@
       <!-- 網址與大螢幕直連連結 -->
       <div class="md:col-span-7 ergo-card p-6 border border-[#30363d] bg-[#161b22] flex flex-col justify-between gap-4">
         <div>
-          <h3 class="text-sm font-bold text-white mb-3">🔗 專屬網址快速複製</h3>
+          <h3 class="text-sm font-bold text-white mb-3">🔗 專屬網址快速複製與直接開啟</h3>
           
           <!-- 學員填寫端 -->
           <div class="space-y-1.5 mb-4">
@@ -98,6 +107,9 @@
               <button id="btn-copy-student" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition-colors flex-shrink-0">
                 複製
               </button>
+              <a id="btn-open-student" href="#" target="_blank" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-sky-400 text-xs font-semibold rounded-lg border border-slate-700 transition-colors flex-shrink-0 flex items-center">
+                開啟 ↗
+              </a>
             </div>
           </div>
 
@@ -111,6 +123,9 @@
               <button id="btn-copy-dash" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition-colors flex-shrink-0">
                 複製
               </button>
+              <a id="btn-open-dash" href="#" target="_blank" class="px-3 py-2 bg-sky-900/60 hover:bg-sky-800 text-sky-300 text-xs font-bold rounded-lg border border-sky-700 transition-colors flex-shrink-0 flex items-center">
+                開啟 ↗
+              </a>
             </div>
           </div>
         </div>
@@ -134,8 +149,10 @@
   </main>
 
   <!-- 底部版權 -->
-  <footer class="border-t border-[#30363d] py-3 text-center text-xs text-slate-500">
-    職場人因工程與健康促進 ｜ 工作站生物力學自我檢視系統
+  <footer class="border-t border-[#30363d] py-3 text-center text-[11px] text-slate-400 flex flex-col sm:flex-row items-center justify-center gap-1">
+    <span>© 人因小管家 (Noah) 蔡健儀 專屬研發</span>
+    <span class="hidden sm:inline">｜</span>
+    <span>人因工學智慧財產權保護・未經授權禁止商用翻拷</span>
   </footer>
 
   <!-- 腳本引入 -->

@@ -42,11 +42,23 @@ document.addEventListener("DOMContentLoaded", () => {
   // 3. 更新所有連結與 QR Code
   function updateSessionLinks(sessionId) {
     const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1);
-    const studentUrl = `${baseUrl}index.html?session=${sessionId}`;
-    const dashUrl = `${baseUrl}dashboard.html?session=${sessionId}`;
+    const studentUrl = `${baseUrl}index.html?session=${encodeURIComponent(sessionId)}`;
+    const dashUrl = `${baseUrl}dashboard.html?session=${encodeURIComponent(sessionId)}`;
 
     elStudentLink.value = studentUrl;
     elDashLink.value = dashUrl;
+
+    const btnOpenStudent = document.getElementById("btn-open-student");
+    if (btnOpenStudent) btnOpenStudent.href = studentUrl;
+
+    const btnOpenDash = document.getElementById("btn-open-dash");
+    if (btnOpenDash) btnOpenDash.href = dashUrl;
+
+    const navGotoDash = document.getElementById("nav-goto-dashboard");
+    if (navGotoDash) navGotoDash.href = dashUrl;
+
+    const navGotoStudent = document.getElementById("nav-goto-student");
+    if (navGotoStudent) navGotoStudent.href = studentUrl;
 
     // 重新繪製 QR Code
     if (elQrDisplay && window.QRCode) {
@@ -87,6 +99,8 @@ document.addEventListener("DOMContentLoaded", () => {
       "Role",
       "Total_Score",
       "Tier",
+      "Duration_Sec",
+      "Quality_Flag",
       "NMQ_Neck",
       "NMQ_Shoulder_L",
       "NMQ_Shoulder_R",
@@ -112,12 +126,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const rows = list.map((item) => {
       const nmq = item.nmqData || {};
       const traps = item.traps || {};
+      const duration = item.durationSeconds || 0;
+      const quality = item.qualityFlag || (duration < 8 ? "Speedrun" : "Valid");
+
       return [
         item.id,
         item.sessionId,
         item.role,
         item.totalScore,
         item.tier,
+        duration,
+        quality,
         nmq.neck || 0,
         nmq.shoulder_l || 0,
         nmq.shoulder_r || 0,
@@ -188,17 +207,34 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderRecentSessions() {
     const recents = getRecentSessions();
     elRecentSessions.innerHTML = "";
+    if (recents.length === 0) {
+      elRecentSessions.innerHTML = `<span class="text-xs text-slate-500">尚無最近場次紀錄</span>`;
+      return;
+    }
     recents.forEach((sess) => {
-      const chip = document.createElement("button");
-      chip.className =
-        "px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 border border-slate-700 hover:border-cyan-500 hover:text-cyan-300 transition-colors";
-      chip.innerText = sess;
-      chip.addEventListener("click", () => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "inline-flex items-center rounded-lg bg-slate-800/80 border border-slate-700 overflow-hidden text-xs";
+      
+      const btnSelect = document.createElement("button");
+      btnSelect.className = "px-3 py-1.5 font-semibold text-slate-200 hover:text-sky-300 hover:bg-slate-700/60 transition-colors";
+      btnSelect.innerText = sess;
+      btnSelect.title = "切換至此場次";
+      btnSelect.addEventListener("click", () => {
         elSessionInput.value = sess;
         currentSession = sess;
         updateSessionLinks(sess);
       });
-      elRecentSessions.appendChild(chip);
+
+      const btnDash = document.createElement("a");
+      btnDash.className = "px-2 py-1.5 text-sky-400 hover:bg-sky-950/60 border-l border-slate-700 transition-colors font-bold";
+      btnDash.title = "直開此場次大螢幕看板";
+      btnDash.target = "_blank";
+      btnDash.href = `dashboard.html?session=${encodeURIComponent(sess)}`;
+      btnDash.innerText = "🖥️";
+
+      wrapper.appendChild(btnSelect);
+      wrapper.appendChild(btnDash);
+      elRecentSessions.appendChild(wrapper);
     });
   }
 });

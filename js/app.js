@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentQuestionIndex = 0;
   let userAnswers = []; // 保存工作站檢核作答狀態
   let envQuestions = [];
+  let assessmentStartTime = Date.now(); // 記錄作答起算時間，用於防刷/防亂點分析
 
   // DOM 元素
   const elSessionBadge = document.getElementById("session-badge");
@@ -29,6 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const elBodymapSummary = document.getElementById("bodymap-summary");
   const elBtnBodymapBack = document.getElementById("btn-bodymap-back");
   const elBtnBodymapNext = document.getElementById("btn-bodymap-next");
+  const elBtnBodymapClearAll = document.getElementById("btn-bodymap-clear-all");
 
   const elProgressBar = document.getElementById("progress-bar");
   const elProgressText = document.getElementById("progress-text");
@@ -131,7 +133,25 @@ document.addEventListener("DOMContentLoaded", () => {
     elStepRole.classList.remove("hidden");
   });
 
+  // 一鍵無酸痛通關按鈕 (防呆：避免無酸痛者被迫亂按)
+  if (elBtnBodymapClearAll) {
+    elBtnBodymapClearAll.addEventListener("click", () => {
+      userBodymapData = {};
+      if (studentBodyMap) {
+        studentBodyMap.setData({});
+      }
+      updateBodymapSummary();
+      startQuizStep();
+    });
+  }
+
   elBtnBodymapNext.addEventListener("click", () => {
+    // 檢查是否有極端惡搞嫌疑：若全身 15 個部位有超過 10 個標記為 4~5 分
+    const severeCount = Object.values(userBodymapData).filter(v => v >= 4).length;
+    if (severeCount >= 10) {
+      const confirmProceed = confirm("⚠️ 系統偵測到您標記了超過 10 個部位皆為極重度劇痛或發麻（4~5分）。\n\n請問這符合您近一個月的真實身體狀況嗎？\n\n・點擊「確定」確認此為真實狀況並繼續\n・點擊「取消」返回檢查並修正標記");
+      if (!confirmProceed) return;
+    }
     startQuizStep();
   });
 
@@ -303,12 +323,24 @@ document.addEventListener("DOMContentLoaded", () => {
       traps
     );
 
+    // 計算作答總耗時與品質旗標 (防惡意刷題/防極速亂點)
+    const durationSeconds = Math.max(1, Math.round((Date.now() - assessmentStartTime) / 1000));
+    const severeCount = Object.values(userBodymapData).filter(v => v >= 4).length;
+    let qualityFlag = "Valid";
+    if (durationSeconds < 8) {
+      qualityFlag = "Speedrun";
+    } else if (severeCount >= 10) {
+      qualityFlag = "Extreme";
+    }
+
     const submissionData = {
       role: selectedRole,
       totalScore: totalScore,
       tier: tierInfo.tier,
       nmqData: nmqData,
-      traps: traps
+      traps: traps,
+      durationSeconds: durationSeconds,
+      qualityFlag: qualityFlag
     };
 
     await dataBridge.submitAssessment(submissionData);

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>【講師大螢幕】身體伺服器・現場即時戰情看板</title>
+  <title>【現場大螢幕】工作站與肌肉骨骼人因即時戰情看板</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
@@ -17,11 +17,10 @@
       theme: {
         extend: {
           colors: {
-            brand: {
-              cyan: '#06b6d4',
-              emerald: '#10b981',
-              amber: '#f59e0b',
-              rose: '#f43f5e'
+            slate: {
+              850: '#172033',
+              900: '#0f172a',
+              950: '#0a0f1d'
             }
           }
         }
@@ -29,18 +28,15 @@
     }
   </script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen overflow-x-hidden flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+<body class="bg-[#0d1117] text-slate-100 min-h-screen overflow-x-hidden flex flex-col justify-between selection:bg-sky-600 selection:text-white">
 
-  <!-- 頂部即時狀態列 -->
-  <header class="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-md px-6 py-3 flex items-center justify-between sticky top-0 z-50">
+  <!-- 頂部狀態列 -->
+  <header class="border-b border-[#30363d] bg-[#161b22]/90 backdrop-blur px-6 py-3 flex items-center justify-between sticky top-0 z-50">
     <div class="flex items-center gap-3">
-      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center font-black text-slate-950 text-base shadow-lg shadow-cyan-500/20">
-        ⚡
-      </div>
       <div>
-        <h1 class="text-base md:text-lg font-black tracking-tight text-white flex items-center gap-2">
-          <span>身體伺服器・現場人因算力即時看板</span>
-          <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 animate-pulse">
+        <h1 class="text-base md:text-lg font-bold tracking-tight text-white flex items-center gap-2">
+          <span>工作站與肌肉骨骼人因即時看板</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800">
             ● LIVE 即時連線
           </span>
         </h1>
@@ -48,14 +44,14 @@
       </div>
     </div>
 
-    <div class="flex items-center gap-4">
-      <div class="flex items-center gap-2 text-xs text-slate-400">
-        <span class="hidden md:inline">快捷鍵: <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">D</kbd> 模擬數據 / <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">C</kbd> 清空</span>
+    <div class="flex items-center gap-3">
+      <div class="hidden md:flex items-center gap-2 text-xs text-slate-400">
+        <span>快捷鍵: <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">D</kbd> 模擬數據 / <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">C</kbd> 清空</span>
       </div>
-      <button onclick="document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-cyan-300 border border-slate-700 transition-colors">
+      <button onclick="document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition-colors">
         ⛶ 全螢幕投影
       </button>
-      <a href="admin.html" class="px-3 py-1.5 rounded-lg bg-cyan-600/20 hover:bg-cyan-600/30 text-xs font-bold text-cyan-400 border border-cyan-500/30 transition-colors">
+      <a href="admin.html" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-sky-400 border border-slate-700 transition-colors">
         ⚙️ 場次管理
       </a>
     </div>
@@ -65,47 +61,45 @@
   <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-5">
     
     <!-- 左側欄：QR Code 掃描區與即時連線計數 (佔 4 欄) -->
-    <div class="lg:col-span-4 flex flex-col gap-5">
+    <div class="lg:col-span-4 flex flex-col gap-4">
       <!-- QR Code 掃描卡 -->
-      <div class="glass-panel p-5 rounded-3xl border border-cyan-500/40 flex flex-col items-center justify-center text-center shadow-xl shadow-cyan-500/5 relative overflow-hidden">
-        <div class="absolute -top-10 -left-10 w-28 h-28 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none"></div>
-        
-        <span class="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-black tracking-wider mb-3">
-          📱 全場請掃碼加入檢測
+      <div class="ergo-card p-5 border border-[#30363d] bg-[#161b22] flex flex-col items-center justify-center text-center">
+        <span class="px-3 py-1 rounded-full bg-slate-800 text-sky-300 border border-slate-700 text-xs font-semibold tracking-wider mb-3">
+          📱 現場請掃碼開始自我評估
         </span>
         
-        <div class="p-3 bg-white rounded-2xl shadow-inner mb-3">
+        <div class="p-3 bg-white rounded-xl shadow-inner mb-3">
           <div id="qrcode-container" class="flex items-center justify-center min-w-[140px] min-h-[140px]"></div>
         </div>
 
         <p class="text-xs text-slate-400 max-w-xs mb-1">
-          請用手機相機掃描 QR Code，60 秒獲得個人身體折舊診斷
+          手機相機掃描 QR Code，60 秒獲得個人人因檢核報告
         </p>
-        <a id="qr-target-link" href="#" target="_blank" class="text-[11px] text-cyan-400 hover:underline truncate max-w-full"></a>
+        <a id="qr-target-link" href="#" target="_blank" class="text-[11px] text-sky-400 hover:underline truncate max-w-full"></a>
       </div>
 
       <!-- 即時連線人數與全場平均分 -->
-      <div class="grid grid-cols-2 gap-4">
-        <div class="glass-panel p-4 rounded-2xl border border-slate-800 text-center">
-          <p class="text-xs font-bold text-slate-400">👥 已連線人數</p>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="ergo-card p-4 border border-[#30363d] bg-[#161b22] text-center">
+          <p class="text-xs font-semibold text-slate-400">👥 已連線人數</p>
           <div class="flex items-baseline justify-center gap-1 mt-1">
-            <span id="dash-total-count" class="text-4xl font-black text-white">0</span>
-            <span class="text-xs text-slate-500 font-bold">人</span>
+            <span id="dash-total-count" class="text-3xl font-black text-white">0</span>
+            <span class="text-xs text-slate-500 font-medium">人</span>
           </div>
         </div>
-        <div class="glass-panel p-4 rounded-2xl border border-slate-800 text-center">
-          <p class="text-xs font-bold text-slate-400">⚡ 全場平均健康度</p>
+        <div class="ergo-card p-4 border border-[#30363d] bg-[#161b22] text-center">
+          <p class="text-xs font-semibold text-slate-400">⚡ 全場平均健康度</p>
           <div class="flex items-baseline justify-center gap-1 mt-1">
-            <span id="dash-avg-score" class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">--</span>
-            <span class="text-xs text-slate-500 font-bold">/ 100</span>
+            <span id="dash-avg-score" class="text-3xl font-black text-sky-400">--</span>
+            <span class="text-xs text-slate-500 font-medium">/ 100</span>
           </div>
         </div>
       </div>
 
       <!-- 族群分佈圓餅圖 -->
-      <div class="glass-panel p-4 rounded-2xl border border-slate-800 flex-grow flex flex-col">
-        <h3 class="text-xs font-bold text-slate-300 mb-2 flex items-center gap-2">
-          <span>👥</span> 全場作戰型態分佈
+      <div class="ergo-card p-4 border border-[#30363d] bg-[#161b22] flex-grow flex flex-col">
+        <h3 class="text-xs font-bold text-slate-300 mb-2">
+          👥 全場作業型態分佈
         </h3>
         <div class="flex-grow min-h-[160px] relative">
           <canvas id="rolePieChart"></canvas>
@@ -114,42 +108,40 @@
     </div>
 
     <!-- 右側欄：痛點排行榜、環境地雷與講師提詞 (佔 8 欄) -->
-    <div class="lg:col-span-8 flex flex-col gap-5">
+    <div class="lg:col-span-8 flex flex-col gap-4">
       
-      <!-- 狀態總評與講師提詞卡片 -->
-      <div class="glass-panel p-5 rounded-2xl border border-slate-700/80 bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-slate-950 flex flex-col justify-between">
+      <!-- 狀態總評與現場提詞卡片 -->
+      <div class="ergo-card p-5 border border-[#30363d] bg-[#161b22] flex flex-col justify-between">
         <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">整體伺服器狀態評定</span>
-          <span id="dash-status-badge" class="px-3.5 py-1 rounded-full text-xs font-extrabold border border-slate-700 bg-slate-800 text-slate-400">
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">全場人因風險指標</span>
+          <span id="dash-status-badge" class="px-3 py-0.5 rounded-full text-xs font-bold border border-slate-700 bg-slate-800 text-slate-400">
             等待數據中...
           </span>
         </div>
-        <div id="dash-status-insight" class="text-sm md:text-base text-slate-200 leading-relaxed font-medium">
-          請全場掃描左側 QR Code，開始 60 秒身體伺服器檢測。
+        <div id="dash-status-insight" class="text-sm text-slate-200 leading-relaxed font-normal">
+          請全場掃描左側 QR Code，開始 60 秒人因檢核。
         </div>
       </div>
 
       <!-- 肌肉骨骼四大痛點排行榜 (TOP 4) -->
-      <div class="glass-panel p-5 rounded-2xl border border-slate-800">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-sm md:text-base font-bold text-white flex items-center gap-2">
-            <span>🚨</span> 全場三大身體痛點熱力排行 (NMQ 耗損重災區)
+      <div class="ergo-card p-5 border border-[#30363d] bg-[#161b22]">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-white">
+            🚨 全場肌肉骨骼過載分佈 (NMQ 負載指標)
           </h3>
           <span class="text-xs text-slate-400">依受影響人數佔比排序</span>
         </div>
-        <div id="pain-rank-list" class="space-y-3">
-          <!-- 由 dashboard.js 動態渲染 -->
+        <div id="pain-rank-list" class="space-y-2.5">
           <div class="text-center py-8 text-slate-500 text-sm">尚無作答數據，等待連線...</div>
         </div>
       </div>
 
       <!-- 工作站人因地雷統計 (扣分原因) -->
-      <div class="glass-panel p-5 rounded-2xl border border-slate-800">
-        <h3 class="text-sm md:text-base font-bold text-amber-400 mb-3.5 flex items-center gap-2">
-          <span>🛠️</span> 全場工作站人因地雷分佈 (硬體與行為失衡)
+      <div class="ergo-card p-5 border border-[#30363d] bg-[#161b22]">
+        <h3 class="text-sm font-bold text-amber-400 mb-3">
+          🛠️ 工作站人因環境盲點分佈 (作業姿態與環境配置)
         </h3>
-        <div id="traps-list" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <!-- 由 dashboard.js 動態渲染 -->
+        <div id="traps-list" class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
           <div class="text-center py-4 text-slate-500 text-xs col-span-2">數據收集中...</div>
         </div>
       </div>
@@ -159,9 +151,9 @@
   </main>
 
   <!-- 底部資訊列 -->
-  <footer class="border-t border-slate-900 bg-slate-950 px-6 py-2.5 flex items-center justify-between text-[11px] text-slate-500">
-    <div>人因工程與健康促進 ｜ 大人學精力管理 × 密涅瓦思維架構</div>
-    <div>提示：按鍵盤 <kbd class="px-1 bg-slate-800 text-slate-300 rounded">D</kbd> 注入模擬展示數據，按 <kbd class="px-1 bg-slate-800 text-slate-300 rounded">C</kbd> 清空</div>
+  <footer class="border-t border-[#30363d] bg-[#161b22] px-6 py-2.5 flex items-center justify-between text-[11px] text-slate-400">
+    <div>職場人因工程與健康促進 ｜ 工作站生物力學自我檢視系統</div>
+    <div>提示：按鍵盤 <kbd class="px-1 bg-slate-800 text-slate-300 rounded border border-slate-700">D</kbd> 注入模擬數據，按 <kbd class="px-1 bg-slate-800 text-slate-300 rounded border border-slate-700">C</kbd> 清空</div>
   </footer>
 
   <!-- 腳本引入 -->

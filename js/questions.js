@@ -1,34 +1,34 @@
 /**
- * 人因工程「身體伺服器」題庫與計分模型 (questions.js)
- * 涵蓋四大族群：上班族、學生、久站服務、重複操作
- * 採用 NMQ-Lite (40%) + 工作站環境 (30%) + 行為重啟 (30%) 滿分 100 分扣分制
+ * 人因工程評估題庫與計分模型 (questions.js)
+ * 基於北歐肌肉骨骼問卷 (NMQ) 與職場生物力學人因工程規範
+ * 評分架構：NMQ-Lite 肌肉骨骼負載 (40%) + 工作站環境配置 (30%) + 作業重啟行為 (30%)
  */
 
 const ERGO_CONFIG = {
   roles: [
     {
       id: "office",
-      name: "💼 職場辦公室戰士",
-      desc: "專注於電腦工位、雙螢幕、筆電出差與長時間會議",
-      badge: "辦公室久坐"
+      name: "辦公室電腦作業族",
+      desc: "長時間使用電腦、雙螢幕、筆記型電腦與文書會議作業",
+      badge: "久坐 / 螢幕作業"
     },
     {
       id: "student",
-      name: "🎓 課堂刷題學霸",
-      desc: "專注於教室木椅、補習班自習、平板筆記與電競遊戲",
-      badge: "課堂學生/考生"
+      name: "學生與長時間研讀族",
+      desc: "專注於課桌椅書寫、自習閱讀、平板筆記與電腦作業",
+      badge: "課堂 / 考生自習"
     },
     {
       id: "standing",
-      name: "🏪 走動久站達人",
-      desc: "專注於專櫃零售、餐飲服務、護理醫療與巡檢作業",
-      badge: "久站/服務業"
+      name: "站立與移動服務族",
+      desc: "門市專櫃、餐飲服務、醫療照護與現場巡檢作業",
+      badge: "久站 / 走動作業"
     },
     {
       id: "technician",
-      name: "🏭 重複操作/技術職",
-      desc: "專注於產線組裝、倉儲搬運、數位繪師、剪輯與維修",
-      badge: "重複性/技術職"
+      name: "技術操作與重複施力族",
+      desc: "產線組裝、倉儲搬運、數位繪圖設計與設備檢修",
+      badge: "重複操作 / 搬運"
     }
   ],
 
@@ -38,89 +38,89 @@ const ERGO_CONFIG = {
       {
         id: "q1_neck",
         dimension: "neck",
-        dimensionName: "後頸肩胛",
-        question: "1. 連續盯螢幕工作 2 小時後，你的後頸與雙肩感受是？",
+        dimensionName: "頸肩部負荷",
+        question: "1. 連續使用電腦工作 2 小時後，頸部與雙肩的感受通常是？",
         options: [
-          { label: "A. 輕鬆無感，轉動順暢靈活", penalty: 0 },
-          { label: "B. 像背了重背包，緊繃沈重", penalty: 5 },
-          { label: "C. 僵硬刺痛，甚至引發後腦勺緊縮偏頭痛", penalty: 10 }
+          { label: "A. 輕鬆無緊繃感，轉動自如", penalty: 0 },
+          { label: "B. 後頸明顯緊繃沉重，不自覺想揉捏肩膀", penalty: 5 },
+          { label: "C. 僵硬刺痛，甚至牽引至後腦勺引起緊縮感或頭痛", penalty: 10 }
         ]
       },
       {
         id: "q2_lower_back",
         dimension: "back",
-        dimensionName: "腰椎骨盆",
-        question: "2. 長時間坐在辦公椅上，你的下背與尾椎狀態如何？",
+        dimensionName: "腰背部支撐",
+        question: "2. 長時間坐在辦公椅上，下背與腰部的反應是？",
         options: [
-          { label: "A. 支撐良好，坐整天沒有明顯酸痛", penalty: 0 },
-          { label: "B. 站起來時腰部緊繃，需要扶腰伸展才舒服", penalty: 5 },
-          { label: "C. 坐立難安、深層酸痛或延伸到臀部腿部", penalty: 10 }
+          { label: "A. 支撐良好，工作整天無顯著酸痛", penalty: 0 },
+          { label: "B. 站立時腰部僵硬發緊，需要伸展或扶腰緩解", penalty: 5 },
+          { label: "C. 難以維持正坐、深層酸痛，甚至傳導至臀部或腿部", penalty: 10 }
         ]
       },
       {
         id: "q3_wrist",
         dimension: "wrist",
-        dimensionName: "手腕手肘",
-        question: "3. 敲鍵盤、點滑鼠時，你的手部與手腕有什麼感覺？",
+        dimensionName: "腕部與手肘",
+        question: "3. 敲擊鍵盤與操作滑鼠時，手部末端的感受是？",
         options: [
-          { label: "A. 靈活輕鬆，毫無壓迫感", penalty: 0 },
-          { label: "B. 手腕內側壓痕發紅、手掌偶爾微麻", penalty: 5 },
-          { label: "C. 手腕外側或手肘明顯酸痛（滑鼠手/網球肘症狀）", penalty: 10 }
+          { label: "A. 靈活輕鬆，關節活動無阻力", penalty: 0 },
+          { label: "B. 手腕內側接觸桌緣處有壓迫紅印、手掌偶發酸脹", penalty: 5 },
+          { label: "C. 手腕外側、大拇指根部或手肘外側顯著酸痛、發麻", penalty: 10 }
         ]
       },
       {
         id: "q4_eye",
         dimension: "eye",
-        dimensionName: "視覺與大腦",
-        question: "4. 下午 3 點過後，你的視覺與大腦專注力狀態？",
+        dimensionName: "視覺與專注力",
+        question: "4. 下午工作一段時間後，眼睛與專注力狀態通常為？",
         options: [
-          { label: "A. 視線清晰，精力平穩輸出", penalty: 0 },
-          { label: "B. 眼睛乾澀疲勞、需要用力瞇眼看字", penalty: 5 },
-          { label: "C. 視線模糊對焦慢、大腦當機昏沉", penalty: 10 }
+          { label: "A. 視線清晰舒適，專注度平穩維持", penalty: 0 },
+          { label: "B. 眼睛乾澀疲倦，需用力眨眼或調整螢幕亮度", penalty: 5 },
+          { label: "C. 視線模糊對焦遲緩、眼眶周圍脹痛、注意力難以集中", penalty: 10 }
         ]
       },
       {
         id: "q5_screen_height",
         dimension: "trap_screen",
-        dimensionName: "螢幕視角",
-        question: "5. 眼睛自然平視前方時，你的視線落在螢幕哪個位置？",
+        dimensionName: "螢幕視角配置",
+        question: "5. 正常坐姿平視前方時，您的自然視線落在主要螢幕的哪個位置？",
         options: [
-          { label: "A. 落在螢幕上緣 1/3 處（自然平視無負擔）", penalty: 0 },
-          { label: "B. 落在螢幕正中間（略微低頭）", penalty: 5 },
-          { label: "C. 視線由上往下看（筆電直接放桌上，極度低頭烏龜頸）", penalty: 10 }
+          { label: "A. 視線自然平視落在螢幕上緣 1/3 處（頭部保持水平）", penalty: 0 },
+          { label: "B. 落在螢幕正中間（需要略微低頭）", penalty: 5 },
+          { label: "C. 視線明顯由上往下俯視（筆電直接平放桌面，頸椎深度前傾）", penalty: 10 }
         ]
       },
       {
         id: "q6_chair_support",
         dimension: "trap_chair",
-        dimensionName: "腰手支撐",
-        question: "6. 打字時，你的手肘與腰部的支撐配置是？",
+        dimensionName: "工作姿態支撐",
+        question: "6. 輸入文字與操作滑鼠時，手臂手肘與腰椎的支撐配置？",
         options: [
-          { label: "A. 手肘有桌子或扶手良好承托（90度），腰有腰靠貼合", penalty: 0 },
-          { label: "B. 手肘懸空打字，或椅子沒有腰靠（駝背懸空）", penalty: 5 },
-          { label: "C. 整個人癱陷在軟椅，或手腕死壓在尖銳桌緣", penalty: 10 }
+          { label: "A. 手肘有扶手或桌面良好承托（約90度），腰椎有靠背貼合", penalty: 0 },
+          { label: "B. 手肘懸空操作，或椅背無足夠腰靠支撐（軀幹懸空）", penalty: 5 },
+          { label: "C. 軀幹癱陷在椅內、腰椎懸空，或手腕硬壓在銳利桌緣", penalty: 10 }
         ]
       },
       {
         id: "q7_glare",
         dimension: "trap_glare",
-        dimensionName: "環境眩光",
-        question: "7. 你的螢幕上是否看得到頭頂燈具或窗戶的反光？",
+        dimensionName: "工作站光環境",
+        question: "7. 您的螢幕表面是否受到頂燈反光或窗戶刺眼眩光干擾？",
         options: [
-          { label: "A. 幾乎無反光，光線柔和舒適", penalty: 0 },
-          { label: "B. 有輕微反光或刺眼，但習慣了", penalty: 5 },
-          { label: "C. 反光嚴重，常因眩光歪頭或瞇眼閃光", penalty: 10 }
+          { label: "A. 幾乎無反光，光線均勻柔和", penalty: 0 },
+          { label: "B. 存在輕微反光或局部刺眼，尚能勉強適應", penalty: 5 },
+          { label: "C. 反光顯著，常需側頭、歪斜坐姿或瞇眼躲避光線", penalty: 10 }
         ]
       },
       {
         id: "q8_sedentary",
         dimension: "trap_sedentary",
-        dimensionName: "連續久坐",
-        question: "8. 工作時，你通常「連續坐著不動」多久才離開座位？",
+        dimensionName: "姿勢轉換頻率",
+        question: "8. 進行電腦作業時，您通常「連續維持同一坐姿」多久才會起身？",
         options: [
-          { label: "A. 45~60 分鐘內必定會站起來裝水、上廁所或走動", penalty: 0 },
-          { label: "B. 專注時約 1.5 ~ 2 小時動一次", penalty: 15 },
-          { label: "C. 常常一坐 3~4 小時以上，直到被膀胱或會議打斷", penalty: 30 }
+          { label: "A. 45~60 分鐘內必定會起身走動、飲水或改變姿勢", penalty: 0 },
+          { label: "B. 專注時約 1.5 ~ 2 小時起身活動一次", penalty: 15 },
+          { label: "C. 常連續久坐超過 3 小時，直到生理需求迫使中斷", penalty: 30 }
         ]
       }
     ],
@@ -129,89 +129,89 @@ const ERGO_CONFIG = {
       {
         id: "q1_neck",
         dimension: "neck",
-        dimensionName: "後頸肩胛",
-        question: "1. 在教室或晚自習連續讀書 2 小時後，脖子與肩膀感覺如何？",
+        dimensionName: "頸肩部負荷",
+        question: "1. 在教室或自習環境連續閱讀書寫 2 小時後，頸肩感受是？",
         options: [
-          { label: "A. 輕鬆舒服，轉頭沒有卡卡的感覺", penalty: 0 },
-          { label: "B. 後頸沉重發緊，不自覺想用力扭動脖子", penalty: 5 },
-          { label: "C. 脖子僵硬如鐵，甚至引起後腦勺脹痛、頭暈", penalty: 10 }
+          { label: "A. 頸肩部輕鬆放鬆，轉頭無阻滯感", penalty: 0 },
+          { label: "B. 後頸肌肉持續緊繃發緊，想頻繁轉動頸部", penalty: 5 },
+          { label: "C. 頸部僵硬發緊，甚至引發後腦勺脹痛與頭部昏重", penalty: 10 }
         ]
       },
       {
         id: "q2_lower_back",
         dimension: "back",
-        dimensionName: "腰椎骨盆",
-        question: "2. 坐在學校硬木椅或補習班椅子上，腰背部有何感受？",
+        dimensionName: "腰背部支撐",
+        question: "2. 坐在學校木質課桌椅或補習班椅子上，腰背部的感覺？",
         options: [
-          { label: "A. 坐得住，背部不會酸軟", penalty: 0 },
-          { label: "B. 坐久了腰很空虛酸痛，身體會一直往前滑癱坐", penalty: 5 },
-          { label: "C. 尾椎或腰部劇烈酸麻，一定要換成盤腿或翹腳才行", penalty: 10 }
+          { label: "A. 軀幹坐姿穩定，背部無疲勞感", penalty: 0 },
+          { label: "B. 久坐後腰部無力，容易骨盆前滑形成駝背癱坐", penalty: 5 },
+          { label: "C. 尾椎或下背顯著酸痛，需頻繁變換姿勢或翹腳緩解", penalty: 10 }
         ]
       },
       {
         id: "q3_wrist",
         dimension: "wrist",
-        dimensionName: "手腕手部",
-        question: "3. 刷題寫筆記、滑手機或打手遊時，手部與手腕感覺？",
+        dimensionName: "手部末端負載",
+        question: "3. 長時間書寫筆記、操作平板或手機時，手部與手腕感覺？",
         options: [
-          { label: "A. 手部活動自如，寫字打字很輕鬆", penalty: 0 },
-          { label: "B. 握筆中指長厚繭疼痛，或大拇指根部發酸", penalty: 5 },
-          { label: "C. 手腕手掌發麻無力，或手腕外側關節卡痛", penalty: 10 }
+          { label: "A. 握筆或打字輕鬆靈活，無局部受壓痛感", penalty: 0 },
+          { label: "B. 握筆手指處長繭壓痛，或大拇指根部肌肉發酸", penalty: 5 },
+          { label: "C. 手腕手掌發麻無力，或手腕關節活動時有卡頓疼痛感", penalty: 10 }
         ]
       },
       {
         id: "q4_eye",
         dimension: "eye",
-        dimensionName: "視覺與大腦",
-        question: "4. 連續讀書或看平板一段時間後，你的視覺與專注力？",
+        dimensionName: "視覺調節負荷",
+        question: "4. 連續看書或觀看螢幕較長時間後，視覺感受通常為？",
         options: [
-          { label: "A. 視線清爽，記憶力與專注度穩定", penalty: 0 },
-          { label: "B. 眼睛乾澀酸脹、字體開始有些模糊", penalty: 5 },
-          { label: "C. 眼前發花、眼眶脹痛、極度嗜睡無法思考", penalty: 10 }
+          { label: "A. 視覺清晰敏銳，專注度持久穩定", penalty: 0 },
+          { label: "B. 眼睛乾澀發脹，看書時需揉眼睛緩解", penalty: 5 },
+          { label: "C. 視力暫時模糊、看遠方重新對焦困難，伴隨眼眶周圍酸脹", penalty: 10 }
         ]
       },
       {
         id: "q5_screen_height",
         dimension: "trap_screen",
-        dimensionName: "視角與讀書角度",
-        question: "5. 你平常讀書、寫字或看平板時，視線角度是？",
+        dimensionName: "視線俯角",
+        question: "5. 您平常閱讀書本、筆記或平板電腦時的視線角度？",
         options: [
-          { label: "A. 有使用讀書立架，課本立起自然平視（視線平視）", penalty: 0 },
-          { label: "B. 課本平放桌面，頭部持續微低頭（45度角）", penalty: 5 },
-          { label: "C. 整個人趴在桌上、單手托腮歪頭寫字看書", penalty: 10 }
+          { label: "A. 使用閱讀立架將教材立起，維持自然平視俯角（小於20度）", penalty: 0 },
+          { label: "B. 教材平放於桌面，頸部維持向前低頭約 45 度", penalty: 5 },
+          { label: "C. 身體近距離趴近桌面，或以單手托腮側頭閱覽", penalty: 10 }
         ]
       },
       {
         id: "q6_chair_support",
         dimension: "trap_chair",
-        dimensionName: "座椅與雙腳",
-        question: "6. 在課桌椅坐下時，你的雙腳與腰部狀態？",
+        dimensionName: "下肢與骨盆承托",
+        question: "6. 在課桌椅坐下時，雙腳踏地與腰部的狀態？",
         options: [
-          { label: "A. 雙腳能平踏地面，背部有自然靠著", penalty: 0 },
-          { label: "B. 雙腳懸空或只能踩在椅槓上，腰部完全懸空", penalty: 5 },
-          { label: "C. 習慣翹二郎腿、盤腿坐在椅子上，或單邊歪坐", penalty: 10 }
+          { label: "A. 雙腳掌能平踏地面，大腿與小腿約呈 90 度，背部有支撐", penalty: 0 },
+          { label: "B. 雙腳懸空或只能踩在椅槓上，腰部完全懸空無支撐", penalty: 5 },
+          { label: "C. 習慣盤腿坐於椅面、翹二郎腿，或單側身體明顯傾斜", penalty: 10 }
         ]
       },
       {
         id: "q7_glare",
         dimension: "trap_glare",
-        dimensionName: "照明與影子",
-        question: "7. 讀書寫字時，桌面照明是否受到身體陰影或眩光干擾？",
+        dimensionName: "照明與手部陰影",
+        question: "7. 閱讀書寫時，桌面的照明均勻度與反光狀況？",
         options: [
-          { label: "A. 光線均勻明亮，寫字時沒有討厭的手部陰影", penalty: 0 },
-          { label: "B. 光線偏暗或寫字時有手影遮住字體", penalty: 5 },
-          { label: "C. 頂燈刺眼反光嚴重，或常在昏暗環境看手機/平板", penalty: 10 }
+          { label: "A. 光線均勻明亮，書寫面無顯著手部或身軀陰影", penalty: 0 },
+          { label: "B. 光線稍嫌偏暗，或書寫時有手部陰影遮擋部分字面", penalty: 5 },
+          { label: "C. 燈具直接反射刺眼，或常在昏暗光線下使用螢幕", penalty: 10 }
         ]
       },
       {
         id: "q8_sedentary",
         dimension: "trap_sedentary",
-        dimensionName: "下課重啟",
-        question: "8. 下課 10 分鐘或念書段落休息時，你通常做什麼？",
+        dimensionName: "休息間歇與伸展",
+        question: "8. 課間休息 10 分鐘或段落告一段落時，您的活動型態？",
         options: [
-          { label: "A. 站起來走動裝水、望向遠處放鬆眼睛", penalty: 0 },
-          { label: "B. 坐在原位不動，低頭繼續滑手機或打手遊", penalty: 15 },
-          { label: "C. 直接把頭壓在手臂上趴睡（壓迫眼球與頸椎扭轉）", penalty: 30 }
+          { label: "A. 站立走動裝水、遠眺放鬆眼部睫狀肌", penalty: 0 },
+          { label: "B. 留在座位上繼續低頭使用手機或平板", penalty: 15 },
+          { label: "C. 直接以手臂枕頭趴睡桌面（手部神經與眼球受壓）", penalty: 30 }
         ]
       }
     ],
@@ -220,89 +220,89 @@ const ERGO_CONFIG = {
       {
         id: "q1_neck",
         dimension: "neck",
-        dimensionName: "後頸肩胛",
-        question: "1. 站立值班服務數小時後，肩膀與後頸部的感覺？",
+        dimensionName: "肩頸靜態負荷",
+        question: "1. 站立值班或接待作業數小時後，肩頸部位的感覺？",
         options: [
-          { label: "A. 輕鬆自如，無緊繃感", penalty: 0 },
-          { label: "B. 聳肩緊繃、肩頸僵硬沈重", penalty: 5 },
-          { label: "C. 肩胛骨內側劇烈刺痛、頸椎轉動受限", penalty: 10 }
+          { label: "A. 肩部放鬆無壓迫感", penalty: 0 },
+          { label: "B. 雙肩不自覺聳肩緊繃、頸部後側僵硬", penalty: 5 },
+          { label: "C. 肩胛骨內側深層酸痛、頸椎活動受限", penalty: 10 }
         ]
       },
       {
         id: "q2_lower_back",
         dimension: "back",
-        dimensionName: "腰背足底",
-        question: "2. 長時間站立或走動後，下背部與腳底板的反應？",
+        dimensionName: "腰椎與足底負載",
+        question: "2. 長時間定點站立或走動作業後，下背與腳底板的反應？",
         options: [
-          { label: "A. 雙腳與腰部良好，下班後無酸麻", penalty: 0 },
-          { label: "B. 腰部挺立發酸，腳後跟或腳底隱隱作痛", penalty: 5 },
-          { label: "C. 足底刺痛（足底筋膜炎痛感）、腰椎像要斷掉一樣", penalty: 10 }
+          { label: "A. 下肢與腰部穩定，作業後無顯著不適", penalty: 0 },
+          { label: "B. 腰部挺直發酸，腳後跟或足底筋膜隱隱作痛", penalty: 5 },
+          { label: "C. 足底著地刺痛、腰部酸痛難以久站", penalty: 10 }
         ]
       },
       {
         id: "q3_wrist",
         dimension: "wrist",
-        dimensionName: "下肢靜脈",
-        question: "3. 值班結束脫下鞋襪時，小腿與下肢的狀態？",
+        dimensionName: "下肢靜脈回流",
+        question: "3. 值班結束更換鞋襪時，小腿部位的狀態？",
         options: [
-          { label: "A. 雙腿輕盈，無腫脹感", penalty: 0 },
-          { label: "B. 小腿明顯緊繃水腫、襪痕深刻", penalty: 5 },
-          { label: "C. 小腿青筋浮現（靜脈曲張）、夜間容易抽筋", penalty: 10 }
+          { label: "A. 雙腿維持輕盈，無水腫緊繃感", penalty: 0 },
+          { label: "B. 小腿緊繃腫脹、襪口有深刻壓痕", penalty: 5 },
+          { label: "C. 小腿靜脈曲張浮現、夜間睡眠時偶有抽筋", penalty: 10 }
         ]
       },
       {
         id: "q4_eye",
         dimension: "eye",
-        dimensionName: "體力續航",
-        question: "4. 連續站立作業半天後，整體體力與專注度狀態？",
+        dimensionName: "整體體能續航",
+        question: "4. 連續值班作業半天後，身心體能與專注度狀態？",
         options: [
-          { label: "A. 精神充沛，應對流暢", penalty: 0 },
-          { label: "B. 感到身心疲憊，需要靠意志力支撐笑容", penalty: 5 },
-          { label: "C. 全身虛脫、專注力下降容易發生服務/操作失誤", penalty: 10 }
+          { label: "A. 精神充足，反應維持敏捷", penalty: 0 },
+          { label: "B. 體能明顯下滑，需耗費較大意志力維持專注", penalty: 5 },
+          { label: "C. 全身疲憊感加劇，作業與注意力容易出現疏漏", penalty: 10 }
         ]
       },
       {
         id: "q5_screen_height",
         dimension: "trap_screen",
-        dimensionName: "櫃檯高度",
-        question: "5. 你的工作櫃檯/收銀機/操作台高度與手肘位置？",
+        dimensionName: "作業台面高度",
+        question: "5. 您的工作櫃檯、收銀機或操作平台與手臂肘部的高度適配性？",
         options: [
-          { label: "A. 操作台面剛好在手肘下方 5~10 公分（手臂自然放鬆）", penalty: 0 },
-          { label: "B. 台面偏低，需要經常彎腰操作", penalty: 5 },
-          { label: "C. 台面太高（需聳肩）或太低（需長時間彎腰前傾）", penalty: 10 }
+          { label: "A. 作業台面約在手肘下方 5~10 公分（手臂自然垂放舒適操作）", penalty: 0 },
+          { label: "B. 台面稍偏低，需頻繁微屈身前傾操作", penalty: 5 },
+          { label: "C. 台面過高（需聳肩操作）或過低（需持續彎腰駝背）", penalty: 10 }
         ]
       },
       {
         id: "q6_chair_support",
         dimension: "trap_chair",
-        dimensionName: "鞋具與地面",
-        question: "6. 站立時所穿的鞋子與地面緩衝配置？",
+        dimensionName: "鞋具與地面緩衝",
+        question: "6. 您站立作業時穿著的鞋具與地面緩衝配置？",
         options: [
-          { label: "A. 穿著具良好足弓支撐與減震鞋墊的機能鞋，地面有減震墊", penalty: 0 },
-          { label: "B. 普通平底鞋或硬底鞋，直接站在硬質磁磚/水泥地上", penalty: 5 },
-          { label: "C. 需穿著高跟鞋或薄底硬鞋久站，無任何減震墊", penalty: 10 }
+          { label: "A. 穿著具備良好足弓支撐與避震機能的鞋具，地面設有防疲勞軟墊", penalty: 0 },
+          { label: "B. 普通平底鞋或硬底皮鞋，直接站在硬質地磚/水泥地面", penalty: 5 },
+          { label: "C. 需穿著高跟鞋或薄底硬鞋久站，且無任何地面緩衝墊", penalty: 10 }
         ]
       },
       {
         id: "q7_glare",
         dimension: "trap_glare",
-        dimensionName: "站姿重心習慣",
-        question: "7. 當你需要定點站立時，你的站姿習慣是？",
+        dimensionName: "站姿重心分配",
+        question: "7. 在定點維持站姿時，您的重心習慣？",
         options: [
-          { label: "A. 雙腳微開與肩同寬，核心微收，重心平均分佈", penalty: 0 },
-          { label: "B. 習慣把重心全部放在單腳（三七步）或肚子往前挺", penalty: 5 },
-          { label: "C. 習慣靠在櫃檯上、駝背側傾站立", penalty: 10 }
+          { label: "A. 雙腳平分重心，核心微收，骨盆保持在中立位置", penalty: 0 },
+          { label: "B. 習慣將重量長期集中於單腳（三七步站姿）或腹部前挺", penalty: 5 },
+          { label: "C. 習慣倚靠櫃檯側傾站立，脊椎長期處於側彎狀態", penalty: 10 }
         ]
       },
       {
         id: "q8_sedentary",
         dimension: "trap_sedentary",
-        dimensionName: "換姿與微坐重啟",
-        question: "8. 值班期間，你有機會坐下或抬腿微休息嗎？",
+        dimensionName: "坐姿轉換間歇",
+        question: "8. 值班期間，您是否有機會短暫坐下或抬腿減輕下肢壓力？",
         options: [
-          { label: "A. 每 1~2 小時有機會坐下 3~5 分鐘微放鬆下肢", penalty: 0 },
-          { label: "B. 連續站立 3~4 小時才能坐下休息一次", penalty: 15 },
-          { label: "C. 全天幾乎無法坐下，連續站立 6 小時以上", penalty: 30 }
+          { label: "A. 每 1~2 小時有機會短暫坐下 3~5 分鐘舒緩下肢", penalty: 0 },
+          { label: "B. 連續站立約 3~4 小時才能短暫坐下休息", penalty: 15 },
+          { label: "C. 全天作業期間幾乎無法坐下，連續站立逾 6 小時", penalty: 30 }
         ]
       }
     ],
@@ -311,156 +311,161 @@ const ERGO_CONFIG = {
       {
         id: "q1_neck",
         dimension: "neck",
-        dimensionName: "後頸肩胛",
-        question: "1. 進行高精細操作、繪圖或組裝時，肩頸部的負荷感受？",
+        dimensionName: "肩頸作業負荷",
+        question: "1. 進行精細組裝、數位繪圖或維修時，肩頸部肌肉的感受？",
         options: [
-          { label: "A. 肩部放鬆無負擔", penalty: 0 },
-          { label: "B. 肩頸肌肉長時間持續收縮緊繃", penalty: 5 },
-          { label: "C. 單側肩膀劇痛、手臂抬起時有卡頓疼痛感", penalty: 10 }
+          { label: "A. 動作流暢，肩部放鬆自然", penalty: 0 },
+          { label: "B. 肩頸肌肉維持持續性收縮發僵", penalty: 5 },
+          { label: "C. 單側肩膀劇痛，手臂抬舉時有明顯關節牽扯痛", penalty: 10 }
         ]
       },
       {
         id: "q2_lower_back",
         dimension: "back",
-        dimensionName: "腰背負載",
-        question: "2. 搬運物件或長時間維持固定作業姿勢後，腰部狀態？",
+        dimensionName: "腰部受力負載",
+        question: "2. 搬運物件、工具或維持固定前傾作業後，腰部狀態？",
         options: [
-          { label: "A. 腰背有力，無疲倦酸痛", penalty: 0 },
-          { label: "B. 下班時腰部僵硬，彎腰有酸痛感", penalty: 5 },
-          { label: "C. 曾有急性閃腰或經常性下背深層抽痛", penalty: 10 }
+          { label: "A. 腰背有力，無疲累感", penalty: 0 },
+          { label: "B. 下班時腰部僵硬，彎腰活動時感到酸楚", penalty: 5 },
+          { label: "C. 曾有急性扭閃腰病史，或有經常性下背深層牽扯抽痛", penalty: 10 }
         ]
       },
       {
         id: "q3_wrist",
         dimension: "wrist",
-        dimensionName: "手指手腕",
-        question: "3. 長時間握工具/數位筆或重複施力，手部肌肉關節感受？",
+        dimensionName: "手指腕部關節",
+        question: "3. 長時間握持工具/手繪筆或重複施力操作，手部感覺？",
         options: [
-          { label: "A. 握力充足，手指手腕靈活無痛", penalty: 0 },
-          { label: "B. 手指關節酸脹、手腕內外側壓痛", penalty: 5 },
-          { label: "C. 扳機指（手指卡住彈響）、手腕劇痛（肌腱炎/網球肘）", penalty: 10 }
+          { label: "A. 握持自如，手指腕關節活動靈活無阻", penalty: 0 },
+          { label: "B. 手指關節酸脹，手腕內側或外側按壓微痛", penalty: 5 },
+          { label: "C. 出現扳機指症狀（活動卡阻響聲）、腕關節劇烈疼痛無力", penalty: 10 }
         ]
       },
       {
         id: "q4_eye",
         dimension: "eye",
-        dimensionName: "精細視覺疲勞",
-        question: "4. 長時間注視精細零件、線稿或螢幕細節後？",
+        dimensionName: "精細視覺負荷",
+        question: "4. 長時間注視精密工件、線稿或細微零件後，視覺感受？",
         options: [
-          { label: "A. 視力保持清晰敏銳", penalty: 0 },
-          { label: "B. 眼睛發熱乾澀、看遠方需數秒重新對焦", penalty: 5 },
-          { label: "C. 嚴重眼脹、頭痛，看細節出現重影", penalty: 10 }
+          { label: "A. 視線清晰敏銳，對比分辨良好", penalty: 0 },
+          { label: "B. 眼睛乾澀發熱，向遠處觀看時需數秒重新對焦", penalty: 5 },
+          { label: "C. 顯著眼眶周圍脹痛、頭暈，注視微細物件時出現疊影", penalty: 10 }
         ]
       },
       {
         id: "q5_screen_height",
         dimension: "trap_screen",
-        dimensionName: "視距與作業角度",
-        question: "5. 你的操作工作區或數位繪圖板的擺放角度？",
+        dimensionName: "作業視距與傾角",
+        question: "5. 您的工作檯面或數位繪圖板的擺放傾斜度？",
         options: [
-          { label: "A. 具備適當傾角（30~45度），視線與作業面垂直舒適", penalty: 0 },
-          { label: "B. 平放於桌面，需稍微低頭並伸長脖子作業", penalty: 5 },
-          { label: "C. 完全平放或需極端側身操作，頭頸大幅前傾扭轉", penalty: 10 }
+          { label: "A. 具備適當傾角（約 30~45 度），視線自然垂直作業面", penalty: 0 },
+          { label: "B. 完全平放於桌面，需稍微低頭並向前伸長頸部作業", penalty: 5 },
+          { label: "C. 完全平放或需扭轉軀幹側面操作，頸部大幅前傾旋轉", penalty: 10 }
         ]
       },
       {
         id: "q6_chair_support",
         dimension: "trap_chair",
-        dimensionName: "工具握柄",
-        question: "6. 你平常使用的手工具/筆具的握柄人因狀況？",
+        dimensionName: "工具握柄人因設計",
+        question: "6. 您常態使用的工具柄或筆具的人因工學適配性？",
         options: [
-          { label: "A. 握柄粗細適中、有防滑減震包覆，省力順手", penalty: 0 },
-          { label: "B. 握柄偏細或硬質塑料，需用較大力氣夾握", penalty: 5 },
-          { label: "C. 握柄震動大、邊緣銳利，長期壓迫手掌神經與血管", penalty: 10 }
+          { label: "A. 握柄粗細適中、包覆防滑減震材質，省力握持", penalty: 0 },
+          { label: "B. 握柄過細或為硬質塑料，需使用較大捏握力量操作", penalty: 5 },
+          { label: "C. 震動幅度大、邊緣硬銳，長期壓迫掌心神經與血管", penalty: 10 }
         ]
       },
       {
         id: "q7_glare",
         dimension: "trap_glare",
-        dimensionName: "搬運重物力矩",
-        question: "7. 搬運重物或工具箱時，你的身體姿勢習慣是？",
+        dimensionName: "物料搬運力矩",
+        question: "7. 搬運物件或工具箱時，您的作業姿勢習慣？",
         options: [
-          { label: "A. 屈膝下蹲，將物品緊貼胸口再用大腿力量站起", penalty: 0 },
-          { label: "B. 常常貪快直接彎腰（膝蓋伸直）搬起物品", penalty: 5 },
-          { label: "C. 彎腰同時進行身體扭轉搬重物（椎間盤高危動作）", penalty: 10 }
+          { label: "A. 屈膝下蹲，將物件緊靠胸口，運用腿部核心力量平穩起身", penalty: 0 },
+          { label: "B. 雙膝保持挺直，直接彎腰前傾拉起物件", penalty: 5 },
+          { label: "C. 彎腰同時扭轉軀幹搬起重物（椎間盤高風險動作）", penalty: 10 }
         ]
       },
       {
         id: "q8_sedentary",
         dimension: "trap_sedentary",
-        dimensionName: "微放鬆循環",
-        question: "8. 重複性作業時，你是否會進行「反向拉伸」放鬆？",
+        dimensionName: "反向伸展循環",
+        question: "8. 進行重複性作業時，您是否會定時進行「反向舒緩伸展」？",
         options: [
-          { label: "A. 每 30~45 分鐘會主動進行 20 秒反向拉伸甩手放鬆", penalty: 0 },
-          { label: "B. 只有累到手酸手麻時才停下來甩一甩", penalty: 15 },
-          { label: "C. 連續趕工數小時不停歇，直到任務結束才癱軟", penalty: 30 }
+          { label: "A. 每 30~45 分鐘會主動進行 20 秒反向放鬆與手指腕關節伸展", penalty: 0 },
+          { label: "B. 只有在感到明顯酸麻無力時才會停下稍作甩動", penalty: 15 },
+          { label: "C. 連續作業數小時不中斷，直到該工段結束才停歇", penalty: 30 }
         ]
       }
     ]
   },
 
+  // 分數級距與改善行動指引
   scoreTiers: [
     {
       min: 85,
       max: 100,
       tier: "tier_green",
-      title: "🟢【頂級旗艦伺服器】",
-      subtitle: "高算力 / 極低折舊率優等生",
-      statusColor: "#10b981",
-      badgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40",
-      analysis: "太棒了！你的身體伺服器硬體維護極佳，各部件力矩平衡良好，每天幾乎沒有因物理疲勞損耗的精力漏水。",
-      prescriptions: [
-        "維持現狀：保持定時中斷與良好的視線高度習慣。",
-        "進階外掛：可推廣你的工作站配置給身邊同事/同學，成為人因標竿。",
-        "護眼微節奏：持續落實「20-20-20 原則」（看 20 呎外 20 秒）。"
+      title: "🟢 良好等級（低負載 / 優良配置）",
+      subtitle: "工作站配置與作業習慣平衡良好",
+      statusColor: "#059669",
+      badgeColor: "bg-emerald-50 text-emerald-700 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800",
+      analysis: "您的工作站人因配置與動作力學維持得相當健全，各關節受力在安全閾值內，日常作業能維持穩定效率與精力。",
+      actionGuides: [
+        "維持既有良好節奏：持續維持 45~60 分鐘站立走動或微伸展習慣。",
+        "落實護眼法則：落實「20-20-20 原則」（每 20 分鐘遠眺 20 呎/6 公尺外物體 20 秒）。",
+        "定期檢視工作站：每季檢核椅墊高低與螢幕距離，預防耗損變形。"
       ]
     },
     {
       min: 70,
       max: 84,
       tier: "tier_yellow",
-      title: "🟡【散熱不良輕度警示】",
-      subtitle: "局部零件微發炎 / 算力流失約 15%",
-      statusColor: "#f59e0b",
-      badgeColor: "bg-amber-500/20 text-amber-400 border-amber-500/40",
-      analysis: "系統運作大致正常，但局部零件（如後頸或手腕）已經出現散熱不良與微發炎。每天下午有約 15% 的專注力正在被隱形酸痛偷偷吃掉。",
-      prescriptions: [
-        "視線力矩歸零：請立即將螢幕/筆電墊高 8~10 公分，讓上緣平視眼睛。",
-        "手腕減壓外掛：打字時手肘必須有支撐（90度），嚴禁手腕死壓在桌緣。",
-        "小水杯助推法：把 1000ml 大水壺換成 250ml 小杯子，強制每小時起立走動。"
+      title: "🟡 輕度警示（局部疲勞累積）",
+      subtitle: "部分關節力矩過大，需進行環境微調",
+      statusColor: "#d97706",
+      badgeColor: "bg-amber-50 text-amber-800 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800",
+      analysis: "目前整體作業尚稱流暢，但頸肩或腕部等局部肌群已出現慢性過載跡象，下午專注力容易因肌肉緊繃而產生隱形損耗。",
+      actionGuides: [
+        "校準螢幕視角：將螢幕或筆記型電腦墊高 8~10 公分，使螢幕上緣齊平視線，降低後頸剪切力。",
+        "手腕支撐減壓：打字與操作滑鼠時，手肘應由扶手或桌面提供約 90 度承托，避免腕部直接重壓桌緣。",
+        "環境行為助推：可使用容量約 250~300ml 的水杯，自然促使自己每小時起身走動裝水。"
       ]
     },
     {
       min: 50,
       max: 69,
       tier: "tier_orange",
-      title: "🟠【算力漏水過載中】",
-      subtitle: "CPU 降頻中 / 每天偷走 30% 產能",
-      statusColor: "#f97316",
-      badgeColor: "bg-orange-500/20 text-orange-400 border-orange-500/40",
-      analysis: "高風險警訊！你的身體伺服器正處於「帶傷上陣」的超載降頻狀態。下午效率變差不是意志力問題，而是骨盆與肩頸在瘋狂向大腦搶奪算力。",
-      prescriptions: [
-        "外套壽司捲腰靠：將厚外套捲成圓柱狀塞在腰椎凹槽，立刻卡正骨盆分散 40% 壓力。",
-        "徹底告別低頭筆電：絕對禁止直接將筆電平放桌上打字超過 1 小時，請務必外接鍵盤與支架。",
-        "站立溝通習慣：5 分鐘以內的對齊工作或講電話，一律站著完成。"
+      title: "🟠 中度過載（高疲勞風險）",
+      subtitle: "生物力學失衡，急需結構性調整配置",
+      statusColor: "#ea580c",
+      badgeColor: "bg-orange-50 text-orange-800 border-orange-300 dark:bg-orange-950/60 dark:text-orange-300 dark:border-orange-800",
+      analysis: "評估顯示您的骨骼肌肉系統承受顯著負載。作業疲勞不僅影響工作效率與專注度，長期維持更可能轉變為累積性肌肉骨骼傷害（MSDs）。",
+      actionGuides: [
+        "改善腰椎承托：在腰椎第 4~5 節處增加適當厚度之後靠墊，引導骨盆維持中立位，分散下背負重。",
+        "外接獨立鍵盤滑鼠：停止直接將筆記型電腦平放桌面長時間作業，務必搭配立架與外接鍵盤。",
+        "導入定時動態間歇：設定 45 分鐘計時提醒，進行 1 分鐘全身反向伸展與深呼吸。"
       ]
     },
     {
       min: 0,
       max: 49,
       tier: "tier_red",
-      title: "🔴【瀕臨當機緊急進廠】",
-      subtitle: "重大硬體危機 / 累積結構性傷害",
-      statusColor: "#ef4444",
-      badgeColor: "bg-rose-500/20 text-rose-400 border-rose-500/40",
-      analysis: "緊急警報！你的肌肉骨骼系統已產生不可忽視的代價，身體折舊率爆表。若不及時止損，每年將付出龐大的醫療成本與不可逆的健康損失。",
-      prescriptions: [
-        "全面環境重構：今天下班/放學後，立刻把工作桌椅重新依「手肘90度、視線平視、雙腳著地」三個標準全面調整。",
-        "硬性中斷鬧鐘：下載番茄鐘或定時器，設定 45 分鐘一響，無論多忙都必須離開椅子 60 秒。",
-        "尋求專業協助：若手麻、刺痛或下背深層抽痛持續超過兩週，請及早諮詢復健科或物理治療師。"
+      title: "🔴 重度超載（高度傷害風險）",
+      subtitle: "多部位高負荷，需立即進行環境改善",
+      statusColor: "#dc2626",
+      badgeColor: "bg-rose-50 text-rose-800 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800",
+      analysis: "您的肌肉骨骼系統目前處於高度緊繃狀態，多項人因地雷已引發持續性酸脹感。若未積極改善作業環境，恐造成不可逆的勞損與醫療代價。",
+      actionGuides: [
+        "全面重新配置工作站：以「手肘平放 90 度、眼睛平視螢幕、雙腳自然踏地」為基準，立即全面調整桌椅與設備高度。",
+        "嚴格執行中斷機制：使用蕃茄鐘工作法，每工作 40 分鐘強制起立走動 2 分鐘。",
+        "醫療專業諮詢：若手指麻木、關節刺痛或下背劇痛已持續超過兩週，強烈建議及早至復健科或物理治療所尋求專業評估。"
       ]
     }
-  ]
+  ],
+
+  // 專業醫療與法律免責警語
+  disclaimer:
+    "⚠️ 免責聲明：本線上評估工具係依據北歐肌肉骨骼問卷 (NMQ) 原理及人因工程人體測量學設計之自我檢核指標，僅供個人化作業環境改善與健康促進之參考，非屬醫療診斷行為。若您已有持續性疼痛、神經壓迫麻木或骨骼關節病症，請務必尋求專業復健科醫師或物理治療師之診斷與治療。"
 };
 
 if (typeof window !== "undefined") {

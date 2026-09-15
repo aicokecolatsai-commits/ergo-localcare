@@ -3,53 +3,66 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>【講師後台】場次管理與專屬 QR Code 產生器</title>
+  <title>【後台管理】工作站人因檢測・場次管理與專屬 QR Code</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- QRCode.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <link rel="stylesheet" href="css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              850: '#172033',
+              900: '#0f172a',
+              950: '#0a0f1d'
+            }
+          }
+        }
+      }
+    }
+  </script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+<body class="bg-[#0d1117] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-sky-600 selection:text-white">
 
   <!-- 頂部導航 -->
-  <header class="border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-md px-6 py-4 flex items-center justify-between sticky top-0 z-50">
+  <header class="border-b border-[#30363d] bg-[#161b22]/90 backdrop-blur px-6 py-3 flex items-center justify-between sticky top-0 z-50">
     <div class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center font-black text-slate-950 text-sm">
-        ⚙️
-      </div>
       <div>
-        <h1 class="text-base font-bold text-white">人因工程演講・場次管理控制台</h1>
+        <h1 class="text-base font-bold text-white">工作站人因檢測・場次控制台</h1>
         <p class="text-xs text-slate-400">專屬 Session 生成、QR Code 產出與數據匯出</p>
       </div>
     </div>
-    <a href="index.html" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 transition-colors">
+    <a href="index.html" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition-colors">
       📱 前往學員測驗頁
     </a>
   </header>
 
   <!-- 主控制面板 -->
-  <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-grow space-y-6">
+  <main class="max-w-4xl mx-auto px-4 py-8 w-full flex-grow space-y-5">
     
     <!-- 建立與切換場次 -->
-    <div class="glass-panel p-6 rounded-3xl border border-slate-800 space-y-4">
-      <h2 class="text-lg font-bold text-white flex items-center gap-2">
-        <span>🏷️</span> 設定本次演講場次
+    <div class="ergo-card p-6 border border-[#30363d] bg-[#161b22] space-y-4">
+      <h2 class="text-base font-bold text-white flex items-center gap-2">
+        <span>🏷️</span> 設定本次演講場次代碼
       </h2>
       <div class="flex flex-col sm:flex-row gap-3">
         <input 
           id="session-id-input" 
           type="text" 
           placeholder="例如: 20260915_XX高中 或 TSMC_2026" 
-          class="flex-grow px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 text-white placeholder-slate-500 text-sm font-medium outline-none transition-all"
+          class="flex-grow px-4 py-2.5 rounded-lg bg-[#0d1117] border border-[#30363d] focus:border-sky-500 focus:ring-1 focus:ring-sky-500 text-white placeholder-slate-500 text-sm font-medium outline-none transition-all"
         />
-        <button id="btn-create-session" class="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-black text-sm shadow-lg shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 flex-shrink-0">
-          <span>✨</span> 更新/切換場次
+        <button id="btn-create-session" class="px-5 py-2.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm transition-all flex items-center justify-center gap-1.5 flex-shrink-0">
+          <span>✨</span> 更新 / 切換場次
         </button>
       </div>
 
       <!-- 最近場次快速切換 -->
-      <div class="pt-2">
+      <div class="pt-1">
         <span class="text-xs text-slate-400 font-semibold block mb-2">最近使用過的場次：</span>
         <div id="recent-sessions-list" class="flex flex-wrap gap-2">
           <!-- 由 admin.js 動態產生 -->
@@ -58,31 +71,31 @@
     </div>
 
     <!-- 專屬 QR Code 與投影連結 -->
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-5">
       <!-- QR Code 顯示卡片 -->
-      <div class="md:col-span-5 glass-panel p-6 rounded-3xl border border-cyan-500/30 flex flex-col items-center justify-center text-center shadow-xl shadow-cyan-500/5">
-        <span class="text-xs font-bold text-cyan-400 mb-3 uppercase tracking-wider">現場學員掃描專用 QR Code</span>
-        <div class="p-4 bg-white rounded-2xl shadow-inner mb-3">
+      <div class="md:col-span-5 ergo-card p-6 border border-[#30363d] bg-[#161b22] flex flex-col items-center justify-center text-center">
+        <span class="text-xs font-semibold text-slate-300 mb-3 uppercase tracking-wider">現場學員掃描專用 QR Code</span>
+        <div class="p-3.5 bg-white rounded-xl shadow-inner mb-3">
           <div id="admin-qr-code" class="flex items-center justify-center min-w-[180px] min-h-[180px]"></div>
         </div>
         <p class="text-xs text-slate-400">
-          右鍵可直接「複製圖片」貼入投影片簡報中！
+          滑鼠右鍵可直接「複製圖片」貼入簡報投影片中
         </p>
       </div>
 
       <!-- 網址與大螢幕直連連結 -->
-      <div class="md:col-span-7 glass-panel p-6 rounded-3xl border border-slate-800 flex flex-col justify-between gap-4">
+      <div class="md:col-span-7 ergo-card p-6 border border-[#30363d] bg-[#161b22] flex flex-col justify-between gap-4">
         <div>
           <h3 class="text-sm font-bold text-white mb-3">🔗 專屬網址快速複製</h3>
           
           <!-- 學員填寫端 -->
           <div class="space-y-1.5 mb-4">
-            <label class="text-xs font-semibold text-slate-300 flex items-center justify-between">
-              <span>📱 學員填寫端網址 (Student URL)</span>
+            <label class="text-xs font-semibold text-slate-300">
+              📱 學員填寫端網址 (Student URL)
             </label>
             <div class="flex gap-2">
-              <input id="link-student" type="text" readonly class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-300 font-mono" />
-              <button id="btn-copy-student" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-bold rounded-lg border border-slate-700 transition-colors flex-shrink-0">
+              <input id="link-student" type="text" readonly class="w-full px-3 py-2 rounded-lg bg-[#0d1117] border border-[#30363d] text-xs text-slate-300 font-mono" />
+              <button id="btn-copy-student" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition-colors flex-shrink-0">
                 複製
               </button>
             </div>
@@ -90,12 +103,12 @@
 
           <!-- 講師大螢幕端 -->
           <div class="space-y-1.5">
-            <label class="text-xs font-semibold text-slate-300 flex items-center justify-between">
-              <span>🖥️ 講師大螢幕投影網址 (Live Dashboard URL)</span>
+            <label class="text-xs font-semibold text-slate-300">
+              🖥️ 講師大螢幕投影網址 (Live Dashboard URL)
             </label>
             <div class="flex gap-2">
-              <input id="link-dashboard" type="text" readonly class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-cyan-300 font-mono" />
-              <button id="btn-copy-dash" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-400 text-xs font-bold rounded-lg border border-slate-700 transition-colors flex-shrink-0">
+              <input id="link-dashboard" type="text" readonly class="w-full px-3 py-2 rounded-lg bg-[#0d1117] border border-[#30363d] text-xs text-sky-400 font-mono" />
+              <button id="btn-copy-dash" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition-colors flex-shrink-0">
                 複製
               </button>
             </div>
@@ -103,14 +116,14 @@
         </div>
 
         <!-- 數據管理動作 -->
-        <div class="pt-4 border-t border-slate-800 flex flex-wrap items-center gap-3">
-          <button id="btn-export-csv" class="px-4 py-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 text-xs font-bold transition-all flex items-center gap-1.5">
+        <div class="pt-4 border-t border-[#30363d] flex flex-wrap items-center gap-2.5">
+          <button id="btn-export-csv" class="px-3.5 py-2 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 text-xs font-semibold transition-all flex items-center gap-1.5">
             <span>📥</span> 匯出本場數據 (CSV)
           </button>
-          <button id="btn-generate-demo" class="px-4 py-2 rounded-xl bg-cyan-600/20 hover:bg-cyan-600/30 text-cyan-400 border border-cyan-500/40 text-xs font-bold transition-all flex items-center gap-1.5">
+          <button id="btn-generate-demo" class="px-3.5 py-2 rounded-lg bg-sky-950/80 hover:bg-sky-900 text-sky-300 border border-sky-800 text-xs font-semibold transition-all flex items-center gap-1.5">
             <span>🎲</span> 生成 30 筆模擬數據
           </button>
-          <button id="btn-clear-session" class="px-4 py-2 rounded-xl bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 text-xs font-bold transition-all flex items-center gap-1.5">
+          <button id="btn-clear-session" class="px-3.5 py-2 rounded-lg bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 text-xs font-semibold transition-all flex items-center gap-1.5">
             <span>🗑️</span> 清空本場數據
           </button>
         </div>
@@ -121,8 +134,8 @@
   </main>
 
   <!-- 底部版權 -->
-  <footer class="border-t border-slate-900 bg-slate-950 py-4 text-center text-xs text-slate-500">
-    人因工程與健康促進 ｜ 大人學精力管理 × 密涅瓦思維架構
+  <footer class="border-t border-[#30363d] py-3 text-center text-xs text-slate-500">
+    職場人因工程與健康促進 ｜ 工作站生物力學自我檢視系統
   </footer>
 
   <!-- 腳本引入 -->

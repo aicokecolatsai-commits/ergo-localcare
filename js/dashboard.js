@@ -1,6 +1,6 @@
 /**
  * 講師大螢幕投影看板即時引擎 (dashboard.js)
- * 負責即時監聽資料庫、動態數字跳動動畫、Gauge 分數儀表盤、三大痛點排行與環境地雷統計
+ * 負責即時監聽資料庫、動態數字動畫、Gauge 分數儀表、三大痛點排行與環境地雷統計
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -19,13 +19,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const elQrContainer = document.getElementById("qrcode-container");
   const elQrLink = document.getElementById("qr-target-link");
 
-  // 初始化場次標題與 QR Code
   if (elSessionTitle) {
     elSessionTitle.innerText = `場次代碼：${sessionId}`;
   }
 
   // 動態生成學員填寫端 QR Code (包含當前 Host 與 session)
-  const studentUrl = `${window.location.origin}${window.location.pathname.replace("dashboard.html", "index.html")}?session=${sessionId}`;
+  const studentUrl = `${window.location.origin}${window.location.pathname.replace("dashboard.html", "index.html").replace("dashboard", "")}?session=${sessionId}`;
   if (elQrContainer && window.QRCode) {
     elQrContainer.innerHTML = "";
     new QRCode(elQrContainer, {
@@ -42,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
     elQrLink.href = studentUrl;
   }
 
-  // Chart 實例
   let rolePieChart = null;
 
   // 監聽即時數據變更
@@ -69,8 +67,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (total === 0) {
       elAvgScore.innerText = "--";
       elStatusBadge.innerText = "等待學員連線中...";
-      elStatusBadge.className = "px-3 py-1 rounded-full text-xs font-bold border border-slate-700 bg-slate-800 text-slate-400";
-      elStatusInsight.innerText = "請全場掃描左側 QR Code，開始 60 秒身體伺服器檢測。";
+      elStatusBadge.className = "px-3 py-1 rounded-full text-xs font-semibold border border-slate-700 bg-slate-800 text-slate-400";
+      elStatusInsight.innerText = "請全場掃描左側 QR Code，開始 60 秒工作站與人因檢測。";
       renderEmptyState();
       return;
     }
@@ -80,25 +78,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const avg = Math.round((sumScore / total) * 10) / 10;
     elAvgScore.innerText = avg;
 
-    // 狀態等級與洞察分析
     const tier = ERGO_CONFIG.scoreTiers.find((t) => avg >= t.min && avg <= t.max) || ERGO_CONFIG.scoreTiers[ERGO_CONFIG.scoreTiers.length - 1];
     elStatusBadge.innerText = tier.title;
-    elStatusBadge.className = `px-3.5 py-1 rounded-full text-xs md:text-sm font-extrabold border ${tier.badgeColor}`;
+    elStatusBadge.className = `px-3 py-1 rounded-full text-xs md:text-sm font-bold border ${tier.badgeColor}`;
     
     // 2. 統計痛點排行 (NMQ Dimensions)
     const painCounts = {
-      "後頸與肩胛僵硬 (頸椎力矩超載)": 0,
-      "腰椎骨盆酸痛 (下背懸空無支撐)": 0,
-      "手腕手肘麻痛 (滑鼠手/重複施力)": 0,
-      "眼睛乾澀與大腦昏沉 (視覺眩光/低能耗)": 0
+      "頸肩部過載 (頸椎前傾力矩大)": 0,
+      "腰背部受力 (腰椎懸空/支撐不足)": 0,
+      "手腕手肘過勞 (腕部壓迫/重複施力)": 0,
+      "視覺疲勞 (光線眩光/注視超時)": 0
     };
 
     list.forEach((sub) => {
       if (sub.painPoints) {
-        if (sub.painPoints.neck > 0) painCounts["後頸與肩胛僵硬 (頸椎力矩超載)"]++;
-        if (sub.painPoints.back > 0) painCounts["腰椎骨盆酸痛 (下背懸空無支撐)"]++;
-        if (sub.painPoints.wrist > 0) painCounts["手腕手肘麻痛 (滑鼠手/重複施力)"]++;
-        if (sub.painPoints.eye > 0) painCounts["眼睛乾澀與大腦昏沉 (視覺眩光/低能耗)"]++;
+        if (sub.painPoints.neck > 0) painCounts["頸肩部過載 (頸椎前傾力矩大)"]++;
+        if (sub.painPoints.back > 0) painCounts["腰背部受力 (腰椎懸空/支撐不足)"]++;
+        if (sub.painPoints.wrist > 0) painCounts["手腕手肘過勞 (腕部壓迫/重複施力)"]++;
+        if (sub.painPoints.eye > 0) painCounts["視覺疲勞 (光線眩光/注視超時)"]++;
       }
     });
 
@@ -108,19 +105,19 @@ document.addEventListener("DOMContentLoaded", () => {
     elPainRankList.innerHTML = sortedPains
       .map(([name, count], idx) => {
         const percent = Math.round((count / total) * 100);
-        const medals = ["🥇", "🥈", "🥉", "4."];
+        const medals = ["1.", "2.", "3.", "4."];
         const barColor = idx === 0 ? "bg-rose-500" : (idx === 1 ? "bg-orange-500" : "bg-amber-500");
         return `
-        <div class="glass-panel p-3 rounded-xl border border-slate-700/60">
-          <div class="flex items-center justify-between text-xs md:text-sm font-bold text-slate-200 mb-1.5">
+        <div class="p-3 rounded-xl border border-[#30363d] bg-[#161b22]">
+          <div class="flex items-center justify-between text-xs md:text-sm font-semibold text-slate-200 mb-1.5">
             <span class="flex items-center gap-1.5 truncate">
-              <span>${medals[idx]}</span>
+              <span class="text-slate-400 font-mono">${medals[idx]}</span>
               <span class="truncate">${name}</span>
             </span>
-            <span class="text-cyan-400 font-extrabold flex-shrink-0">${percent}% (${count}人)</span>
+            <span class="text-sky-400 font-bold flex-shrink-0">${percent}% (${count}人)</span>
           </div>
           <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-            <div class="${barColor} h-full rounded-full transition-all duration-500" style="width: ${percent}%"></div>
+            <div class="${barColor} h-full rounded-full transition-all duration-300" style="width: ${percent}%"></div>
           </div>
         </div>
       `;
@@ -131,23 +128,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const topPainName = sortedPains[0][0].split(" ")[0];
     const topPercent = Math.round((sortedPains[0][1] / total) * 100);
     elStatusInsight.innerHTML = `
-      🚨 <strong class="text-rose-400">現場重大警訊：</strong> 全場有 <span class="text-cyan-400 font-bold">${topPercent}%</span> 的學員正承受「<strong>${topPainName}</strong>」的隱形算力漏水！平均身體折舊指數落在「${tier.subtitle}」。
+      🚨 <strong class="text-rose-400">現場統計警示：</strong> 全場有 <span class="text-sky-400 font-bold">${topPercent}%</span> 的學員正承受「<strong>${topPainName}</strong>」的顯著肌肉骨骼負載！平均作業風險落在「${tier.subtitle}」。
     `;
 
     // 4. 統計環境三大地雷 (Traps)
     const trapCounts = {
-      "螢幕過低/低頭烏龜頸": 0,
-      "腰部無靠/手腕懸空": 0,
-      "環境眩光刺眼反光": 0,
-      "連續久坐超過2小時": 0
+      "螢幕過低 / 視線低頭前傾": 0,
+      "腰背懸空 / 手臂無支撐": 0,
+      "作業環境刺眼反光 / 眩光": 0,
+      "連續久坐或維持同一姿勢逾2小時": 0
     };
 
     list.forEach((sub) => {
       if (sub.traps) {
-        if (sub.traps.trap_screen) trapCounts["螢幕過低/低頭烏龜頸"]++;
-        if (sub.traps.trap_chair) trapCounts["腰部無靠/手腕懸空"]++;
-        if (sub.traps.trap_glare) trapCounts["環境眩光刺眼反光"]++;
-        if (sub.traps.trap_sedentary) trapCounts["連續久坐超過2小時"]++;
+        if (sub.traps.trap_screen) trapCounts["螢幕過低 / 視線低頭前傾"]++;
+        if (sub.traps.trap_chair) trapCounts["腰背懸空 / 手臂無支撐"]++;
+        if (sub.traps.trap_glare) trapCounts["作業環境刺眼反光 / 眩光"]++;
+        if (sub.traps.trap_sedentary) trapCounts["連續久坐或維持同一姿勢逾2小時"]++;
       }
     });
 
@@ -155,15 +152,14 @@ document.addEventListener("DOMContentLoaded", () => {
       .map(([name, count]) => {
         const percent = Math.round((count / total) * 100);
         return `
-        <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-800/40 border border-slate-700/40 text-xs md:text-sm">
-          <span class="text-slate-300 font-medium">${name}</span>
+        <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-850 border border-[#30363d] text-xs md:text-sm">
+          <span class="text-slate-300">${name}</span>
           <span class="font-bold text-amber-400">${percent}%</span>
         </div>
       `;
       })
       .join("");
 
-    // 5. 渲染族群圓餅圖
     renderRolePieChart(list);
   }
 
@@ -193,15 +189,15 @@ document.addEventListener("DOMContentLoaded", () => {
     rolePieChart = new Chart(ctx, {
       type: "doughnut",
       data: {
-        labels: ["💼 辦公室白領", "🎓 課堂學生", "🏪 久站服務", "🏭 技術/重複職"],
+        labels: ["電腦久坐族", "學生研讀族", "站立服務族", "技術操作族"],
         datasets: [
           {
             data: dataValues,
             backgroundColor: [
-              "#06b6d4",
-              "#10b981",
-              "#f59e0b",
-              "#8b5cf6"
+              "#38bdf8",
+              "#34d399",
+              "#fbbf24",
+              "#a78bfa"
             ],
             borderColor: "#0f172a",
             borderWidth: 2
@@ -222,7 +218,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 數字平滑滾動動畫
   function animateValue(obj, start, end, duration) {
     if (!obj || start === end) return;
     let startTimestamp = null;

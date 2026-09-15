@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>身體伺服器・人因算力 60 秒檢測</title>
+  <title>工作站與肌肉骨骼人因自我檢測</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
@@ -15,11 +15,10 @@
       theme: {
         extend: {
           colors: {
-            brand: {
-              cyan: '#06b6d4',
-              emerald: '#10b981',
-              amber: '#f59e0b',
-              rose: '#f43f5e'
+            slate: {
+              850: '#172033',
+              900: '#0f172a',
+              950: '#0a0f1d'
             }
           }
         }
@@ -27,112 +26,116 @@
     }
   </script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+<body class="bg-[#0d1117] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-sky-600 selection:text-white">
 
   <!-- 頂部導航列 -->
-  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
-    <div class="max-w-xl mx-auto px-4 py-3.5 flex items-center justify-between">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center font-black text-slate-950 text-sm shadow-md shadow-cyan-500/20">
-          ⚡
-        </div>
-        <div>
-          <h1 class="text-sm font-extrabold tracking-tight text-white">身體伺服器・人因算力檢測</h1>
-          <p class="text-[10px] text-slate-400">大人學 × 密涅瓦思維架構</p>
-        </div>
+  <header class="border-b border-[#30363d] bg-[#161b22]/90 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div>
+        <h1 class="text-sm md:text-base font-bold tracking-tight text-white">工作站與肌肉骨骼人因檢測</h1>
+        <p class="text-[11px] text-slate-400">北歐肌肉骨骼問卷 (NMQ) 實證人因工程架構</p>
       </div>
-      <div id="session-badge" class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-cyan-400">
+      <div id="session-badge" class="text-xs font-medium px-2.5 py-1 rounded-md bg-slate-800 border border-slate-700 text-slate-300">
         載入中...
       </div>
     </div>
   </header>
 
-  <!-- 主內容容器 -->
+  <!-- 主內容區 -->
   <main class="max-w-xl mx-auto px-4 py-6 w-full flex-grow flex flex-col justify-center">
     
     <!-- 步驟 0：身分族群選擇 -->
-    <section id="step-role" class="space-y-5">
-      <div class="text-center space-y-2">
-        <span class="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold tracking-wider">
-          STEP 01 / 選擇作戰型態
+    <section id="step-role" class="space-y-4">
+      <div class="space-y-1 text-center pb-1">
+        <span class="text-xs font-semibold text-sky-400 uppercase tracking-wider">
+          步驟 1 / 選擇日常作業型態
         </span>
-        <h2 class="text-2xl font-black text-white pt-1">你平日 80% 的體能消耗在哪？</h2>
-        <p class="text-xs text-slate-400">選擇最符合你的情境，獲得精準客製化人因處方</p>
+        <h2 class="text-xl md:text-2xl font-bold text-white">請選擇最符合您平日 80% 的工作型態</h2>
+        <p class="text-xs text-slate-400 max-w-sm mx-auto">不同的作業型態受力力矩與關節負載不同，系統將提供專屬的人因檢核題目</p>
       </div>
 
-      <div id="role-cards-container" class="space-y-3 pt-2">
-        <!-- 由 app.js 動態渲染 4 大族群卡片 -->
+      <div id="role-cards-container" class="space-y-2.5 pt-2">
+        <!-- 由 app.js 動態渲染 -->
       </div>
     </section>
 
-    <!-- 步驟 1：8 題動態問卷 -->
-    <section id="step-quiz" class="hidden space-y-6">
-      <!-- 進度條 -->
-      <div class="space-y-1.5">
-        <div class="flex items-center justify-between text-xs font-semibold text-slate-400">
-          <span id="progress-text">第 1 / 8 題</span>
-          <span class="text-cyan-400">60秒極速評估</span>
+    <!-- 步驟 1：8 題動態問卷 (含進度與返回上一題) -->
+    <section id="step-quiz" class="hidden space-y-5">
+      <!-- 頂部進度條與導航 -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between text-xs font-medium text-slate-400">
+          <span id="progress-text">進度 1 / 8</span>
+          <button id="btn-prev-question" type="button" class="text-xs text-slate-400 hover:text-sky-300 px-2 py-1 rounded hover:bg-slate-800 transition-colors flex items-center gap-1">
+            ⬅️ 返回上一題
+          </button>
         </div>
-        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-          <div id="progress-bar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full transition-all duration-300 w-[12.5%]"></div>
+        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+          <div id="progress-bar" class="bg-sky-500 h-full rounded-full transition-all duration-200 w-[12.5%]"></div>
         </div>
       </div>
 
       <!-- 題目與選項容器 -->
-      <div id="question-container" class="min-h-[320px] flex flex-col justify-center">
+      <div id="question-container" class="min-h-[280px] flex flex-col justify-center py-1">
         <!-- 由 app.js 動態渲染單題與選項 -->
       </div>
     </section>
 
-    <!-- 步驟 2：個人診斷報告卡片 -->
-    <section id="step-result" class="hidden space-y-6 py-2">
-      <!-- 分數主卡片 -->
-      <div class="glass-panel p-6 rounded-3xl border border-slate-700/80 text-center relative overflow-hidden shadow-2xl">
-        <div class="absolute -top-12 -right-12 w-36 h-36 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        
+    <!-- 步驟 2：個人人因檢核報告卡片 -->
+    <section id="step-result" class="hidden space-y-5 py-2">
+      
+      <!-- 總分與評級主卡片 -->
+      <div class="ergo-card p-6 text-center border border-[#30363d] bg-[#161b22]">
         <span id="res-score-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold border mb-2">
           等級評定中...
         </span>
         
         <div class="flex items-baseline justify-center gap-1 my-1">
-          <span id="res-score" class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-300 to-white">
+          <span id="res-score" class="text-5xl md:text-6xl font-black text-white">
             --
           </span>
-          <span class="text-lg font-bold text-slate-400">/ 100 分</span>
+          <span class="text-sm font-semibold text-slate-400">/ 100 分</span>
         </div>
 
-        <h3 id="res-title" class="text-xl font-black text-white mt-1">伺服器稱號</h3>
-        <p id="res-subtitle" class="text-xs font-semibold text-cyan-300 mt-0.5">狀態副標</p>
+        <h3 id="res-title" class="text-lg font-bold text-white mt-1">健康度狀態</h3>
+        <p id="res-subtitle" class="text-xs text-slate-400 mt-0.5">狀態說明</p>
 
-        <p id="res-analysis" class="text-xs md:text-sm text-slate-300 leading-relaxed mt-4 p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-left">
+        <p id="res-analysis" class="text-xs md:text-sm text-slate-300 leading-relaxed mt-4 p-3.5 rounded-lg bg-[#0d1117] border border-[#30363d] text-left">
           分析載入中...
         </p>
       </div>
 
-      <!-- 身體部位損耗視覺化 -->
-      <div class="glass-panel p-5 rounded-2xl border border-slate-800">
-        <h4 class="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2">
-          <span>📊</span> 肌肉骨骼損耗指數 (NMQ 扣分分佈)
+      <!-- NMQ 肌肉骨骼負載長條圖 -->
+      <div class="ergo-card p-5 border border-[#30363d] bg-[#161b22]">
+        <h4 class="text-xs md:text-sm font-bold text-slate-200 mb-3 flex items-center justify-between">
+          <span>📊 各部位肌肉骨骼負載指標 (NMQ 扣分分析)</span>
+          <span class="text-[11px] text-slate-400 font-normal">扣分越高代表負荷越重</span>
         </h4>
         <div class="h-44 w-full">
           <canvas id="painChart"></canvas>
         </div>
       </div>
 
-      <!-- 大人學專屬物理外掛處方 -->
-      <div class="glass-panel p-5 rounded-2xl border border-cyan-500/30 shadow-lg shadow-cyan-500/5">
-        <h4 class="text-sm font-bold text-cyan-400 mb-3.5 flex items-center gap-2">
-          <span>🛠️</span> 現場立即見效：大人學「物理外掛處方」
+      <!-- 個人化作業環境改善指引 -->
+      <div class="ergo-card p-5 border border-sky-900/60 bg-[#161b22]">
+        <h4 class="text-sm font-bold text-sky-300 mb-3 flex items-center gap-2">
+          <span>🛠️</span> 個人化作業環境與人因改善指引
         </h4>
-        <ul id="res-prescriptions" class="space-y-3">
-          <!-- 由 app.js 動態渲染處方 -->
+        <ul id="res-action-guides" class="space-y-3">
+          <!-- 由 app.js 動態渲染指引項目 -->
         </ul>
+      </div>
+
+      <!-- 合規醫療與健康免責警語 -->
+      <div class="p-3.5 rounded-lg bg-amber-950/30 border border-amber-800/50 text-[11px] text-amber-300/90 leading-relaxed">
+        <p id="res-disclaimer">
+          ⚠️ 免責聲明：本線上評估工具係依據北歐肌肉骨骼問卷 (NMQ) 原理及人因工程人體測量學設計之自我檢核指標，僅供個人化作業環境改善與健康促進之參考，非屬醫療診斷行為。若您已有持續性疼痛、神經壓迫麻木或骨骼關節病症，請務必尋求專業復健科醫師或物理治療師之診斷與治療。
+        </p>
       </div>
 
       <!-- 重新測驗按鈕 -->
       <div class="pt-2 text-center">
-        <button id="btn-restart" class="text-xs text-slate-400 hover:text-cyan-400 transition-colors py-2 px-4 rounded-lg bg-slate-900 border border-slate-800">
-          🔄 切換身分或重新檢測
+        <button id="btn-restart" class="text-xs text-slate-400 hover:text-white transition-colors py-2.5 px-4 rounded-lg bg-[#161b22] border border-[#30363d]">
+          🔄 切換作業型態或重新檢測
         </button>
       </div>
     </section>
@@ -140,8 +143,8 @@
   </main>
 
   <!-- 底部版權 -->
-  <footer class="border-t border-slate-800/60 py-3 text-center text-[10px] text-slate-500">
-    人因工程與健康促進 ｜ 大人學精力管理 × 密涅瓦思考模型
+  <footer class="border-t border-[#30363d] py-3 text-center text-[11px] text-slate-500">
+    職場人因工程與健康促進 ｜ 工作站生物力學自我檢視系統
   </footer>
 
   <!-- 腳本引入 -->

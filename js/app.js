@@ -806,8 +806,54 @@ document.addEventListener("DOMContentLoaded", () => {
     currentFlexibilityResults = { upper: null, lower: null };
   }
 
-  // 10. 個人 A4 人因戰情室報告產出、SVG 人體現況圖克隆與 LINE 瀏覽器相容處理
-  function buildWarRoomHtml() {
+  // 10. 個人 A4 人因戰情室報告產出、SVG 人體現況圖克隆/點陣化與跨平台相容處理
+  
+  // 將 SVG 元素轉為高解析度 PNG Data URL (徹底解決 html2canvas 無法繪製 raw SVG 與命名空間問題)
+  function svgToPngDataUrl(svgElement, width = 400, height = 620) {
+    return new Promise((resolve) => {
+      try {
+        if (!svgElement) return resolve("");
+        const cloned = svgElement.cloneNode(true);
+        cloned.setAttribute("width", width.toString());
+        cloned.setAttribute("height", height.toString());
+        cloned.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        
+        const svgString = new XMLSerializer().serializeToString(cloned);
+        const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+        const URLObj = window.URL || window.webkitURL || window;
+        const blobUrl = URLObj.createObjectURL(svgBlob);
+        
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+            URLObj.revokeObjectURL(blobUrl);
+            resolve(canvas.toDataURL("image/png"));
+          } catch (e) {
+            URLObj.revokeObjectURL(blobUrl);
+            resolve("");
+          }
+        };
+        img.onerror = () => {
+          URLObj.revokeObjectURL(blobUrl);
+          resolve("");
+        };
+        img.src = blobUrl;
+      } catch (e) {
+        console.warn("SVG 點陣化備援中...", e);
+        resolve("");
+      }
+    });
+  }
+
+  function buildWarRoomHtml(bodyMapPngSrc = null) {
     if (!currentReportState) return "";
 
     const dateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -822,20 +868,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const activeKeys = Object.keys(bodymapData).filter(k => bodymapData[k] > 0);
     const severeCount = activeKeys.filter(k => bodymapData[k] >= 3).length;
 
-    // 取得頁面現有 SVG 向量人體圖並深層克隆 (包含當前莫蘭迪色彩標記)
-    let bodyMapSvgHtml = "";
-    const sourceSvg = document.querySelector("#result-bodymap-container svg");
-    if (sourceSvg) {
-      const clonedSvg = sourceSvg.cloneNode(true);
-      clonedSvg.setAttribute("width", "200");
-      clonedSvg.setAttribute("height", "310");
-      clonedSvg.style.maxWidth = "100%";
-      clonedSvg.style.height = "auto";
-      clonedSvg.style.display = "block";
-      clonedSvg.style.margin = "0 auto";
-      bodyMapSvgHtml = clonedSvg.outerHTML;
+    // 取得人體現況圖 HTML (若有已轉好的 PNG 則使用 img，否則使用 cloned SVG)
+    let bodyMapContentHtml = "";
+    if (bodyMapPngSrc) {
+      bodyMapContentHtml = `<img src="${bodyMapPngSrc}" style="width: 190px; height: auto; display: block; margin: 0 auto; border-radius: 6px;">`;
     } else {
-      bodyMapSvgHtml = `<div style="text-align: center; color: #94a3b8; padding: 40px 10px; font-size: 11px;">人體圖載入中...</div>`;
+      const sourceSvg = document.querySelector("#result-bodymap-container svg");
+      if (sourceSvg) {
+        const clonedSvg = sourceSvg.cloneNode(true);
+        clonedSvg.setAttribute("width", "190");
+        clonedSvg.setAttribute("height", "295");
+        clonedSvg.style.maxWidth = "100%";
+        clonedSvg.style.height = "auto";
+        clonedSvg.style.display = "block";
+        clonedSvg.style.margin = "0 auto";
+        bodyMapContentHtml = clonedSvg.outerHTML;
+      } else {
+        bodyMapContentHtml = `<div style="text-align: center; color: #94a3b8; padding: 40px 10px; font-size: 11px;">人體圖未載入</div>`;
+      }
     }
 
     // 痛點清單表格 HTML
@@ -843,7 +893,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (activeKeys.length === 0) {
       bodymapRowsHtml = `
         <tr>
-          <td colspan="4" style="text-align:center; padding: 16px 8px; color: #059669; font-size: 11px; font-weight: bold; background: #ecfdf5;">
+          <td colspan="4" style="text-align:center; padding: 14px 8px; color: #059669; font-size: 11px; font-weight: bold; background: #ecfdf5;">
             ✨ 全身體幹與主要關節目前無顯著酸痛標記（各部位皆為 0 分，維持良好健康水準）
           </td>
         </tr>
@@ -865,15 +915,15 @@ document.addEventListener("DOMContentLoaded", () => {
           medStyle = detail.medical === "yes" ? "color: #b91c1c; font-weight: bold;" : "color: #047857;";
         }
         return `
-          <tr style="border-bottom: 1px solid #f1f5f9; font-size: 10.5px;">
-            <td style="padding: 6px 8px; font-weight: bold; color: #0f172a; white-space: nowrap;">${name}</td>
-            <td style="padding: 6px 8px;">
-              <span style="display: inline-block; padding: 1px 6px; border-radius: 4px; font-weight: bold; color: #ffffff; background-color: ${levelConf.color}; font-size: 10px;">
+          <tr style="border-bottom: 1px solid #f1f5f9; font-size: 10px;">
+            <td style="padding: 5px 6px; font-weight: bold; color: #0f172a; white-space: nowrap;">${name}</td>
+            <td style="padding: 5px 6px;">
+              <span style="display: inline-block; padding: 1px 5px; border-radius: 4px; font-weight: bold; color: #ffffff; background-color: ${levelConf.color}; font-size: 9.5px;">
                 ${level}分 · ${levelConf.label}
               </span>
             </td>
-            <td style="padding: 6px 8px; color: #475569;">${daysLabel}</td>
-            <td style="padding: 6px 8px; ${medStyle}">${medLabel}</td>
+            <td style="padding: 5px 6px; color: #475569;">${daysLabel}</td>
+            <td style="padding: 5px 6px; ${medStyle}">${medLabel}</td>
           </tr>
         `;
       }).join("");
@@ -884,11 +934,11 @@ document.addEventListener("DOMContentLoaded", () => {
       ? currentReportState.customGuides
       : tierInfo.actionGuides;
     const guidesHtml = guides.map((g, idx) => `
-      <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; font-size: 10.5px; line-height: 1.45; color: #334155;">
-        <span style="background: #e0f2fe; color: #0284c7; font-weight: bold; width: 18px; height: 18px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 10px; border: 1px solid #bae6fd;">
+      <div style="margin-bottom: 5px; font-size: 10px; line-height: 1.4; color: #334155;">
+        <span style="background: #e0f2fe; color: #0284c7; font-weight: bold; padding: 0 4px; border-radius: 3px; font-size: 9.5px; border: 1px solid #bae6fd; margin-right: 4px;">
           ${idx + 1}
         </span>
-        <span style="flex: 1;">${g}</span>
+        <span>${g}</span>
       </div>
     `).join("");
 
@@ -904,214 +954,244 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (score < 70) scoreColor = "#f97316";
     else if (score < 85) scoreColor = "#eab308";
 
+    // 使用完全相容 html2canvas 的 table 與 inline-block 排版架構
     return `
-      <div style="width: 746px; margin: 0 auto; padding: 20px 22px; background: #ffffff; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans TC', sans-serif; box-sizing: border-box;">
+      <div style="width: 746px; margin: 0 auto; padding: 18px 20px; background: #ffffff; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans TC', sans-serif; box-sizing: border-box;">
         
         <!-- 頂部官方 Header (戰情室首部) -->
-        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2.5px solid #0284c7; padding-bottom: 10px; margin-bottom: 12px;">
-          <div style="display: flex; align-items: center; gap: 12px;">
-            <img src="assets/logo.png" style="width: 50px; height: 50px; object-fit: contain;">
-            <div>
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <span style="font-size: 17px; font-weight: 900; color: #0f172a; letter-spacing: -0.3px;">
-                  人因小管家 PRO・個人人因健康與工作站戰情室
-                </span>
-                <span style="font-size: 9px; font-weight: bold; padding: 2px 6px; border-radius: 4px; background: #0284c7; color: #ffffff;">
+        <table style="width: 100%; border-collapse: collapse; border-bottom: 2.5px solid #0284c7; padding-bottom: 8px; margin-bottom: 10px;">
+          <tr>
+            <td style="vertical-align: middle; width: 55px;">
+              <img src="assets/logo.png" style="width: 48px; height: 48px; object-fit: contain; display: block;">
+            </td>
+            <td style="vertical-align: middle; padding-left: 10px;">
+              <div style="font-size: 16px; font-weight: 900; color: #0f172a; letter-spacing: -0.3px;">
+                人因小管家 PRO・個人人因健康與工作站戰情室
+                <span style="font-size: 9px; font-weight: bold; padding: 2px 6px; border-radius: 4px; background: #0284c7; color: #ffffff; vertical-align: middle; margin-left: 6px;">
                   個人戰情儀表板
                 </span>
               </div>
-              <div style="font-size: 11px; color: #0369a1; font-weight: bold; margin-top: 2px;">
+              <div style="font-size: 10.5px; color: #0369a1; font-weight: bold; margin-top: 2px;">
                 北歐肌肉骨骼問卷 (Nordic Musculoskeletal Questionnaire, NMQ) 臨床人因工程評估
               </div>
-            </div>
-          </div>
-          <div style="text-align: right; font-size: 10px; color: #64748b; line-height: 1.45;">
-            <div><strong>主講專家：</strong>蔡健儀 人因工程專家</div>
-            <div><strong>場次編號：</strong>${sessionId}</div>
-            <div><strong>報告時間：</strong>${dateStr} ${timeStr}</div>
-          </div>
-        </div>
+            </td>
+            <td style="vertical-align: middle; text-align: right; font-size: 9.5px; color: #64748b; line-height: 1.4; width: 200px;">
+              <div><strong>主講專家：</strong>蔡健儀 人因工程專家</div>
+              <div><strong>場次編號：</strong>${sessionId}</div>
+              <div><strong>報告時間：</strong>${dateStr} ${timeStr}</div>
+            </td>
+          </tr>
+        </table>
 
         <!-- 戰情報告基本屬性列 -->
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 7px 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
-          <span><strong>受檢作業型態：</strong><span style="color: #0369a1; font-weight: bold;">${roleObj.name}</span> (${roleObj.subtitle})</span>
-          <span style="font-size: 10px; color: #475569; background: #e2e8f0; padding: 2px 8px; border-radius: 12px; font-weight: 600;">
-            人因工程作業危害預防計畫合規檢測
-          </span>
-        </div>
+        <table style="width: 100%; border-collapse: collapse; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 10px;">
+          <tr>
+            <td style="padding: 6px 10px; font-size: 10.5px; vertical-align: middle;">
+              <strong>受檢作業型態：</strong><span style="color: #0369a1; font-weight: bold;">${roleObj.name}</span> (${roleObj.subtitle})
+            </td>
+            <td style="padding: 6px 10px; font-size: 9.5px; color: #475569; text-align: right; vertical-align: middle;">
+              <span style="background: #e2e8f0; padding: 2px 8px; border-radius: 10px; font-weight: 600;">
+                人因工程作業危害預防計畫合規檢測
+              </span>
+            </td>
+          </tr>
+        </table>
 
         <!-- 第一層戰情儀表：3 大核心 KPI 卡片與連續光譜儀 -->
-        <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 12px 14px; margin-bottom: 12px;">
-          <div style="display: grid; grid-template-columns: 140px 1fr 140px; gap: 12px; align-items: center;">
-            
-            <!-- KPI 1: 健康綜合評分 -->
-            <div style="text-align: center; border-right: 1px solid #e2e8f0; padding-right: 10px;">
-              <div style="font-size: 10px; font-weight: bold; color: #64748b;">人因健康綜合評分</div>
-              <div style="font-size: 38px; font-weight: 900; color: ${scoreColor}; line-height: 1.05; margin: 2px 0;">
-                ${score} <span style="font-size: 13px; color: #64748b; font-weight: normal;">/ 100</span>
-              </div>
-              <div style="font-size: 9.5px; color: #64748b; font-weight: 600;">分數越高越健康</div>
-            </div>
+        <div style="background: #ffffff; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <!-- KPI 1: 健康綜合評分 -->
+              <td style="width: 140px; text-align: center; border-right: 1px solid #e2e8f0; padding-right: 10px; vertical-align: middle;">
+                <div style="font-size: 9.5px; font-weight: bold; color: #64748b;">人因健康綜合評分</div>
+                <div style="font-size: 34px; font-weight: 900; color: ${scoreColor}; line-height: 1.05; margin: 2px 0;">
+                  ${score} <span style="font-size: 12px; color: #64748b; font-weight: normal;">/ 100</span>
+                </div>
+                <div style="font-size: 9px; color: #64748b; font-weight: 600;">分數越高越健康</div>
+              </td>
 
-            <!-- KPI 2: 負荷狀態評級與臨床解讀 -->
-            <div style="text-align: left; padding: 0 4px;">
-              <div style="display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; background: ${scoreColor}15; color: ${scoreColor}; border: 1px solid ${scoreColor}40; margin-bottom: 4px;">
-                ${tierInfo.title}
-              </div>
-              <div style="font-size: 11px; color: #334155; line-height: 1.4;">
-                ${tierInfo.analysis}
-              </div>
-            </div>
+              <!-- KPI 2: 負荷狀態評級與臨床解讀 -->
+              <td style="padding: 0 12px; vertical-align: middle;">
+                <div style="display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10.5px; font-weight: bold; background: ${scoreColor}15; color: ${scoreColor}; border: 1px solid ${scoreColor}40; margin-bottom: 3px;">
+                  ${tierInfo.title}
+                </div>
+                <div style="font-size: 10.5px; color: #334155; line-height: 1.35;">
+                  ${tierInfo.analysis}
+                </div>
+              </td>
 
-            <!-- KPI 3: 肌肉骨骼有感部位統計 -->
-            <div style="text-align: center; border-left: 1px solid #e2e8f0; padding-left: 10px;">
-              <div style="font-size: 10px; font-weight: bold; color: #64748b;">肌肉骨骼酸痛標記</div>
-              <div style="font-size: 26px; font-weight: 900; color: ${activeKeys.length > 0 ? '#bd5d38' : '#10b981'}; margin: 2px 0;">
-                ${activeKeys.length} <span style="font-size: 11px; font-weight: normal; color: #64748b;">處部位</span>
-              </div>
-              <div style="font-size: 9px; color: ${severeCount > 0 ? '#b91c1c' : '#059669'}; font-weight: bold;">
-                ${severeCount > 0 ? `⚠️ 高風險追問：${severeCount} 處` : '全區皆在輕中度以下'}
-              </div>
-            </div>
-
-          </div>
+              <!-- KPI 3: 肌肉骨骼有感部位統計 -->
+              <td style="width: 135px; text-align: center; border-left: 1px solid #e2e8f0; padding-left: 10px; vertical-align: middle;">
+                <div style="font-size: 9.5px; font-weight: bold; color: #64748b;">肌肉骨骼酸痛標記</div>
+                <div style="font-size: 24px; font-weight: 900; color: ${activeKeys.length > 0 ? '#bd5d38' : '#10b981'}; margin: 2px 0;">
+                  ${activeKeys.length} <span style="font-size: 11px; font-weight: normal; color: #64748b;">處部位</span>
+                </div>
+                <div style="font-size: 8.5px; color: ${severeCount > 0 ? '#b91c1c' : '#059669'}; font-weight: bold;">
+                  ${severeCount > 0 ? `⚠️ 高風險追問：${severeCount} 處` : '全區皆在輕中度以下'}
+                </div>
+              </td>
+            </tr>
+          </table>
 
           <!-- 0~100 連續橫桿光譜落點儀 -->
-          <div style="margin-top: 12px; padding-top: 10px; border-top: 1px dashed #e2e8f0;">
-            <div style="position: relative; padding-top: 20px; padding-bottom: 6px;">
+          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e2e8f0;">
+            <div style="position: relative; padding-top: 18px; padding-bottom: 4px;">
               <!-- 針頭落點浮動標籤 -->
-              <div style="position: absolute; top: 0; left: ${Math.max(6, Math.min(94, score))}%; transform: translateX(-50%); font-size: 10px; font-weight: 900; background: #0f172a; color: #ffffff; padding: 2px 8px; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.25); white-space: nowrap;">
+              <div style="position: absolute; top: 0; left: ${Math.max(6, Math.min(94, score))}%; transform: translateX(-50%); font-size: 9.5px; font-weight: 900; background: #0f172a; color: #ffffff; padding: 1px 7px; border-radius: 5px; box-shadow: 0 1px 4px rgba(0,0,0,0.25); white-space: nowrap;">
                 🎯 您的落點：${score}分 (${tierInfo.title.split(' ')[0]})
               </div>
               <!-- 漸層色條 -->
-              <div style="height: 12px; border-radius: 6px; background: linear-gradient(to right, #f43f5e 0%, #f97316 45%, #eab308 70%, #10b981 100%); width: 100%; border: 1px solid rgba(0,0,0,0.1);"></div>
+              <div style="height: 10px; border-radius: 5px; background: linear-gradient(to right, #f43f5e 0%, #f97316 45%, #eab308 70%, #10b981 100%); width: 100%; border: 1px solid rgba(0,0,0,0.1);"></div>
             </div>
             <!-- 四大區間刻度標註 -->
-            <div style="display: flex; justify-content: space-between; font-size: 9px; font-weight: bold; color: #64748b;">
-              <span style="color: #e11d48;">0~49 (重度超載)</span>
-              <span style="color: #ea580c;">50~69 (中度負荷)</span>
-              <span style="color: #ca8a04;">70~84 (輕度不良)</span>
-              <span style="color: #059669;">85~100 (健康優良)</span>
-            </div>
+            <table style="width: 100%; font-size: 8.5px; font-weight: bold; color: #64748b;">
+              <tr>
+                <td style="color: #e11d48; text-align: left; width: 25%;">0~49 (重度超載)</td>
+                <td style="color: #ea580c; text-align: left; width: 25%;">50~69 (中度負荷)</td>
+                <td style="color: #ca8a04; text-align: left; width: 25%;">70~84 (輕度不良)</td>
+                <td style="color: #059669; text-align: right; width: 25%;">85~100 (健康優良)</td>
+              </tr>
+            </table>
           </div>
         </div>
 
         <!-- 第二層戰情主軸：目前人體現況圖 (左) 與 NMQ 肌肉骨骼不適清單 (右) -->
-        <div style="display: grid; grid-template-columns: 240px 1fr; gap: 12px; margin-bottom: 12px;">
-          
-          <!-- 左欄：目前人體現況圖 (SVG Body Map) -->
-          <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; text-align: center;">
-            <div style="font-size: 11px; font-weight: bold; color: #0f172a; margin-bottom: 6px; display: flex; items-center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px;">
-              <span>🧍 目前人體痛點現況圖</span>
-              <span style="font-size: 9.5px; color: #0284c7; font-weight: normal;">莫蘭迪色彩定位</span>
-            </div>
-            
-            <div style="width: 100%; max-width: 200px; margin: 0 auto;">
-              ${bodyMapSvgHtml}
-            </div>
-
-            <!-- 莫蘭迪分級圖例 -->
-            <div style="margin-top: 8px; pt-1; border-top: 1px solid #f1f5f9; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; font-size: 8.5px; color: #475569;">
-              <div style="display: flex; align-items: center; gap: 2px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #546274;"></span>0分 無不適</div>
-              <div style="display: flex; align-items: center; gap: 2px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #5b8eab;"></span>1分 偶爾緊</div>
-              <div style="display: flex; align-items: center; gap: 2px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #66997a;"></span>2分 工作酸</div>
-              <div style="display: flex; align-items: center; gap: 2px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #c69242;"></span>3分 回家酸</div>
-              <div style="display: flex; align-items: center; gap: 2px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #bd5d38;"></span>4分 痛分心</div>
-              <div style="display: flex; align-items: center; gap: 2px;"><span style="width: 7px; height: 7px; border-radius: 50%; background: #a63a50;"></span>5分 發麻痛</div>
-            </div>
-          </div>
-
-          <!-- 右欄：NMQ 不適標記清單與環境改善指引 -->
-          <div style="display: flex; flex-direction: column; gap: 10px;">
-            
-            <!-- NMQ 清單表格 -->
-            <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; flex: 1;">
-              <div style="font-size: 11px; font-weight: bold; color: #0f172a; margin-bottom: 6px; border-bottom: 1px solid #f1f5f9; padding-bottom: 4px; display: flex; justify-content: space-between;">
-                <span>📋 NMQ 肌肉骨骼不適標記清單</span>
-                <span style="font-size: 9.5px; color: #64748b;">生活情境 × 年累積 × 就醫紀錄</span>
-              </div>
-              <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                <thead>
-                  <tr style="font-size: 9.5px; color: #64748b; border-bottom: 1.5px solid #cbd5e1; background: #f8fafc;">
-                    <th style="padding: 4px 6px;">部位</th>
-                    <th style="padding: 4px 6px;">嚴重度</th>
-                    <th style="padding: 4px 6px;">過去1年天數</th>
-                    <th style="padding: 4px 6px;">就醫/治療</th>
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+          <tr>
+            <!-- 左欄：目前人體現況圖 -->
+            <td style="width: 230px; vertical-align: top; padding-right: 10px;">
+              <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px; text-align: center;">
+                <table style="width: 100%; border-bottom: 1px solid #f1f5f9; margin-bottom: 4px; padding-bottom: 2px;">
+                  <tr>
+                    <td style="text-align: left; font-size: 10.5px; font-weight: bold; color: #0f172a;">🧍 目前人體痛點現況圖</td>
+                    <td style="text-align: right; font-size: 9px; color: #0284c7;">莫蘭迪色彩定位</td>
                   </tr>
-                </thead>
-                <tbody>
-                  ${bodymapRowsHtml}
-                </tbody>
-              </table>
-            </div>
+                </table>
+                
+                <div style="width: 100%; margin: 2px auto;">
+                  ${bodyMapContentHtml}
+                </div>
 
-            <!-- 個人化工作站環境調整指引 -->
-            <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 10px;">
-              <div style="font-size: 11px; font-weight: bold; color: #0369a1; margin-bottom: 6px; border-bottom: 1px solid #e0f2fe; padding-bottom: 4px;">
-                🛠️ 個人化工作站環境調整方針 (Actionable Guides)
+                <!-- 莫蘭迪分級圖例 -->
+                <div style="margin-top: 6px; padding-top: 4px; border-top: 1px solid #f1f5f9; font-size: 8px; color: #475569; text-align: left;">
+                  <table style="width: 100%; border-collapse: collapse;">
+                    <tr>
+                      <td style="padding: 1px 0;"><span style="display:inline-block; width: 6px; height: 6px; border-radius: 50%; background: #546274; margin-right: 2px;"></span>0分 無不適</td>
+                      <td style="padding: 1px 0;"><span style="display:inline-block; width: 6px; height: 6px; border-radius: 50%; background: #5b8eab; margin-right: 2px;"></span>1分 偶爾緊</td>
+                      <td style="padding: 1px 0;"><span style="display:inline-block; width: 6px; height: 6px; border-radius: 50%; background: #66997a; margin-right: 2px;"></span>2分 工作酸</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 1px 0;"><span style="display:inline-block; width: 6px; height: 6px; border-radius: 50%; background: #c69242; margin-right: 2px;"></span>3分 回家酸</td>
+                      <td style="padding: 1px 0;"><span style="display:inline-block; width: 6px; height: 6px; border-radius: 50%; background: #bd5d38; margin-right: 2px;"></span>4分 痛分心</td>
+                      <td style="padding: 1px 0;"><span style="display:inline-block; width: 6px; height: 6px; border-radius: 50%; background: #a63a50; margin-right: 2px;"></span>5分 發麻痛</td>
+                    </tr>
+                  </table>
+                </div>
               </div>
-              ${guidesHtml}
-            </div>
+            </td>
 
-          </div>
-        </div>
+            <!-- 右欄：NMQ 不適標記清單與環境改善指引 -->
+            <td style="vertical-align: top; padding-left: 2px;">
+              <!-- NMQ 清單表格 -->
+              <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px; margin-bottom: 8px;">
+                <table style="width: 100%; border-bottom: 1px solid #f1f5f9; margin-bottom: 4px; padding-bottom: 2px;">
+                  <tr>
+                    <td style="text-align: left; font-size: 10.5px; font-weight: bold; color: #0f172a;">📋 NMQ 肌肉骨骼不適標記清單</td>
+                    <td style="text-align: right; font-size: 9px; color: #64748b;">生活情境 × 年累積 × 就醫紀錄</td>
+                  </tr>
+                </table>
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                  <thead>
+                    <tr style="font-size: 9px; color: #64748b; border-bottom: 1.5px solid #cbd5e1; background: #f8fafc;">
+                      <th style="padding: 3px 5px;">部位</th>
+                      <th style="padding: 3px 5px;">嚴重度</th>
+                      <th style="padding: 3px 5px;">過去1年天數</th>
+                      <th style="padding: 3px 5px;">就醫/治療</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${bodymapRowsHtml}
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- 個人化工作站環境調整指引 -->
+              <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 8px;">
+                <div style="font-size: 10.5px; font-weight: bold; color: #0369a1; margin-bottom: 5px; border-bottom: 1px solid #e0f2fe; padding-bottom: 3px;">
+                  🛠️ 個人化工作站環境調整方針 (Actionable Guides)
+                </div>
+                ${guidesHtml}
+              </div>
+            </td>
+          </tr>
+        </table>
 
         <!-- 第三層戰情整合：課堂體適能上下肢柔軟度自我檢測與生物力學代償分析 -->
-        <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; border-bottom: 1px solid #dcfce7; padding-bottom: 4px;">
-            <div style="font-size: 11px; font-weight: bold; color: #166534; display: flex; align-items: center; gap: 4px;">
-              <span>🏃‍♂️</span> 課堂實作：體適能上下肢柔軟度自我檢測與酸痛好發分析
-            </div>
-            <span style="font-size: 9px; font-weight: 600; color: #15803d; background: #dcfce7; padding: 1px 6px; border-radius: 8px;">
-              生物力學代償風險評估
-            </span>
-          </div>
+        <div style="background: #f0fdf4; border: 1.5px solid #bbf7d0; border-radius: 8px; padding: 8px 10px; margin-bottom: 8px;">
+          <table style="width: 100%; border-bottom: 1px solid #dcfce7; margin-bottom: 5px; padding-bottom: 2px;">
+            <tr>
+              <td style="text-align: left; font-size: 10.5px; font-weight: bold; color: #166534;">
+                🏃‍♂️ 課堂實作：體適能上下肢柔軟度自我檢測與酸痛好發分析
+              </td>
+              <td style="text-align: right; font-size: 8.5px; font-weight: 600; color: #15803d;">
+                <span style="background: #dcfce7; padding: 1px 6px; border-radius: 6px;">
+                  生物力學代償風險評估
+                </span>
+              </td>
+            </tr>
+          </table>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 10px; line-height: 1.4;">
-            
-            <!-- 上肢抓背 -->
-            <div style="background: #ffffff; border: 1px solid #dcfce7; border-radius: 8px; padding: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <span style="font-weight: bold; color: #0f172a;">1. 上肢抓背測驗：</span>
-                <span style="font-weight: bold; color: #0284c7;">${upperText}</span>
-              </div>
-              <div style="color: #475569;">
-                <strong style="color: #b91c1c;">💥 緊繃影響：</strong>胸大肌、闊背肌短縮，造成圓肩駝背、肩峰下空間變窄，易誘發肩夾擠症候群。
-              </div>
-              <div style="color: #475569; margin-top: 2px;">
-                <strong style="color: #ea580c;">⚡ 酸痛好發：</strong>頸部提肩胛肌、上斜方肌緊繃鈍痛；前臂過度代償引發網球肘與腕隧道滑鼠手。
-              </div>
-            </div>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <!-- 上肢抓背 -->
+              <td style="width: 50%; vertical-align: top; padding-right: 5px;">
+                <div style="background: #ffffff; border: 1px solid #dcfce7; border-radius: 6px; padding: 6px; font-size: 9.5px; line-height: 1.35;">
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-weight: bold; color: #0f172a;">1. 上肢抓背測驗：</span>
+                    <span style="font-weight: bold; color: #0284c7;">${upperText}</span>
+                  </div>
+                  <div style="color: #475569;">
+                    <strong style="color: #b91c1c;">💥 緊繃影響：</strong>胸大肌、闊背肌短縮，造成圓肩駝背、肩峰下空間變窄，易誘發肩夾擠症候群。
+                  </div>
+                  <div style="color: #475569; margin-top: 2px;">
+                    <strong style="color: #ea580c;">⚡ 酸痛好發：</strong>頸部提肩胛肌、上斜方肌緊繃鈍痛；前臂過度代償引發網球肘與腕隧道滑鼠手。
+                  </div>
+                </div>
+              </td>
 
-            <!-- 下肢椅上體前彎 -->
-            <div style="background: #ffffff; border: 1px solid #dcfce7; border-radius: 8px; padding: 8px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <span style="font-weight: bold; color: #0f172a;">2. 下肢椅上體前彎：</span>
-                <span style="font-weight: bold; color: #0284c7;">${lowerText}</span>
-              </div>
-              <div style="color: #475569;">
-                <strong style="color: #b91c1c;">💥 緊繃影響：</strong>膕旁肌牽拉骨盆後傾，腰椎生理前凸拉平消失，久坐時 L4-S1 椎間盤承受 2.5 倍以上異常剪力！
-              </div>
-              <div style="color: #475569; margin-top: 2px;">
-                <strong style="color: #ea580c;">⚡ 酸痛好發：</strong>下腰部豎脊肌深層僵痛（久坐起立困難）、梨狀肌代償引發坐骨神經酸脹、膝前髕骨肌腱痛。
-              </div>
-            </div>
-
-          </div>
+              <!-- 下肢椅上體前彎 -->
+              <td style="width: 50%; vertical-align: top; padding-left: 5px;">
+                <div style="background: #ffffff; border: 1px solid #dcfce7; border-radius: 6px; padding: 6px; font-size: 9.5px; line-height: 1.35;">
+                  <div style="margin-bottom: 3px;">
+                    <span style="font-weight: bold; color: #0f172a;">2. 下肢椅上體前彎：</span>
+                    <span style="font-weight: bold; color: #0284c7;">${lowerText}</span>
+                  </div>
+                  <div style="color: #475569;">
+                    <strong style="color: #b91c1c;">💥 緊繃影響：</strong>膕旁肌牽拉骨盆後傾，腰椎生理前凸拉平消失，久坐時 L4-S1 椎間盤承受 2.5 倍以上異常剪力！
+                  </div>
+                  <div style="color: #475569; margin-top: 2px;">
+                    <strong style="color: #ea580c;">⚡ 酸痛好發：</strong>下腰部豎脊肌深層僵痛（久坐起立困難）、梨狀肌代償引發坐骨神經酸脹、膝前髕骨肌腱痛。
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </table>
         </div>
 
         <!-- 第四層：官方延伸工具與知識庫連結 -->
-        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 7px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 10px;">
-          <div>
-            <strong>📐 德國主要關鍵指標法 KIM 2019 線上評估：</strong>https://aicokecolatsai-commits.github.io/KIM2019/
-          </div>
-          <div>
-            <strong>📚 蔡健儀 人因工程官方知識庫：</strong>https://ergopt.blogspot.com/
-          </div>
-        </div>
+        <table style="width: 100%; border-collapse: collapse; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; margin-bottom: 8px; font-size: 9.5px;">
+          <tr>
+            <td style="padding: 4px 8px; text-align: left;">
+              <strong>📐 德國主要關鍵指標法 KIM 2019 線上評估：</strong>https://aicokecolatsai-commits.github.io/KIM2019/
+            </td>
+            <td style="padding: 4px 8px; text-align: right;">
+              <strong>📚 蔡健儀 人因工程官方知識庫：</strong>https://ergopt.blogspot.com/
+            </td>
+          </tr>
+        </table>
 
         <!-- 第五層：法律免責與官方認證 Footer -->
-        <div style="border-top: 1px solid #cbd5e1; padding-top: 8px; font-size: 9px; color: #64748b; line-height: 1.35; text-align: center;">
+        <div style="border-top: 1px solid #cbd5e1; padding-top: 6px; font-size: 8.5px; color: #64748b; line-height: 1.3; text-align: center;">
           ⚠️ 免責聲明：本報告係依據北歐肌肉骨骼問卷 (NMQ) 與人因人體測量學原理設計之自我健康檢核指標，供工作站環境改善與自主健康促進參考，非屬醫療診斷行為。若已有持續性神經壓迫或臨床病症請諮詢專科醫師。<br>
           © 人因小管家 (Noah) 蔡健儀 人因工程專家 研發建置 ｜ 專案認證 A4 戰情室 ｜ 未經授權禁止商用翻印
         </div>
@@ -1122,7 +1202,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // LINE 瀏覽器專屬引導彈窗 (解決 LINE In-App 封鎖下載與分享問題)
   function showLineModal(isShare) {
-    // 移除舊的 modal
     const existing = document.getElementById("line-helper-modal");
     if (existing) existing.remove();
 
@@ -1198,11 +1277,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // 螢幕全頁預覽戰情室 Modal (讓 LINE 或手機學員能隨時截圖、放大切換)
-  function showWarRoomPreviewModal() {
+  async function showWarRoomPreviewModal() {
     const existing = document.getElementById("warroom-preview-modal");
     if (existing) existing.remove();
 
-    const warRoomHtml = buildWarRoomHtml();
+    // 點陣化人體圖
+    const sourceSvg = document.querySelector("#result-bodymap-container svg");
+    const bodyMapPng = await svgToPngDataUrl(sourceSvg);
+    const warRoomHtml = buildWarRoomHtml(bodyMapPng);
 
     const modal = document.createElement("div");
     modal.id = "warroom-preview-modal";
@@ -1242,7 +1324,10 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <!-- 底部關閉 -->
-        <div class="p-3 bg-slate-50 border-t border-slate-200 flex justify-end">
+        <div class="p-3 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+          <button type="button" id="btn-preview-native-print" class="px-4 py-2 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-900 font-bold text-xs">
+            🖨️ 列印 / 存為 PDF
+          </button>
           <button type="button" id="btn-preview-close-footer" class="px-4 py-2 rounded-xl bg-slate-800 text-white font-bold text-xs">
             關閉預覽
           </button>
@@ -1260,6 +1345,21 @@ document.addEventListener("DOMContentLoaded", () => {
       window._forceDirectPdfDownload = true;
       exportPdfReport(false);
     };
+    modal.querySelector("#btn-preview-native-print").onclick = () => {
+      triggerNativePrint(warRoomHtml);
+    };
+  }
+
+  // 瀏覽器原生列印 / 存為 PDF 觸發器 (利用 @media print，完全不依賴 html2canvas)
+  function triggerNativePrint(htmlContent) {
+    let printContainer = document.getElementById("print-only-warroom-container");
+    if (!printContainer) {
+      printContainer = document.createElement("div");
+      printContainer.id = "print-only-warroom-container";
+      document.body.appendChild(printContainer);
+    }
+    printContainer.innerHTML = htmlContent;
+    window.print();
   }
 
   // 10. PDF 報告產出與分享功能核心執行
@@ -1284,28 +1384,33 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="w-12 h-12 border-4 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
         <div>
           <div class="font-black text-slate-900 text-sm md:text-base">正在產出 A4 人因戰情室報告</div>
-          <p class="text-xs text-slate-500 mt-1">渲染向量人體圖現況、連續光譜與改善方針...</p>
+          <p class="text-xs text-slate-500 mt-1">向量人體圖點陣化、排版計算與光譜生成中...</p>
         </div>
       </div>
     `;
     document.body.appendChild(toast);
 
     try {
-      // 產出完整的個人戰情室 HTML
-      const warRoomHtml = buildWarRoomHtml();
+      // 1. 先將 SVG 向量人體圖轉換為 PNG Data URL (避免 html2canvas 繪製 SVG 失敗)
+      const sourceSvg = document.querySelector("#result-bodymap-container svg");
+      const bodyMapPng = await svgToPngDataUrl(sourceSvg);
 
-      // 構建專屬 A4 高解析度輸出容器
-      // 重要：外層使用零高度溢出隱藏容器 (不干擾螢幕畫面)，內層為標準文檔流區塊 (讓 html2pdf 精確量測 100% 完整高度，絕不坍縮為 0 高度空白頁！)
+      // 2. 產出使用 Table 排版的個人戰情室 HTML
+      const warRoomHtml = buildWarRoomHtml(bodyMapPng);
+
+      // 3. 構建專屬 A4 高解析度輸出容器
+      // 修正重點：使用 fixed offscreen (left: -9999px)，避免 0 高度與 overflow:hidden 導致 html2canvas 測量為 0 寬高空白頁！
       const renderWrapper = document.createElement("div");
       renderWrapper.id = "pdf-render-wrapper";
-      renderWrapper.style.position = "relative";
-      renderWrapper.style.height = "0";
-      renderWrapper.style.overflow = "hidden";
-      renderWrapper.style.pointerEvents = "none";
+      renderWrapper.style.position = "fixed";
+      renderWrapper.style.left = "-9999px";
+      renderWrapper.style.top = "0";
+      renderWrapper.style.width = "794px"; // 標準 A4 寬度 (96DPI: 210mm = 794px)
+      renderWrapper.style.zIndex = "-9999";
 
       const printable = document.createElement("div");
       printable.id = "printable-pdf-document";
-      printable.style.width = "794px"; // 標準 A4 寬度 (96DPI: 210mm = 794px)
+      printable.style.width = "794px";
       printable.style.backgroundColor = "#ffffff";
       printable.style.color = "#0f172a";
       printable.style.boxSizing = "border-box";
@@ -1314,10 +1419,13 @@ document.addEventListener("DOMContentLoaded", () => {
       renderWrapper.appendChild(printable);
       document.body.appendChild(renderWrapper);
 
+      // 等待圖片載入完畢
+      await new Promise(r => setTimeout(r, 150));
+
       const dateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '');
       const fileName = `人因小管家PRO_A4戰情室評估報告_${dateStr}.pdf`;
 
-      // 設定 html2pdf 選項 (高解析 scale: 2，完整捕捉雙欄人體圖與所有指標)
+      // 設定 html2pdf 選項 (高解析 scale: 2，完整捕捉表格與所有指標)
       const opt = {
         margin: [6, 6, 6, 6],
         filename: fileName,
@@ -1325,7 +1433,9 @@ document.addEventListener("DOMContentLoaded", () => {
         html2canvas: {
           scale: 2,
           useCORS: true,
-          logging: false
+          logging: false,
+          scrollY: 0,
+          scrollX: 0
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };

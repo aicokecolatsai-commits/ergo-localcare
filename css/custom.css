@@ -99,3 +99,27 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* 專業 A4 戰情室原生列印樣式 (瀏覽器原生 Print to PDF，完美支援所有現代 CSS、SVG、高畫質輸出) */
+@media print {
+  body > * {
+    display: none !important;
+  }
+  #print-only-warroom-container, #print-only-warroom-container * {
+    visibility: visible !important;
+  }
+  #print-only-warroom-container {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    z-index: 99999 !important;
+  }
+  @page {
+    size: A4 portrait;
+    margin: 6mm;
+  }
+}

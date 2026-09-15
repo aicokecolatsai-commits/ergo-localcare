@@ -470,11 +470,11 @@ class BodyMapComponent {
           circle.setAttribute("stroke-width", "2");
           text.setAttribute("fill", "#ffffff");
         } else {
-          circle.setAttribute("fill", "#2d3748");
-          circle.setAttribute("fill-opacity", "0.5");
-          circle.setAttribute("stroke", "#546274");
+          circle.setAttribute("fill", "#f8fafc");
+          circle.setAttribute("fill-opacity", "0.95");
+          circle.setAttribute("stroke", "#94a3b8");
           circle.setAttribute("stroke-width", "1.5");
-          text.setAttribute("fill", "#cbd5e1");
+          text.setAttribute("fill", "#475569");
         }
       }
 

@@ -4,7 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>人因小管家・工作站與肌肉骨骼人因檢測系統</title>
-  <link rel="icon" type="image/png" href="assets/logo.png">
+  <!-- 瀏覽器分頁與行動裝置主畫面 App 圖示 (Favicon & PWA Icons) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/logo.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/logo.png">
+  <link rel="shortcut icon" href="assets/logo.png">
+
+  <!-- Apple iOS Safari「加入主畫面」專用 App 圖示 (確保手機另存網頁為人因小管家官方 Logo) -->
+  <link rel="apple-touch-icon" href="assets/logo.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="assets/logo.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="assets/logo.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/logo.png">
+  <link rel="apple-touch-icon-precomposed" href="assets/logo.png">
+
+  <!-- Android Chrome / PWA 行動應用程式設定檔與主題色 -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="人因小管家">
+  <meta name="application-name" content="人因小管家">
+  <meta name="theme-color" content="#0284c7">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
@@ -212,19 +231,27 @@
 
         <!-- 連續 0~100 橫桿光譜條 (高對比動態指標落點儀) -->
         <div class="my-5 px-1 text-left">
-          <div class="relative pt-9 pb-3">
+          <!-- 落點摘要文字標題 (置於色條上方，大字號且永不超出手機螢幕) -->
+          <div class="flex items-center justify-between text-xs font-bold mb-1 px-1">
+            <span class="text-slate-800 flex items-center gap-1">
+              <span>🎯 您的落點定位：</span>
+              <span id="spectrum-summary-text" class="text-sky-800 font-black">-- 分</span>
+            </span>
+            <span class="text-[10px] text-slate-400 font-medium">0~100 連續光譜</span>
+          </div>
+
+          <div class="relative pt-7 pb-3">
             
             <!-- 核心動態指標 (由 app.js 動態設定 left: score%) -->
             <div id="spectrum-marker" class="absolute top-0 transition-all duration-700 ease-out -translate-x-1/2 flex flex-col items-center z-20 pointer-events-none" style="left: 50%;">
               
-              <!-- 頂部浮動標籤 (大字號 + 雙層陰影 + 鮮明對比) -->
-              <div id="spectrum-marker-label" class="px-3 py-1 rounded-xl bg-slate-900 text-white text-xs md:text-sm font-black shadow-xl whitespace-nowrap flex items-center gap-1.5 border-2 border-white">
-                <span>🎯 您的落點：</span>
-                <span id="spectrum-marker-score-text">-- 分</span>
+              <!-- 頂部浮動標籤 (極簡精巧分數膠囊，寬度僅約 45px，在窄螢幕手機上永不溢出裁切！) -->
+              <div id="spectrum-marker-label" class="px-2 py-0.5 rounded-lg bg-slate-900 text-white text-[11px] font-black shadow-lg whitespace-nowrap border-2 border-white flex items-center justify-center">
+                <span id="spectrum-marker-score-text">--分</span>
               </div>
 
               <!-- 向下銳利三角指針 -->
-              <div id="spectrum-marker-arrow" class="w-0 h-0 border-l-[7px] border-l-transparent border-r-[7px] border-r-transparent border-t-[8px] border-t-slate-900 -mt-[1px]"></div>
+              <div id="spectrum-marker-arrow" class="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[7px] border-t-slate-900 -mt-[1px]"></div>
 
               <!-- 貫穿色條的垂直定位針 (直穿色條中央) -->
               <div class="w-1 h-8 bg-slate-900 rounded-full shadow-md relative -mt-0.5 flex items-center justify-center">
@@ -273,32 +300,6 @@
         <p id="res-analysis" class="text-xs md:text-sm text-slate-700 leading-relaxed mt-3.5 p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-left">
           分析載入中...
         </p>
-      </div>
-
-      <!-- PDF 報告匯出與分享功能卡 (比照 KIM 2019 官方規格，附人因小管家 LOGO) -->
-      <div class="ergo-card p-4 border border-sky-200 bg-gradient-to-r from-sky-50/80 via-indigo-50/80 to-purple-50/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-white border border-sky-200 shadow-xs flex items-center justify-center text-xl flex-shrink-0">
-            📄
-          </div>
-          <div class="text-left">
-            <h4 class="text-xs md:text-sm font-black text-slate-900 flex items-center gap-1.5">
-              <span>下載 / 分享個人 PDF 人因評估報告</span>
-              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-600 text-white shadow-xs">官方認證版</span>
-            </h4>
-            <p class="text-[11px] text-slate-600 font-medium mt-0.5">
-              含人因小管家 LOGO、0~100 光譜落點、NMQ 痛點圖與改善對策
-            </p>
-          </div>
-        </div>
-        <div class="flex items-center gap-2 w-full sm:w-auto flex-shrink-0">
-          <button id="btn-export-pdf" type="button" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 touch-press">
-            <span>📥 下載 PDF 報告</span>
-          </button>
-          <button id="btn-share-pdf" type="button" class="px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1 touch-press" title="分享至 LINE / 社群 / 儲存檔案">
-            <span>🔗 分享</span>
-          </button>
-        </div>
       </div>
 
       <!-- 個人化 NMQ 痛點人體圖展示 -->
@@ -386,6 +387,37 @@
             </div>
             <div id="flex-result-lower" class="hidden p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-[11px] font-medium mt-1"></div>
           </div>
+        </div>
+      </div>
+
+      <!-- 個人 A4 人因戰情室 PDF 報告下載與分享專區 (依需求放置於課堂實作卡片之後) -->
+      <div id="pdf-export-card" class="ergo-card p-4 md:p-5 border-2 border-sky-300 bg-gradient-to-r from-sky-50 via-indigo-50/70 to-emerald-50/60 shadow-md space-y-3">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-white border border-sky-300 shadow-sm flex items-center justify-center text-2xl flex-shrink-0">
+              📊
+            </div>
+            <div class="text-left">
+              <div class="flex items-center gap-2">
+                <h4 class="text-xs md:text-sm font-black text-slate-900">
+                  個人 A4 人因戰情室報告 (PDF 下載 / 分享)
+                </h4>
+                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-sky-600 text-white shadow-xs">官方認證版</span>
+              </div>
+              <p class="text-[11px] text-slate-600 font-medium mt-0.5">
+                完整收錄：人體痛點現況圖、0~100光譜落點、體適能檢測危害與工作站調整指引
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-sky-100">
+          <button id="btn-export-pdf" type="button" class="py-2.5 px-4 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 touch-press">
+            <span>📥 下載 A4 戰情室 PDF 報告</span>
+          </button>
+          <button id="btn-share-pdf" type="button" class="py-2.5 px-4 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-300 font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 touch-press">
+            <span>🔗 分享至 LINE / 儲存檔案</span>
+          </button>
         </div>
       </div>
 

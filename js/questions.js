@@ -465,9 +465,103 @@ const ERGO_CONFIG = {
 
   // 專業醫療與法律免責警語
   disclaimer:
-    "⚠️ 免責聲明：本線上評估工具係依據北歐肌肉骨骼問卷 (NMQ) 原理及人因工程人體測量學設計之自我檢核指標，僅供個人化作業環境改善與健康促進之參考，非屬醫療診斷行為。若您已有持續性疼痛、神經壓迫麻木或骨骼關節病症，請務必尋求專業復健科醫師或物理治療師之診斷與治療。"
+    "⚠️ 免責聲明：本線上評估工具係依據北歐肌肉骨骼問卷 (NMQ) 原理及人因工程人體測量學設計之自我檢核指標，僅供個人化作業環境改善與健康促進之參考，非屬醫療診斷行為。若您已有持續性疼痛、神經壓迫麻木或骨骼關節病症，請務必尋求專業復健科醫師或物理治療師之診斷與治療。",
+
+  /**
+   * 動態個人化改善指引引擎
+   * 根據學員點選的具體解剖痛點 (NMQ 0~5分)、左右側單側差異與環境地雷，動態組裝專屬指引
+   */
+  generatePersonalizedActionGuides: function(role, nmqData, traps) {
+    const guides = [];
+    nmqData = nmqData || {};
+    traps = traps || {};
+
+    // 取得所有有酸痛標記的部位 (>= 2分) 並依嚴重度降序排列
+    const activeZones = Object.entries(nmqData)
+      .filter(([id, level]) => level >= 2)
+      .sort((a, b) => b[1] - a[1]);
+
+    const rShoulder = nmqData.shoulder_r || 0;
+    const lShoulder = nmqData.shoulder_l || 0;
+    const rWrist = nmqData.wrist_r || 0;
+    const lWrist = nmqData.wrist_l || 0;
+    const neck = nmqData.neck || 0;
+    const lowerback = nmqData.lowerback || 0;
+    const upperback = nmqData.upperback || 0;
+    const knees = Math.max(nmqData.knee_l || 0, nmqData.knee_r || 0);
+    const ankles = Math.max(nmqData.ankle_l || 0, nmqData.ankle_r || 0);
+    const hips = Math.max(nmqData.hip_l || 0, nmqData.hip_r || 0);
+
+    // 規則 1：右側單側失衡 (滑鼠外展與手腕前伸症候群)
+    if ((rShoulder >= 3 || rWrist >= 3) && (rShoulder - lShoulder >= 2 || rWrist - lWrist >= 2 || traps.trap_chair)) {
+      guides.push(
+        "【右側滑鼠力矩減壓】：檢測顯示您的右側肩手負載顯著高於左側，代表滑鼠位置可能過於遠離身體中軸。請將滑鼠移至鍵盤右側 5 公分內，操作時上手臂自然下垂貼近軀幹，並將手肘穩固承托於扶手或桌面，消除整隻手臂約 3.5 公斤的懸臂重力拉扯。"
+      );
+    }
+
+    // 規則 2：頸椎前傾與螢幕視角
+    if (neck >= 3 || (neck >= 2 && traps.trap_screen)) {
+      guides.push(
+        "【頸椎力矩剪切校準】：您的頸部肌肉處於持續性張力狀態。請立即將螢幕或筆電架墊高 10~12 公分，讓螢幕頂端水平齊平眼睛，嚴禁直接低頭注視桌面平放筆電；每工作 45 分鐘進行 5 次「收下巴雙下巴運動」（水平後縮下巴 5 秒），重設深層頸屈肌長度。"
+      );
+    }
+
+    // 規則 3：腰背部與骨盆支撐
+    if (lowerback >= 3 || (lowerback >= 2 && traps.trap_chair)) {
+      guides.push(
+        "【腰椎骨盆力學支撐】：下背部酸痛多源於骨盆後傾與腰椎懸空。請在腰椎第 4~5 節凹槽處加裝腰靠墊（或將厚外套捲成圓柱狀塞入），強制骨盆維持直立中立位；同時調整座椅高度使雙腳掌平踏地面，大腿呈水平，避免椎間盤承受異常向後剪切力。"
+      );
+    }
+
+    // 規則 4：左側肩腕負載 (鍵盤快捷鍵極限伸展 / 單側背包)
+    if ((lShoulder >= 3 || lWrist >= 3) && lShoulder - rShoulder >= 1) {
+      guides.push(
+        "【左側肢體張力舒緩】：您的左側負載高於右側，請檢核日常是否習慣單肩背包、通話時單側歪頭夾耳機，或打字時左手大拇指與小指過度極限外展按壓快捷鍵（如頻繁 Ctrl+Z/Shift）。建議更換為雙肩後背包，並使用手托減緩左腕角度。"
+      );
+    }
+
+    // 規則 5：上背胸椎緊繃 (圓肩駝背)
+    if (upperback >= 3 && guides.length < 3) {
+      guides.push(
+        "【胸椎伸展與後仰放鬆】：上背緊繃代表胸椎過度前曲駝背。建議將辦公椅背後傾角度微調至 100~110 度（而非死板 90 度垂直），使軀幹重量部分轉移由椅背承載；作業間歇時雙手在背後交握向後拉伸，打開胸廓。"
+      );
+    }
+
+    // 規則 6：下肢關節與足底筋膜 (久站或翹腳)
+    if ((knees >= 3 || ankles >= 3 || hips >= 3) && guides.length < 3) {
+      guides.push(
+        "【下肢靜脈回流與重心重整】：若有久站或久坐骨盆酸痛，嚴禁翹二郎腿或單腳三七步站立；建議更換具備良好足弓支撐與避震機能的鞋墊；每小時進行 20 次「腳踝幫浦運動（勾腳背與踩油門動作）」，運用小腿肌肉泵浦加速下肢靜脈血液回流。"
+      );
+    }
+
+    // 規則 7：環境眩光地雷
+    if (traps.trap_glare && guides.length < 3) {
+      guides.push(
+        "【消除光環境刺眼眩光】：螢幕表面反光會迫使頭部歪斜閃光並加劇視疲勞。請微調螢幕前後俯仰角避開頭頂燈具反光，並落實「20-20-20 原則」（每用眼 20 分鐘，望向 6 公尺遠處放鬆睫狀肌 20 秒）。"
+      );
+    }
+
+    // 規則 8：連續久坐超時地雷
+    if (traps.trap_sedentary && guides.length < 3) {
+      guides.push(
+        "【建立物理中斷微習慣】：不要依賴自制力避免久坐。建議換用約 250ml 的小水杯，強迫自己喝完就必須起立走動裝水；並將 5 分鐘以內的電話溝通改為站立進行，打斷持續性椎間盤靜態壓迫。"
+      );
+    }
+
+    // 若學員完全無酸痛標記 (全為 0~1分)，給予前瞻預防指引
+    if (guides.length === 0) {
+      guides.push(
+        "【維持優質人因基準】：您的各關節力矩與作業姿勢維持良好！請持續維持「手肘 90 度有支撐、螢幕平視、雙腳著地」的良好配置。",
+        "【動態間歇保養】：持續落實 45~60 分鐘微起身活動與 20-20-20 護眼原則，維持身體低折舊率。",
+        "【環境前瞻預防】：每季檢視工作椅氣壓棒與螢幕支架螺絲，避免家具耗損導致無自覺的姿勢代償。"
+      );
+    }
+
+    return guides.slice(0, 3); // 嚴選最關鍵的前 3 項精準指引
+  }
 };
 
 if (typeof window !== "undefined") {
   window.ERGO_CONFIG = ERGO_CONFIG;
 }
+

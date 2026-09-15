@@ -98,9 +98,9 @@ document.addEventListener("DOMContentLoaded", () => {
     updateBodymapSummary();
   }
 
-  // 更新人體圖選取摘要
+  // 更新人體圖選取摘要 (顯示 0~5 分生活情境標籤)
   function updateBodymapSummary() {
-    const keys = Object.keys(userBodymapData);
+    const keys = Object.keys(userBodymapData).filter(k => userBodymapData[k] > 0);
     if (keys.length === 0) {
       elBodymapSummary.innerHTML = "目前尚未標記任何不適部位（若完全無症狀，可直接點擊下一步）";
       return;
@@ -109,9 +109,17 @@ document.addEventListener("DOMContentLoaded", () => {
     const items = keys.map((key) => {
       const zone = NMQ_ZONES.find((z) => z.id === key);
       const name = zone ? zone.name : key;
-      const intensity = userBodymapData[key] === 3 ? "重度" : "中度";
-      const badgeClass = userBodymapData[key] === 3 ? "text-rose-400 bg-rose-950/60 border-rose-800" : "text-amber-400 bg-amber-950/60 border-amber-800";
-      return `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border ${badgeClass}">${name} (${intensity})</span>`;
+      const level = userBodymapData[key];
+      const levelConf = NMQ_SEVERITY_LEVELS.find(l => l.level === level) || NMQ_SEVERITY_LEVELS[0];
+      
+      let badgeClass = "text-sky-400 bg-sky-950/60 border-sky-800";
+      if (level === 2) badgeClass = "text-amber-300 bg-amber-950/60 border-amber-800";
+      if (level === 3) badgeClass = "text-amber-400 bg-amber-950/80 border-amber-600 font-bold";
+      if (level >= 4) badgeClass = "text-rose-400 bg-rose-950/80 border-rose-600 font-bold";
+
+      return `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] border ${badgeClass}">
+        ${name} (${level}分 · ${levelConf.label})
+      </span>`;
     });
 
     elBodymapSummary.innerHTML = `<div class="flex flex-wrap items-center justify-center gap-1.5">已標記部位：${items.join("")}</div>`;
@@ -247,12 +255,15 @@ document.addEventListener("DOMContentLoaded", () => {
   async function finishAssessment() {
     let totalScore = 100;
     
-    // 計算 NMQ 人體圖扣分 (最高扣 40 分)
+    // 計算 NMQ 人體圖扣分 (1分=1分, 2分=3分, 3分=6分, 4分=9分, 5分=12分，上限 40 分)
     let nmqPenaltySum = 0;
     Object.keys(userBodymapData).forEach((key) => {
-      const val = userBodymapData[key];
-      if (val === 2) nmqPenaltySum += 5; // 中度
-      if (val === 3) nmqPenaltySum += 10; // 重度
+      const val = userBodymapData[key] || 0;
+      if (val === 1) nmqPenaltySum += 1;
+      else if (val === 2) nmqPenaltySum += 3;
+      else if (val === 3) nmqPenaltySum += 6; // 下班仍酸痛，權重加重
+      else if (val === 4) nmqPenaltySum += 9;
+      else if (val === 5) nmqPenaltySum += 12;
     });
     const nmqPenalty = Math.min(40, nmqPenaltySum);
     totalScore -= nmqPenalty;
@@ -279,11 +290,18 @@ document.addEventListener("DOMContentLoaded", () => {
       ERGO_CONFIG.scoreTiers.find((t) => totalScore >= t.min && totalScore <= t.max) ||
       ERGO_CONFIG.scoreTiers[ERGO_CONFIG.scoreTiers.length - 1];
 
-    // 建立 15 個解剖區域的 NMQ 資料庫格式
+    // 建立 15 個解剖區域的 NMQ 資料庫格式 (0~5 分純數值)
     const nmqData = {};
     NMQ_ZONES.forEach((z) => {
       nmqData[z.id] = userBodymapData[z.id] || 0;
     });
+
+    // 呼叫動態人因指引引擎，產出完全客製化建議
+    const personalizedGuides = ERGO_CONFIG.generatePersonalizedActionGuides(
+      selectedRole,
+      userBodymapData,
+      traps
+    );
 
     const submissionData = {
       role: selectedRole,
@@ -294,11 +312,11 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     await dataBridge.submitAssessment(submissionData);
-    showResult(totalScore, tierInfo, nmqData);
+    showResult(totalScore, tierInfo, nmqData, personalizedGuides);
   }
 
   // 8. 渲染個人評估結果報告
-  function showResult(score, tierInfo, nmqData) {
+  function showResult(score, tierInfo, nmqData, customGuides) {
     elStepQuiz.classList.add("hidden");
     elStepResult.classList.remove("hidden");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -319,40 +337,41 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     resultMap.setData(userBodymapData);
 
-    // 渲染標記文字清單
+    // 渲染標記文字清單 (顯示 0~5 分精準生活情境)
     const resListEl = document.getElementById("result-bodymap-list");
-    const activeKeys = Object.keys(userBodymapData);
+    const activeKeys = Object.keys(userBodymapData).filter(k => userBodymapData[k] > 0);
     if (activeKeys.length === 0) {
-      resListEl.innerHTML = `<div class="text-slate-400 text-center py-1">全身體幹與關節目前無顯著酸痛標記</div>`;
+      resListEl.innerHTML = `<div class="text-slate-400 text-center py-1">全身體幹與關節目前無顯著酸痛標記（各部位皆為 0 分）</div>`;
     } else {
       resListEl.innerHTML = activeKeys
         .map((k) => {
           const z = NMQ_ZONES.find((item) => item.id === k);
           const name = z ? z.name : k;
-          const isSevere = userBodymapData[k] === 3;
-          const statusTxt = isSevere ? "重度負載 (持續酸麻/刺痛)" : "中度負載 (常態僵硬緊繃)";
-          const dotColor = isSevere ? "bg-rose-500" : "bg-amber-500";
+          const level = userBodymapData[k];
+          const levelConf = NMQ_SEVERITY_LEVELS.find(l => l.level === level) || NMQ_SEVERITY_LEVELS[0];
+          
           return `
           <div class="flex items-center justify-between p-2 rounded bg-slate-850 border border-[#30363d] text-xs">
             <span class="flex items-center gap-2 font-bold text-slate-200">
-              <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+              <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${levelConf.color}"></span>
               <span>${name}</span>
             </span>
-            <span class="text-slate-400">${statusTxt}</span>
+            <span class="text-slate-300 font-medium">${level}分 · ${levelConf.label} <span class="text-[10px] text-slate-400">(${levelConf.desc.slice(0, 16)}...)</span></span>
           </div>
         `;
         })
         .join("");
     }
 
-    // 改善指引清單
+    // 渲染動態個人化改善指引清單
     const elGuides = document.getElementById("res-action-guides");
+    const guidesToRender = customGuides && customGuides.length > 0 ? customGuides : tierInfo.actionGuides;
     if (elGuides) {
-      elGuides.innerHTML = tierInfo.actionGuides
+      elGuides.innerHTML = guidesToRender
         .map(
           (guide, i) => `
-          <li class="flex items-start gap-3 text-slate-300 text-sm leading-relaxed">
-            <span class="w-5 h-5 rounded-md bg-slate-800 text-sky-300 border border-slate-700 flex items-center justify-center text-xs font-semibold flex-shrink-0 mt-0.5">
+          <li class="flex items-start gap-3 text-slate-300 text-sm leading-relaxed p-2.5 rounded-lg bg-slate-850/60 border border-[#30363d]">
+            <span class="w-5 h-5 rounded-md bg-sky-950 text-sky-300 border border-sky-800 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
               ${i + 1}
             </span>
             <span>${guide}</span>

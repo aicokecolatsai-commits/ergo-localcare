@@ -1,39 +1,39 @@
 /**
- * 人體工學 NMQ 向量人體圖元件 (bodymap.js) - 升級版
- * 導入生活情境錨定 (Functional & Temporal Anchoring)：
- * 0: 無不適 (活動自如)
- * 1: 偶爾微緊 (動一動即消失)
- * 2: 工作時酸 (下班休息後就好)
- * 3: 下班回到家還在酸痛 (慢性累積，隔天未恢復)
- * 4: 痛到分心影響工作 (產能受限)
- * 5: 發麻/劇痛 (刺痛、發麻、影響睡眠)
+ * 人體工學 NMQ 向量人體圖元件 (bodymap.js) - 莫蘭迪美學與手機優先版
+ * 導入生活情境錨定 (Functional & Temporal Anchoring) 與 莫蘭迪高雅色系：
+ * 0: 無不適 (活動自如，無酸痛感) - 莫蘭迪灰石 #546274
+ * 1: 偶爾微緊 (動一動即消失) - 莫蘭迪霧霾藍 #5b8eab
+ * 2: 工作時酸 (下班休息後就好) - 莫蘭迪鼠尾草綠 #66997a
+ * 3: 下班回到家還在酸痛 (生活核心門檻，隔天未恢復) - 莫蘭迪秋香芥黃 #c69242
+ * 4: 痛到分心 (干擾專注，動作變慢) - 莫蘭迪陶土焦糖 #bd5d38
+ * 5: 發麻劇痛 (深層刺痛、神經發麻、影響睡眠) - 莫蘭迪煙燻莓紅 #a63a50
  */
 
 const NMQ_SEVERITY_LEVELS = [
-  { level: 0, label: "無不適", desc: "活動自如，完全無酸痛感", color: "#334155", textColor: "#94a3b8" },
-  { level: 1, label: "偶爾微緊", desc: "稍微轉動、伸展一下就完全沒事", color: "#38bdf8", textColor: "#ffffff" },
-  { level: 2, label: "工作時酸，下班就好", desc: "作業時感到酸脹，但下班休息後就完全消失", color: "#facc15", textColor: "#0f172a" },
-  { level: 3, label: "下班回到家還在酸痛", desc: "下班回家洗完澡依然緊繃酸痛，隔天仍未完全消退", color: "#f59e0b", textColor: "#0f172a" },
-  { level: 4, label: "痛到分心、動作變慢", desc: "疼痛明顯干擾專注力與工作產能，需頻繁揉捏忍痛", color: "#f97316", textColor: "#ffffff" },
-  { level: 5, label: "發麻、劇痛、影響睡眠", desc: "深層刺痛、神經發麻無力或半夜痛醒，需吃藥就醫", color: "#dc2626", textColor: "#ffffff" }
+  { level: 0, label: "無不適", desc: "活動自如，完全無酸痛感", color: "#546274", textColor: "#cbd5e1", bgClass: "bg-[#546274]/20 border-[#546274]/40" },
+  { level: 1, label: "偶爾微緊", desc: "稍微轉動、伸展一下就消失", color: "#5b8eab", textColor: "#ffffff", bgClass: "bg-[#5b8eab]/20 border-[#5b8eab]/50" },
+  { level: 2, label: "工作時酸，下班就好", desc: "作業時酸脹，下班休息後消退", color: "#66997a", textColor: "#ffffff", bgClass: "bg-[#66997a]/20 border-[#66997a]/50" },
+  { level: 3, label: "下班回家還在酸痛", desc: "洗完澡仍酸痛，隔天未完全消退", color: "#c69242", textColor: "#ffffff", bgClass: "bg-[#c69242]/25 border-[#c69242]/60" },
+  { level: 4, label: "痛到分心、動作變慢", desc: "明顯干擾專注力與工作產能", color: "#bd5d38", textColor: "#ffffff", bgClass: "bg-[#bd5d38]/25 border-[#bd5d38]/60" },
+  { level: 5, label: "發麻、劇痛、難以入眠", desc: "深層刺痛、神經發麻無力或痛醒", color: "#a63a50", textColor: "#ffffff", bgClass: "bg-[#a63a50]/25 border-[#a63a50]/60" }
 ];
 
 const NMQ_ZONES = [
-  { id: "neck", name: "頸部", isBilateral: false, cx: 100, cy: 55, r: 12 },
+  { id: "neck", name: "頸部", isBilateral: false, cx: 100, cy: 55, r: 13 },
   { id: "shoulder_l", name: "左肩", isBilateral: true, cx: 65, cy: 75, r: 14 },
   { id: "shoulder_r", name: "右肩", isBilateral: true, cx: 135, cy: 75, r: 14 },
   { id: "upperback", name: "上背部", isBilateral: false, cx: 100, cy: 95, r: 16 },
-  { id: "elbow_l", name: "左手肘", isBilateral: true, cx: 48, cy: 125, r: 12 },
-  { id: "elbow_r", name: "右手肘", isBilateral: true, cx: 152, cy: 125, r: 12 },
+  { id: "elbow_l", name: "左手肘", isBilateral: true, cx: 48, cy: 125, r: 13 },
+  { id: "elbow_r", name: "右手肘", isBilateral: true, cx: 152, cy: 125, r: 13 },
   { id: "lowerback", name: "下背/腰部", isBilateral: false, cx: 100, cy: 135, r: 16 },
-  { id: "wrist_l", name: "左手腕", isBilateral: true, cx: 35, cy: 165, r: 11 },
-  { id: "wrist_r", name: "右手腕", isBilateral: true, cx: 165, cy: 165, r: 11 },
+  { id: "wrist_l", name: "左手腕", isBilateral: true, cx: 35, cy: 165, r: 12 },
+  { id: "wrist_r", name: "右手腕", isBilateral: true, cx: 165, cy: 165, r: 12 },
   { id: "hip_l", name: "左臀/髖部", isBilateral: true, cx: 80, cy: 170, r: 15 },
   { id: "hip_r", name: "右臀/髖部", isBilateral: true, cx: 120, cy: 170, r: 15 },
   { id: "knee_l", name: "左膝", isBilateral: true, cx: 82, cy: 235, r: 14 },
   { id: "knee_r", name: "右膝", isBilateral: true, cx: 118, cy: 235, r: 14 },
-  { id: "ankle_l", name: "左踝/足部", isBilateral: true, cx: 82, cy: 300, r: 12 },
-  { id: "ankle_r", name: "右踝/足部", isBilateral: true, cx: 118, cy: 300, r: 12 }
+  { id: "ankle_l", name: "左踝/足部", isBilateral: true, cx: 82, cy: 300, r: 13 },
+  { id: "ankle_r", name: "右踝/足部", isBilateral: true, cx: 118, cy: 300, r: 13 }
 ];
 
 class BodyMapComponent {
@@ -42,7 +42,7 @@ class BodyMapComponent {
     this.interactive = !!options.interactive;
     this.onChange = options.onChange || (() => {});
     this.selectedZones = {}; // { zoneId: 0~5 }
-    this.activeFocusZone = null; // 當前正在設定刻度的部位 ID
+    this.activeFocusZone = null;
     if (this.container) {
       this.init();
     }
@@ -50,23 +50,51 @@ class BodyMapComponent {
 
   init() {
     this.container.innerHTML = `
-      <div class="w-full max-w-[280px] mx-auto flex flex-col items-center">
-        <!-- SVG 人體剪影 -->
-        <div class="relative w-full max-w-[220px] select-none">
-          <svg viewBox="0 0 200 330" class="w-full h-auto drop-shadow-sm" xmlns="http://www.w3.org/2000/svg">
-            <g fill="#1e293b" stroke="#334155" stroke-width="1.5" stroke-linejoin="round">
+      <div class="w-full max-w-sm mx-auto flex flex-col items-center select-none">
+        
+        <!-- 手機友善：人體部位快捷橫向滑動膠囊列 (可滑動點選，手粗不誤觸) -->
+        ${this.interactive ? `
+          <div class="w-full mb-2.5">
+            <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1.5 px-0.5">
+              <span class="font-medium flex items-center gap-1">
+                <span>📍</span> 快捷切換部位：
+              </span>
+              <span class="text-[10px] text-slate-500">可點選人體圖或橫向滑動</span>
+            </div>
+            <div class="zone-pills-bar flex gap-1.5 overflow-x-auto pb-1.5 no-scrollbar w-full">
+              ${NMQ_ZONES.map(z => `
+                <button 
+                  type="button" 
+                  data-id="${z.id}" 
+                  class="zone-pill-btn flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-medium bg-[#1e2533] text-slate-300 border border-slate-700/80 hover:border-[#5b8eab] transition-all flex items-center gap-1.5 touch-press">
+                  <span class="w-2 h-2 rounded-full bg-slate-500 pill-dot transition-colors"></span>
+                  <span class="pill-name">${z.name}</span>
+                  <span class="pill-score text-[10px] font-bold hidden"></span>
+                </button>
+              `).join("")}
+            </div>
+          </div>
+        ` : ""}
+
+        <!-- SVG 向量人體剪影 (緊湊自適應尺寸，垂直不占版面) -->
+        <div class="relative w-full max-w-[210px] flex flex-col items-center">
+          <svg viewBox="0 0 200 330" class="w-full h-auto drop-shadow" xmlns="http://www.w3.org/2000/svg">
+            <!-- 身體輪廓 -->
+            <g fill="#18202c" stroke="#2e3848" stroke-width="1.5" stroke-linejoin="round">
               <ellipse cx="100" cy="30" rx="18" ry="22" />
               <path d="M 88 50 C 70 65, 55 70, 50 85 C 45 100, 42 120, 35 160 C 32 175, 42 180, 48 165 L 58 135 L 62 165 C 64 185, 75 190, 100 190 C 125 190, 136 185, 138 165 L 142 135 L 152 165 C 158 180, 168 175, 165 160 C 158 120, 155 100, 150 85 C 145 70, 130 65, 112 50 Z" />
               <path d="M 68 185 C 72 210, 75 250, 75 295 C 75 305, 68 312, 75 315 C 85 315, 92 308, 92 295 L 94 220 L 98 190 L 102 190 L 106 220 L 108 295 C 108 308, 115 315, 125 315 C 132 312, 125 305, 125 295 C 125 250, 128 210, 132 185 Z" />
             </g>
-            <line x1="100" y1="52" x2="100" y2="185" stroke="#475569" stroke-width="1" stroke-dasharray="3,3" />
+            <line x1="100" y1="52" x2="100" y2="185" stroke="#3d4a5d" stroke-width="1" stroke-dasharray="3,3" />
 
+            <!-- 15 個解剖區域互動靶點 -->
             <g id="heatmap-targets">
               ${NMQ_ZONES.map((z) => `
-                <g class="zone-target cursor-pointer" data-id="${z.id}" id="target-${z.id}">
-                  <circle cx="${z.cx}" cy="${z.cy}" r="${z.r + 6}" fill="transparent" />
-                  <circle cx="${z.cx}" cy="${z.cy}" r="${z.r}" class="zone-circle transition-all duration-150" fill="#334155" fill-opacity="0.4" stroke="#64748b" stroke-width="1.5" />
-                  <text x="${z.cx}" y="${z.cy + 3}" text-anchor="middle" class="zone-text text-[8px] font-bold fill-slate-300 pointer-events-none select-none">
+                <g class="zone-target ${this.interactive ? 'cursor-pointer' : ''}" data-id="${z.id}" id="target-${z.id}">
+                  <!-- 放大點擊熱區，手機更易擊中 -->
+                  <circle cx="${z.cx}" cy="${z.cy}" r="${z.r + 7}" fill="transparent" />
+                  <circle cx="${z.cx}" cy="${z.cy}" r="${z.r}" class="zone-circle transition-all duration-200" fill="#2d3748" fill-opacity="0.5" stroke="#546274" stroke-width="1.5" />
+                  <text x="${z.cx}" y="${z.cy + 3.5}" text-anchor="middle" class="zone-text text-[9px] font-bold fill-slate-200 pointer-events-none select-none">
                     ${z.name.replace("左", "L").replace("右", "R")}
                   </text>
                 </g>
@@ -74,39 +102,65 @@ class BodyMapComponent {
             </g>
           </svg>
 
-          <div class="flex items-center justify-between text-[10px] font-semibold text-slate-400 px-2 mt-1">
+          <div class="w-full flex items-center justify-between text-[10px] font-semibold text-slate-400 px-3 mt-1">
             <span>左側 (Left)</span>
-            <span class="text-[9px] text-slate-500">解剖視角</span>
+            <span class="text-[9px] text-slate-500 font-mono">解剖左右視角</span>
             <span>右側 (Right)</span>
           </div>
         </div>
 
-        <!-- 互動式情境選擇膠囊排 (點選部位時動態展開) -->
+        <!-- 手機原生級底部滑出抽屜 (Mobile Bottom Sheet Modal) -->
         ${this.interactive ? `
-          <div id="zone-scale-drawer" class="w-full mt-3 p-3 rounded-xl bg-slate-900 border border-slate-700/80 shadow-lg transition-all hidden">
-            <div class="flex items-center justify-between mb-2">
-              <span id="active-zone-title" class="text-xs font-bold text-sky-300">請選擇酸痛狀況</span>
-              <button id="btn-clear-zone" type="button" class="text-[11px] text-slate-400 hover:text-rose-400 transition-colors">
-                ✕ 設為無不適 (0分)
+          <!-- 半透明 Backdrop 遮罩 -->
+          <div id="bodymap-sheet-backdrop" class="fixed inset-0 bg-black/65 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-200"></div>
+
+          <!-- 底部彈出抽屜 (拇指最佳操作熱區) -->
+          <div id="zone-scale-drawer" class="fixed inset-x-0 bottom-0 z-50 p-4 pb-7 bg-[#171d27] border-t border-slate-700/80 rounded-t-2xl shadow-2xl transition-all duration-200 transform translate-y-full opacity-0 pointer-events-none max-w-lg mx-auto">
+            <!-- 頂部防呆手柄條 -->
+            <div class="w-10 h-1.5 bg-slate-600/70 rounded-full mx-auto mb-3.5"></div>
+            
+            <div class="flex items-center justify-between mb-3 px-1">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#5b8eab] animate-pulse"></span>
+                <span id="active-zone-title" class="text-sm md:text-base font-bold text-white tracking-wide">
+                  設定部位酸痛狀況
+                </span>
+              </div>
+              <button id="btn-close-drawer" type="button" class="w-7 h-7 flex items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors text-sm font-bold">
+                ✕
               </button>
             </div>
             
-            <!-- 5段客觀情境按鈕 -->
-            <div class="space-y-1.5" id="scale-options-container">
-              ${NMQ_SEVERITY_LEVELS.filter(l => l.level > 0).map(l => `
-                <button type="button" data-level="${l.level}" class="scale-btn w-full text-left px-2.5 py-1.5 rounded-lg border border-slate-700/80 hover:border-slate-500 bg-slate-800/80 transition-all flex items-center justify-between group">
-                  <span class="text-xs font-bold text-slate-200 group-hover:text-white flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full" style="background-color: ${l.color}"></span>
-                    <span>${l.level}分 · ${l.label}</span>
-                  </span>
-                  <span class="text-[10px] text-slate-400 group-hover:text-slate-300 text-right truncate max-w-[140px]">
+            <!-- 6段莫蘭迪情境按鈕 (2欄緊湊網格，大觸控區，拇指一碰即選) -->
+            <div class="grid grid-cols-2 gap-2" id="scale-options-container">
+              ${NMQ_SEVERITY_LEVELS.map(l => `
+                <button 
+                  type="button" 
+                  data-level="${l.level}" 
+                  class="scale-btn text-left p-3 rounded-xl border border-slate-700/80 bg-[#1f2735] hover:border-slate-500 transition-all flex flex-col justify-between touch-press group min-h-[64px]">
+                  <div class="flex items-center justify-between w-full mb-1">
+                    <span class="text-xs font-bold text-slate-100 flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: ${l.color}"></span>
+                      <span>${l.level}分 · ${l.label}</span>
+                    </span>
+                  </div>
+                  <span class="text-[10px] text-slate-400 leading-tight">
                     ${l.desc}
                   </span>
                 </button>
               `).join("")}
             </div>
+
+            <!-- 底部動作 -->
+            <div class="mt-3 pt-2.5 border-t border-slate-800 flex items-center justify-between px-1 text-xs">
+              <span class="text-[11px] text-slate-400">💡 點選任一程度即刻儲存</span>
+              <button id="btn-clear-zone" type="button" class="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 hover:text-rose-300 hover:border-rose-800 text-xs font-medium transition-colors">
+                設為無不適 (0分)
+              </button>
+            </div>
           </div>
         ` : ""}
+
       </div>
     `;
 
@@ -117,11 +171,14 @@ class BodyMapComponent {
 
   bindEvents() {
     const targets = this.container.querySelectorAll(".zone-target");
+    const pills = this.container.querySelectorAll(".zone-pill-btn");
     const drawer = this.container.querySelector("#zone-scale-drawer");
-    const zoneTitle = this.container.querySelector("#active-zone-title");
+    const backdrop = this.container.querySelector("#bodymap-sheet-backdrop");
+    const btnClose = this.container.querySelector("#btn-close-drawer");
     const btnClear = this.container.querySelector("#btn-clear-zone");
     const scaleBtns = this.container.querySelectorAll(".scale-btn");
 
+    // 點擊人體圖向量靶點
     targets.forEach((target) => {
       target.addEventListener("click", () => {
         const id = target.getAttribute("data-id");
@@ -129,6 +186,15 @@ class BodyMapComponent {
       });
     });
 
+    // 點擊橫向部位膠囊
+    pills.forEach((pill) => {
+      pill.addEventListener("click", () => {
+        const id = pill.getAttribute("data-id");
+        this.openScaleDrawer(id);
+      });
+    });
+
+    // 選擇分數 (點擊即生效並自動關閉)
     scaleBtns.forEach((btn) => {
       btn.addEventListener("click", () => {
         const level = parseInt(btn.getAttribute("data-level"), 10);
@@ -138,41 +204,70 @@ class BodyMapComponent {
       });
     });
 
+    // 設為 0 分
     if (btnClear) {
       btnClear.addEventListener("click", () => {
         if (this.activeFocusZone) {
           this.setZoneLevel(this.activeFocusZone, 0);
-          if (drawer) drawer.classList.add("hidden");
         }
       });
+    }
+
+    // 關閉按鈕與遮罩
+    if (btnClose) {
+      btnClose.addEventListener("click", () => this.closeScaleDrawer());
+    }
+    if (backdrop) {
+      backdrop.addEventListener("click", () => this.closeScaleDrawer());
     }
   }
 
   openScaleDrawer(id) {
     this.activeFocusZone = id;
     const drawer = this.container.querySelector("#zone-scale-drawer");
+    const backdrop = this.container.querySelector("#bodymap-sheet-backdrop");
     const zoneTitle = this.container.querySelector("#active-zone-title");
     const zone = NMQ_ZONES.find((z) => z.id === id);
 
     if (drawer && zoneTitle && zone) {
-      drawer.classList.remove("hidden");
       const curLevel = this.selectedZones[id] || 0;
-      const curLabel = curLevel > 0 ? ` (目前: ${curLevel}分)` : " (未標記)";
-      zoneTitle.innerHTML = `📍 設定【${zone.name}】${curLabel}：`;
+      const curLabel = curLevel > 0 ? ` (目前: ${curLevel}分)` : " (目前無不適)";
+      zoneTitle.innerHTML = `設定【${zone.name}】酸痛程度 <span class="text-xs font-normal text-slate-400">${curLabel}</span>`;
 
-      // 標註目前選取的按鈕
+      // 標記目前已選擇的按鈕
       const scaleBtns = this.container.querySelectorAll(".scale-btn");
       scaleBtns.forEach(btn => {
         const lvl = parseInt(btn.getAttribute("data-level"), 10);
+        const lConf = NMQ_SEVERITY_LEVELS.find(l => l.level === lvl);
         if (lvl === curLevel) {
-          btn.classList.add("border-sky-400", "bg-sky-950/60");
+          btn.style.borderColor = lConf.color;
+          btn.style.backgroundColor = `${lConf.color}25`;
         } else {
-          btn.classList.remove("border-sky-400", "bg-sky-950/60");
+          btn.style.borderColor = "";
+          btn.style.backgroundColor = "";
         }
       });
 
-      // 將畫面微滾動至抽屜可見
-      drawer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      // 喚出底部滑出抽屜與遮罩
+      if (backdrop) {
+        backdrop.classList.remove("hidden");
+        setTimeout(() => backdrop.classList.remove("opacity-0"), 10);
+      }
+      drawer.classList.remove("translate-y-full", "opacity-0", "pointer-events-none");
+      drawer.classList.add("sheet-open");
+    }
+  }
+
+  closeScaleDrawer() {
+    const drawer = this.container.querySelector("#zone-scale-drawer");
+    const backdrop = this.container.querySelector("#bodymap-sheet-backdrop");
+    if (drawer) {
+      drawer.classList.remove("sheet-open");
+      drawer.classList.add("translate-y-full", "opacity-0", "pointer-events-none");
+    }
+    if (backdrop) {
+      backdrop.classList.add("opacity-0");
+      setTimeout(() => backdrop.classList.add("hidden"), 200);
     }
   }
 
@@ -184,12 +279,7 @@ class BodyMapComponent {
     }
     this.updateVisuals();
     this.onChange(this.selectedZones);
-
-    // 關閉或更新抽屜
-    const drawer = this.container.querySelector("#zone-scale-drawer");
-    if (drawer) {
-      drawer.classList.add("hidden");
-    }
+    this.closeScaleDrawer();
   }
 
   setData(zonesData) {
@@ -200,30 +290,54 @@ class BodyMapComponent {
   updateVisuals() {
     NMQ_ZONES.forEach((z) => {
       const g = this.container.querySelector(`#target-${z.id}`);
-      if (!g) return;
-      const circle = g.querySelector(".zone-circle");
-      const text = g.querySelector(".zone-text");
+      const pill = this.container.querySelector(`.zone-pill-btn[data-id="${z.id}"]`);
       const level = this.selectedZones[z.id] || 0;
-
       const conf = NMQ_SEVERITY_LEVELS.find(l => l.level === level) || NMQ_SEVERITY_LEVELS[0];
 
-      if (level > 0) {
-        circle.setAttribute("fill", conf.color);
-        circle.setAttribute("fill-opacity", level >= 3 ? "0.9" : "0.75");
-        circle.setAttribute("stroke", level >= 4 ? "#f87171" : "#ffffff");
-        circle.setAttribute("stroke-width", level >= 3 ? "2.5" : "1.8");
-        text.setAttribute("fill", conf.textColor);
-      } else {
-        circle.setAttribute("fill", "#334155");
-        circle.setAttribute("fill-opacity", "0.4");
-        circle.setAttribute("stroke", "#64748b");
-        circle.setAttribute("stroke-width", "1.5");
-        text.setAttribute("fill", "#94a3b8");
+      // 更新 SVG 人體靶點視覺
+      if (g) {
+        const circle = g.querySelector(".zone-circle");
+        const text = g.querySelector(".zone-text");
+
+        if (level > 0) {
+          circle.setAttribute("fill", conf.color);
+          circle.setAttribute("fill-opacity", "0.9");
+          circle.setAttribute("stroke", "#ffffff");
+          circle.setAttribute("stroke-width", "2");
+          text.setAttribute("fill", "#ffffff");
+        } else {
+          circle.setAttribute("fill", "#2d3748");
+          circle.setAttribute("fill-opacity", "0.5");
+          circle.setAttribute("stroke", "#546274");
+          circle.setAttribute("stroke-width", "1.5");
+          text.setAttribute("fill", "#cbd5e1");
+        }
+      }
+
+      // 更新橫向快捷膠囊按鈕狀態
+      if (pill) {
+        const dot = pill.querySelector(".pill-dot");
+        const scoreSpan = pill.querySelector(".pill-score");
+        if (level > 0) {
+          pill.style.borderColor = conf.color;
+          pill.style.backgroundColor = `${conf.color}22`;
+          if (dot) dot.style.backgroundColor = conf.color;
+          if (scoreSpan) {
+            scoreSpan.innerText = `${level}分`;
+            scoreSpan.style.color = conf.color;
+            scoreSpan.classList.remove("hidden");
+          }
+        } else {
+          pill.style.borderColor = "";
+          pill.style.backgroundColor = "";
+          if (dot) dot.style.backgroundColor = "#64748b";
+          if (scoreSpan) scoreSpan.classList.add("hidden");
+        }
       }
     });
   }
 
-  // 看板端：渲染全場熱力圖 (根據平均嚴重度 0~5 與盛行率)
+  // 看板端：渲染全場熱力圖 (莫蘭迪色系漸變)
   setAggregateHeatmap(percentages) {
     NMQ_ZONES.forEach((z) => {
       const g = this.container.querySelector(`#target-${z.id}`);
@@ -232,30 +346,30 @@ class BodyMapComponent {
       const text = g.querySelector(".zone-text");
       const pct = percentages[z.id] || 0;
 
-      let fill = "#334155";
-      let opacity = "0.4";
-      let stroke = "#64748b";
-      let textFill = "#94a3b8";
+      let fill = "#2d3748";
+      let opacity = "0.5";
+      let stroke = "#546274";
+      let textFill = "#cbd5e1";
 
       if (pct >= 50) {
-        fill = "#dc2626";
+        fill = "#a63a50"; // 莫蘭迪煙燻莓紅
         opacity = "0.95";
         stroke = "#fca5a5";
         textFill = "#ffffff";
       } else if (pct >= 30) {
-        fill = "#f97316";
-        opacity = "0.85";
-        stroke = "#fdba74";
+        fill = "#bd5d38"; // 莫蘭迪陶土焦糖
+        opacity = "0.9";
+        stroke = "#fed7aa";
         textFill = "#ffffff";
       } else if (pct >= 15) {
-        fill = "#f59e0b";
-        opacity = "0.75";
-        stroke = "#fde047";
-        textFill = "#0f172a";
+        fill = "#c69242"; // 莫蘭迪秋香芥黃
+        opacity = "0.85";
+        stroke = "#fef08a";
+        textFill = "#ffffff";
       } else if (pct > 0) {
-        fill = "#0284c7";
-        opacity = "0.6";
-        stroke = "#38bdf8";
+        fill = "#5b8eab"; // 莫蘭迪霧霾藍
+        opacity = "0.75";
+        stroke = "#bae6fd";
         textFill = "#ffffff";
       }
 

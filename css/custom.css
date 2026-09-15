@@ -1,14 +1,26 @@
-/* 人因工程與防疲勞專業介面設計規範 (Ergo UI) */
+/* 人因工程與防疲勞專業介面設計規範 (Ergo UI - Morandi Palette Edition) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
 
 :root {
   --font-sans: 'Inter', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
   --bg-primary: #0d1117;
   --bg-surface: #161b22;
+  --bg-card-dark: #1b212c;
   --border-default: #30363d;
   --text-primary: #f0f6fc;
-  --text-secondary: #8b949e;
-  --accent-primary: #38bdf8;
+  --text-secondary: #94a3b8;
+  
+  /* 莫蘭迪核心色系 (Morandi Aesthetic Palette) */
+  --morandi-blue: #5b8eab;       /* 莫蘭迪霧霾藍 */
+  --morandi-blue-dark: #273b4d;
+  --morandi-green: #66997a;      /* 莫蘭迪鼠尾草綠 */
+  --morandi-green-dark: #2a3d31;
+  --morandi-oat: #c69242;        /* 莫蘭迪秋香杏黃 */
+  --morandi-oat-dark: #4d381c;
+  --morandi-rose: #a63a50;       /* 莫蘭迪煙燻莓紅 */
+  --morandi-rose-dark: #4a1d27;
+  --morandi-terracotta: #bd5d38; /* 莫蘭迪陶土焦糖 */
+  --morandi-stone: #546274;      /* 莫蘭迪灰石 */
 }
 
 body {
@@ -16,10 +28,10 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   -webkit-tap-highlight-color: transparent;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
-/* 專業卡片基底 (平實、高對比、不刺眼) */
+/* 專業莫蘭迪卡片基底 */
 .ergo-card {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-default);
@@ -28,13 +40,13 @@ body {
 
 /* 輕微淡入動畫 */
 .fade-in {
-  animation: fadeIn 0.22s ease-out forwards;
+  animation: fadeIn 0.2s ease-out forwards;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
@@ -42,23 +54,46 @@ body {
   }
 }
 
-/* 觸控目標標準擴展 (符合費茨定律 >= 44px) */
-.touch-target {
-  min-height: 48px;
+/* 觸控微回饋 (Press Feedback) */
+.touch-press {
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.touch-press:active {
+  transform: scale(0.97);
+}
+
+/* 隱藏原生滾動條但保持滾動 */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* 底部滑出抽屜 (Mobile Bottom Sheet Modal) */
+#zone-scale-drawer {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  will-change: transform;
+}
+#zone-scale-drawer.sheet-open {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
 }
 
 /* 極簡平滑自定義捲軸 */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }
 ::-webkit-scrollbar-thumb {
-  background: #21262d;
+  background: #252d38;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #30363d;
+  background: #384454;
 }

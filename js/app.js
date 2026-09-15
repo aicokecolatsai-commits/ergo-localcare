@@ -52,24 +52,40 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 1. 渲染角色挑選卡片
+  // 1. 渲染角色挑選卡片 (莫蘭迪色系 + 序號層級 + 痛點特徵說明)
   function renderRoles() {
     elRoleContainer.innerHTML = "";
     ERGO_CONFIG.roles.forEach((role) => {
       const card = document.createElement("button");
       card.type = "button";
       card.className =
-        "w-full text-left p-4 md:p-5 rounded-xl border border-slate-700/80 bg-slate-800/40 hover:bg-slate-800/90 hover:border-sky-500/70 focus:border-sky-500 focus:outline-none transition-all flex flex-col justify-between group";
+        "w-full text-left p-3.5 md:p-4 rounded-xl border transition-all duration-200 flex flex-col justify-between group touch-press relative overflow-hidden shadow-sm";
+      card.style.background = role.morandi.bg;
+      card.style.borderColor = role.morandi.border;
       card.innerHTML = `
         <div class="w-full">
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-base font-bold text-slate-100 group-hover:text-sky-300 transition-colors">${role.name}</span>
-            <span class="text-xs px-2.5 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700 font-medium">${role.badge}</span>
+          <div class="flex items-start justify-between gap-2 mb-1.5">
+            <div class="flex items-center gap-2.5">
+              <span class="text-base md:text-lg font-black px-2 py-0.5 rounded-md font-mono flex-shrink-0" style="color: ${role.morandi.seqColor}; background: ${role.morandi.badgeBg};">
+                ${role.seq}
+              </span>
+              <div>
+                <h3 class="text-sm md:text-base font-bold text-white flex items-center gap-1.5">
+                  <span>${role.icon}</span>
+                  <span>${role.name}</span>
+                </h3>
+                <p class="text-[11px] text-slate-300/80 font-medium">${role.subtitle}</p>
+              </div>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold border flex-shrink-0" style="background: ${role.morandi.badgeBg}; color: ${role.morandi.badgeText}; border-color: ${role.morandi.border};">
+              ${role.badge}
+            </span>
           </div>
-          <p class="text-xs md:text-sm text-slate-400 leading-relaxed">${role.desc}</p>
+          <p class="text-xs text-slate-300 leading-relaxed mt-1 pl-1">${role.desc}</p>
         </div>
-        <div class="mt-3 flex items-center justify-end text-xs font-semibold text-sky-400 group-hover:translate-x-0.5 transition-transform">
-          進入人體圖標記 ➔
+        <div class="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-between text-xs font-semibold" style="color: ${role.morandi.color}">
+          <span class="text-[10px] md:text-[11px] text-slate-400 font-normal">專屬作業型態檢核題目</span>
+          <span class="group-hover:translate-x-1 transition-transform flex items-center gap-0.5">點擊開始檢測 ➔</span>
         </div>
       `;
       card.addEventListener("click", () => startBodymapStep(role.id));
@@ -100,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateBodymapSummary();
   }
 
-  // 更新人體圖選取摘要 (顯示 0~5 分生活情境標籤)
+  // 更新人體圖選取摘要 (顯示 0~5 分莫蘭迪情境標籤)
   function updateBodymapSummary() {
     const keys = Object.keys(userBodymapData).filter(k => userBodymapData[k] > 0);
     if (keys.length === 0) {
@@ -113,13 +129,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const name = zone ? zone.name : key;
       const level = userBodymapData[key];
       const levelConf = NMQ_SEVERITY_LEVELS.find(l => l.level === level) || NMQ_SEVERITY_LEVELS[0];
-      
-      let badgeClass = "text-sky-400 bg-sky-950/60 border-sky-800";
-      if (level === 2) badgeClass = "text-amber-300 bg-amber-950/60 border-amber-800";
-      if (level === 3) badgeClass = "text-amber-400 bg-amber-950/80 border-amber-600 font-bold";
-      if (level >= 4) badgeClass = "text-rose-400 bg-rose-950/80 border-rose-600 font-bold";
 
-      return `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] border ${badgeClass}">
+      return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] border font-medium" style="background-color: ${levelConf.color}22; border-color: ${levelConf.color}60; color: ${levelConf.color};">
+        <span class="w-1.5 h-1.5 rounded-full mr-1.5" style="background-color: ${levelConf.color}"></span>
         ${name} (${level}分 · ${levelConf.label})
       </span>`;
     });

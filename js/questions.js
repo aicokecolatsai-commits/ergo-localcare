@@ -8,27 +8,75 @@ const ERGO_CONFIG = {
   roles: [
     {
       id: "office",
+      seq: "01",
+      icon: "💻",
       name: "辦公室電腦作業族",
-      desc: "長時間使用電腦、雙螢幕、筆記型電腦與文書會議作業",
-      badge: "久坐 / 螢幕作業"
+      subtitle: "雙螢幕・筆電・文書數據處理",
+      desc: "每日電腦作業超過 6 小時，常見前傾伸頸（烏龜頸）、滑鼠手腕壓迫與久坐腰臀酸麻。",
+      badge: "久坐 / 螢幕作業",
+      morandi: {
+        color: "#5b8eab",
+        border: "rgba(91, 142, 171, 0.4)",
+        hoverBorder: "#5b8eab",
+        bg: "linear-gradient(135deg, rgba(39, 59, 77, 0.55) 0%, rgba(18, 28, 38, 0.85) 100%)",
+        badgeBg: "rgba(91, 142, 171, 0.2)",
+        badgeText: "#b2d5eb",
+        seqColor: "#7daecb"
+      }
     },
     {
       id: "student",
+      seq: "02",
+      icon: "🎓",
       name: "學生與長時間研讀族",
-      desc: "專注於課桌椅書寫、自習閱讀、平板筆記與電腦作業",
-      badge: "課堂 / 考生自習"
+      subtitle: "課桌椅書寫・平板自習・考試備考",
+      desc: "長時間低頭視角過低、伏案書寫與背負重物，肩胛骨縫膏肓緊繃與下背支撐不足。",
+      badge: "課堂 / 考生自習",
+      morandi: {
+        color: "#66997a",
+        border: "rgba(102, 153, 122, 0.4)",
+        hoverBorder: "#66997a",
+        bg: "linear-gradient(135deg, rgba(42, 61, 49, 0.55) 0%, rgba(20, 31, 24, 0.85) 100%)",
+        badgeBg: "rgba(102, 153, 122, 0.2)",
+        badgeText: "#b8dec5",
+        seqColor: "#85b396"
+      }
     },
     {
       id: "standing",
+      seq: "03",
+      icon: "🧍",
       name: "站立與移動服務族",
-      desc: "門市專櫃、餐飲服務、醫療照護與現場巡檢作業",
-      badge: "久站 / 走動作業"
+      subtitle: "門市專櫃・餐飲醫療・現場巡檢",
+      desc: "每日站立走動逾 4 小時，腰椎持續承受重力剪力，下肢循環受阻、膝關節微彎與足底疲累。",
+      badge: "久站 / 走動作業",
+      morandi: {
+        color: "#c69242",
+        border: "rgba(198, 146, 66, 0.4)",
+        hoverBorder: "#c69242",
+        bg: "linear-gradient(135deg, rgba(77, 56, 28, 0.55) 0%, rgba(36, 26, 14, 0.85) 100%)",
+        badgeBg: "rgba(198, 146, 66, 0.2)",
+        badgeText: "#eed4ae",
+        seqColor: "#d8a964"
+      }
     },
     {
       id: "technician",
+      seq: "04",
+      icon: "⚙️",
       name: "技術操作與重複施力族",
-      desc: "產線組裝、倉儲搬運、數位繪圖設計與設備檢修",
-      badge: "重複操作 / 搬運"
+      subtitle: "產線組裝・倉儲搬運・設備檢修",
+      desc: "頻繁重複性手部動作、特定手腕扭力或重物搬運，上肢前臂肌肉高張力與下背力矩過大。",
+      badge: "重複操作 / 搬運",
+      morandi: {
+        color: "#bd5d38",
+        border: "rgba(189, 93, 56, 0.4)",
+        hoverBorder: "#bd5d38",
+        bg: "linear-gradient(135deg, rgba(74, 38, 25, 0.55) 0%, rgba(35, 18, 12, 0.85) 100%)",
+        badgeBg: "rgba(189, 93, 56, 0.2)",
+        badgeText: "#f0b59f",
+        seqColor: "#d37b58"
+      }
     }
   ],
 

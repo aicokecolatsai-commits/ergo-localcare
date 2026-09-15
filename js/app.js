@@ -7,14 +7,19 @@
  * 步驟 3：個人人因檢核報告卡 (含個人人體圖透視、總分、改善指引與免責警語)
  */
 
-document.addEventListener("DOMContentLoaded", () => {
-  // 品牌過場畫面 (Splash Screen) 自動平滑淡出 (約 900ms 後淡出，確保專業品牌體驗)
+function initApp() {
+  // 品牌過場畫面 (Splash Screen) 自動平滑淡出
   const elSplash = document.getElementById("brand-splash-screen");
-  if (elSplash) {
+  if (elSplash && !elSplash.getAttribute("data-dismissed")) {
+    elSplash.setAttribute("data-dismissed", "true");
     setTimeout(() => {
-      elSplash.classList.add("opacity-0", "pointer-events-none");
-      setTimeout(() => elSplash.remove(), 550);
-    }, 900);
+      elSplash.style.transition = "opacity 0.35s ease-out";
+      elSplash.style.opacity = "0";
+      elSplash.style.pointerEvents = "none";
+      setTimeout(() => {
+        if (elSplash && elSplash.parentNode) elSplash.parentNode.removeChild(elSplash);
+      }, 400);
+    }, 500);
   }
 
   const sessionId = APP_CONFIG.getSessionId();
@@ -2007,4 +2012,12 @@ document.addEventListener("DOMContentLoaded", () => {
   initFlexibilityModule();
   checkRestoreBanner();
   renderRoles();
-});
+}
+
+// 確保無論 DOM 何時就緒皆能 100% 正常初始化
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initApp);
+} else {
+  initApp();
+}
+

@@ -100,6 +100,27 @@ body {
   background: #94a3b8;
 }
 
+/* 開場過場畫面 CSS 自動淡出與防呆保護 (即使 JS 延遲或無網路也 100% 確保淡出) */
+#brand-splash-screen {
+  animation: splashAutoDismiss 0.4s ease 0.8s forwards;
+}
+
+@keyframes splashAutoDismiss {
+  0% {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  99% {
+    opacity: 0;
+    pointer-events: none;
+  }
+  100% {
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+  }
+}
+
 /* 專業 A4 戰情室原生列印樣式 (瀏覽器原生 Print to PDF，完美支援所有現代 CSS、SVG、高畫質輸出) */
 @media print {
   body > * {
@@ -123,3 +144,4 @@ body {
     margin: 6mm;
   }
 }
+

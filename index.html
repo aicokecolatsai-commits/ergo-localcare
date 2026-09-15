@@ -32,26 +32,28 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <link rel="stylesheet" href="css/custom.css">
   <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            slate: {
-              850: '#172033',
-              900: '#0f172a',
-              950: '#0a0f1d'
+    if (typeof tailwind !== 'undefined') {
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              slate: {
+                850: '#172033',
+                900: '#0f172a',
+                950: '#0a0f1d'
+              }
             }
           }
         }
-      }
+      };
     }
   </script>
 </head>
 <body class="bg-[#f8fafc] text-slate-800 min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
 
   <!-- 開場品牌過場畫面 (Splash Screen) -->
-  <div id="brand-splash-screen" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center p-6 transition-opacity duration-500 ease-out select-none">
+  <div id="brand-splash-screen" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center p-6 transition-opacity duration-400 ease-out select-none cursor-pointer">
     <div class="flex flex-col items-center text-center space-y-3.5 max-w-xs">
       <div class="relative">
         <div class="absolute -inset-2 rounded-full bg-sky-100/80 filter blur-md animate-pulse"></div>
@@ -68,9 +70,33 @@
       <div class="w-40 bg-slate-100 h-1.5 rounded-full overflow-hidden mt-2">
         <div class="bg-gradient-to-r from-sky-500 to-indigo-600 h-full rounded-full w-full animate-pulse"></div>
       </div>
-      <span class="text-[10px] text-slate-400">正在進入專屬檢測環境...</span>
+      <span class="text-[10px] text-slate-400">正在進入專屬檢測環境...（點擊可直接進入）</span>
     </div>
   </div>
+
+  <script>
+    /* 獨立防呆過場計時器：純原生地執行，不依賴任何外部庫或事件，時間到或點擊 100% 自動移除 */
+    (function() {
+      var splash = document.getElementById('brand-splash-screen');
+      if (splash) {
+        var dismissSplash = function() {
+          if (!splash || splash.getAttribute('data-dismissed')) return;
+          splash.setAttribute('data-dismissed', 'true');
+          splash.style.transition = 'opacity 0.35s ease-out';
+          splash.style.opacity = '0';
+          splash.style.pointerEvents = 'none';
+          setTimeout(function() {
+            if (splash && splash.parentNode) {
+              splash.parentNode.removeChild(splash);
+            }
+          }, 400);
+        };
+        setTimeout(dismissSplash, 600);
+        splash.addEventListener('click', dismissSplash);
+        splash.addEventListener('touchstart', dismissSplash, { passive: true });
+      }
+    })();
+  </script>
 
   <!-- 頂部導航列 (白底柔和高質感 + 加大清晰LOGO) -->
   <header class="border-b border-slate-200 bg-white/95 backdrop-blur sticky top-0 z-40 shadow-sm">
@@ -671,9 +697,9 @@
   </footer>
 
   <!-- 腳本引入 (加入強制版本號防快取) -->
-  <script src="js/config.js?v=20260915_v6"></script>
-  <script src="js/bodymap.js?v=20260915_v6"></script>
-  <script src="js/questions.js?v=20260915_v6"></script>
-  <script src="js/app.js?v=20260915_v6"></script>
+  <script src="js/config.js?v=20260915_v7"></script>
+  <script src="js/bodymap.js?v=20260915_v7"></script>
+  <script src="js/questions.js?v=20260915_v7"></script>
+  <script src="js/app.js?v=20260915_v7"></script>
 </body>
 </html>

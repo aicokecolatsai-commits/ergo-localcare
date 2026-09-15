@@ -13,7 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 狀態管理
   let selectedRole = null;
-  let userBodymapData = {}; // { zoneId: 2 (中度) 或 3 (重度) }
+  let userBodymapData = {}; // { zoneId: 0~5 }
+  let userBodymapDetails = {}; // { zoneId: { days: 'lt7'|'8to30'|'gt30', medical: 'yes'|'no' } }
   let currentQuestionIndex = 0;
   let userAnswers = []; // 保存工作站檢核作答狀態
   let envQuestions = [];
@@ -105,18 +106,19 @@ document.addEventListener("DOMContentLoaded", () => {
       studentBodyMap = new BodyMapComponent({
         containerId: "student-bodymap-container",
         interactive: true,
-        onChange: (selectedData) => {
+        onChange: (selectedData, detailsData) => {
           userBodymapData = { ...selectedData };
+          userBodymapDetails = detailsData ? { ...detailsData } : {};
           updateBodymapSummary();
         }
       });
     } else {
-      studentBodyMap.setData(userBodymapData);
+      studentBodyMap.setData(userBodymapData, userBodymapDetails);
     }
     updateBodymapSummary();
   }
 
-  // 更新人體圖選取摘要 (顯示 0~5 分莫蘭迪情境標籤)
+  // 更新人體圖選取摘要 (顯示 0~5 分莫蘭迪情境標籤與 NMQ 關鍵追問標記)
   function updateBodymapSummary() {
     const keys = Object.keys(userBodymapData).filter(k => userBodymapData[k] > 0);
     if (keys.length === 0) {
@@ -129,10 +131,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const name = zone ? zone.name : key;
       const level = userBodymapData[key];
       const levelConf = NMQ_SEVERITY_LEVELS.find(l => l.level === level) || NMQ_SEVERITY_LEVELS[0];
+      const detail = userBodymapDetails[key];
+      
+      let extraTag = "";
+      if (level >= 3 && detail) {
+        const daysMap = { lt7: "<7天", "8to30": "8-30天", gt30: ">30天" };
+        const medMap = { yes: "曾就醫", no: "未就醫" };
+        extraTag = ` · ${daysMap[detail.days] || ""} · ${medMap[detail.medical] || ""}`;
+      }
 
-      return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] border font-medium" style="background-color: ${levelConf.color}22; border-color: ${levelConf.color}60; color: ${levelConf.color};">
+      return `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] border font-medium shadow-xs" style="background-color: ${levelConf.color}15; border-color: ${levelConf.color}60; color: ${levelConf.color};">
         <span class="w-1.5 h-1.5 rounded-full mr-1.5" style="background-color: ${levelConf.color}"></span>
-        ${name} (${level}分 · ${levelConf.label})
+        ${name} (${level}分${extraTag})
       </span>`;
     });
 
@@ -149,8 +159,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (elBtnBodymapClearAll) {
     elBtnBodymapClearAll.addEventListener("click", () => {
       userBodymapData = {};
+      userBodymapDetails = {};
       if (studentBodyMap) {
-        studentBodyMap.setData({});
+        studentBodyMap.setData({}, {});
       }
       updateBodymapSummary();
       startQuizStep();
@@ -350,17 +361,18 @@ document.addEventListener("DOMContentLoaded", () => {
       totalScore: totalScore,
       tier: tierInfo.tier,
       nmqData: nmqData,
+      nmqDetails: userBodymapDetails,
       traps: traps,
       durationSeconds: durationSeconds,
       qualityFlag: qualityFlag
     };
 
     await dataBridge.submitAssessment(submissionData);
-    showResult(totalScore, tierInfo, nmqData, personalizedGuides);
+    showResult(totalScore, tierInfo, nmqData, personalizedGuides, userBodymapDetails);
   }
 
   // 8. 渲染個人評估結果報告
-  function showResult(score, tierInfo, nmqData, customGuides) {
+  function showResult(score, tierInfo, nmqData, customGuides, detailsData = {}) {
     elStepQuiz.classList.add("hidden");
     elStepResult.classList.remove("hidden");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -379,9 +391,9 @@ document.addEventListener("DOMContentLoaded", () => {
       containerId: "result-bodymap-container",
       interactive: false
     });
-    resultMap.setData(userBodymapData);
+    resultMap.setData(userBodymapData, detailsData);
 
-    // 渲染標記文字清單 (顯示 0~5 分精準生活情境)
+    // 渲染標記文字清單 (顯示 0~5 分精準生活情境與 NMQ 法規追問結果)
     const resListEl = document.getElementById("result-bodymap-list");
     const activeKeys = Object.keys(userBodymapData).filter(k => userBodymapData[k] > 0);
     if (activeKeys.length === 0) {
@@ -393,14 +405,33 @@ document.addEventListener("DOMContentLoaded", () => {
           const name = z ? z.name : k;
           const level = userBodymapData[k];
           const levelConf = NMQ_SEVERITY_LEVELS.find(l => l.level === level) || NMQ_SEVERITY_LEVELS[0];
+          const detail = detailsData[k];
+
+          let nmqBadgeHtml = "";
+          if (level >= 3 && detail) {
+            const daysLabel = detail.days === "gt30" ? "累積超過 30 天" : (detail.days === "8to30" ? "累積 8~30 天" : "未滿 7 天");
+            const medLabel = detail.medical === "yes" ? "🏥 曾就醫/復健/服藥" : "🌱 未曾就醫";
+            const medClass = detail.medical === "yes" ? "bg-rose-50 text-rose-700 border-rose-200" : "bg-slate-100 text-slate-600 border-slate-200";
+
+            nmqBadgeHtml = `
+              <div class="mt-1.5 pt-1.5 border-t border-slate-200/70 flex flex-wrap items-center gap-1.5 text-[10px]">
+                <span class="px-1.5 py-0.5 rounded bg-sky-100 text-sky-800 font-semibold border border-sky-200">NMQ法規追問</span>
+                <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-medium border border-slate-200">年累：${daysLabel}</span>
+                <span class="px-1.5 py-0.5 rounded font-medium border ${medClass}">${medLabel}</span>
+              </div>
+            `;
+          }
           
           return `
-          <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs shadow-sm">
-            <span class="flex items-center gap-2 font-bold text-slate-800">
-              <span class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: ${levelConf.color}"></span>
-              <span>${name}</span>
-            </span>
-            <span class="text-slate-700 font-semibold">${level}分 · ${levelConf.label} <span class="text-[10px] text-slate-500 font-normal">(${levelConf.desc.slice(0, 16)}...)</span></span>
+          <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="flex items-center gap-2 font-bold text-slate-800">
+                <span class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: ${levelConf.color}"></span>
+                <span>${name}</span>
+              </span>
+              <span class="text-slate-700 font-semibold">${level}分 · ${levelConf.label} <span class="text-[10px] text-slate-500 font-normal">(${levelConf.desc.slice(0, 16)}...)</span></span>
+            </div>
+            ${nmqBadgeHtml}
           </div>
         `;
         })
@@ -432,6 +463,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.getElementById("btn-restart").addEventListener("click", () => {
       userBodymapData = {};
+      userBodymapDetails = {};
       elStepResult.classList.add("hidden");
       elStepRole.classList.remove("hidden");
       renderRoles();

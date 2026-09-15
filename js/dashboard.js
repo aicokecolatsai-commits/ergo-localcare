@@ -176,8 +176,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (filteredCount > 0) {
       filterNotice = `<div class="mt-1 text-xs text-emerald-300 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span><span>已過濾 ${filteredCount} 筆極速或異常亂點樣本，目前呈現 ${total} 位學員有效數據。</span></div>`;
     }
+    // 統計 NMQ 追問就醫比例
+    let totalMedSoughtCount = 0;
+    list.forEach((sub) => {
+      if (sub.nmqDetails) {
+        const hasMed = Object.values(sub.nmqDetails).some((d) => d && d.medical === "yes");
+        if (hasMed) totalMedSoughtCount++;
+      }
+    });
+    const medPercent = Math.round((totalMedSoughtCount / total) * 100);
+    const medNotice = totalMedSoughtCount > 0 
+      ? `<div class="mt-1 text-xs text-amber-300">🏥 <strong>就醫警訊：</strong> 全場有 <span class="font-bold text-amber-200">${totalMedSoughtCount} 位 (${medPercent}%)</span> 學員曾因肌肉骨骼疼痛就醫或復健，需強化工作站人因預防！</div>` 
+      : "";
+
     elStatusInsight.innerHTML = `
       <div>🚨 <strong class="text-rose-400">現場統計警示：</strong> 全場高達 <span class="text-sky-400 font-bold">${topPercent}%</span> 的學員在「<strong>${topName}</strong>」出現顯著過載！整體作業風險落在「${tier.subtitle}」。</div>
+      ${medNotice}
       ${filterNotice}
     `;
 

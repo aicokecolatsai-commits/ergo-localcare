@@ -42,6 +42,7 @@ class BodyMapComponent {
     this.interactive = !!options.interactive;
     this.onChange = options.onChange || (() => {});
     this.selectedZones = {}; // { zoneId: 0~5 }
+    this.zoneDetails = {}; // { zoneId: { days: 'lt7'|'8to30'|'gt30', medical: 'yes'|'no' } }
     this.activeFocusZone = null;
     if (this.container) {
       this.init();
@@ -114,8 +115,8 @@ class BodyMapComponent {
           <!-- 半透明 Backdrop 遮罩 -->
           <div id="bodymap-sheet-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 hidden opacity-0 transition-opacity duration-200"></div>
 
-          <!-- 底部彈出抽屜 (拇指最佳操作熱區) -->
-          <div id="zone-scale-drawer" class="fixed inset-x-0 bottom-0 z-50 p-4 pb-7 bg-white/98 border-t border-slate-200 rounded-t-2xl shadow-2xl transition-all duration-200 transform translate-y-full opacity-0 pointer-events-none max-w-lg mx-auto">
+          <!-- 底部彈出抽屜 (拇指最佳操作熱區，支援條件展開) -->
+          <div id="zone-scale-drawer" class="fixed inset-x-0 bottom-0 z-50 p-4 pb-8 bg-white/98 border-t border-slate-200 rounded-t-2xl shadow-2xl transition-all duration-200 transform translate-y-full opacity-0 pointer-events-none max-w-lg mx-auto max-h-[88vh] overflow-y-auto no-scrollbar">
             <!-- 頂部手柄條 -->
             <div class="w-10 h-1.5 bg-slate-300 rounded-full mx-auto mb-3.5"></div>
             
@@ -151,9 +152,60 @@ class BodyMapComponent {
               `).join("")}
             </div>
 
+            <!-- 台灣勞安所 NMQ 關鍵指標條件追問區 (方案B：僅在 >= 3 分時平滑展開) -->
+            <div id="nmq-deep-dive-box" class="hidden mt-3 p-3.5 rounded-xl bg-sky-50/70 border border-sky-200 transition-all duration-200 shadow-xs">
+              <div class="flex items-center justify-between mb-2.5">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-600 text-white">NMQ 危害指標</span>
+                  <span class="text-xs font-bold text-sky-950">高風險痛點深度檢核</span>
+                </div>
+                <span class="text-[10px] text-sky-700 font-medium">（已達顯著危害閾值）</span>
+              </div>
+
+              <!-- 追問 1：過去一年累積不適天數 -->
+              <div class="mb-3">
+                <label class="block text-[11px] font-semibold text-slate-800 mb-1.5">
+                  1. 過去 1 年內，該部位累積酸痛/麻木天數？
+                </label>
+                <div class="grid grid-cols-3 gap-1.5" id="nmq-days-group">
+                  <button type="button" data-days="lt7" class="nmq-btn-days py-2 px-1 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 font-medium hover:border-sky-300 transition-all text-center touch-press shadow-xs">
+                    未滿 7 天
+                  </button>
+                  <button type="button" data-days="8to30" class="nmq-btn-days py-2 px-1 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 font-medium hover:border-sky-300 transition-all text-center touch-press shadow-xs">
+                    8 ~ 30 天
+                  </button>
+                  <button type="button" data-days="gt30" class="nmq-btn-days py-2 px-1 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 font-medium hover:border-sky-300 transition-all text-center touch-press shadow-xs">
+                    超過 30 天
+                  </button>
+                </div>
+              </div>
+
+              <!-- 追問 2：是否曾就醫、復健或服藥 -->
+              <div class="mb-3">
+                <label class="block text-[11px] font-semibold text-slate-800 mb-1.5">
+                  2. 是否曾因此就醫、接受物理治療或服藥？
+                </label>
+                <div class="grid grid-cols-2 gap-2" id="nmq-med-group">
+                  <button type="button" data-medical="yes" class="nmq-btn-med py-2 px-2 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 font-medium hover:border-sky-300 transition-all text-center touch-press shadow-xs">
+                    🏥 是，曾就醫或治療
+                  </button>
+                  <button type="button" data-medical="no" class="nmq-btn-med py-2 px-2 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 font-medium hover:border-sky-300 transition-all text-center touch-press shadow-xs">
+                    🌱 否，未曾就醫
+                  </button>
+                </div>
+              </div>
+
+              <!-- 確認儲存按鈕 -->
+              <div class="pt-2 border-t border-sky-200/80">
+                <button id="btn-confirm-zone" type="button" class="w-full py-2.5 px-3 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1 touch-press">
+                  <span>✓</span> 儲存此部位評估與 NMQ 指標
+                </button>
+              </div>
+            </div>
+
             <!-- 底部動作 -->
             <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between px-1 text-xs">
-              <span class="text-[11px] text-slate-400">💡 點選任一程度即刻儲存</span>
+              <span class="text-[11px] text-slate-400">💡 0~2分點選即存，3分以上啟動危害追問</span>
               <button id="btn-clear-zone" type="button" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 text-xs font-medium transition-colors">
                 設為無不適 (0分)
               </button>
@@ -177,6 +229,7 @@ class BodyMapComponent {
     const btnClose = this.container.querySelector("#btn-close-drawer");
     const btnClear = this.container.querySelector("#btn-clear-zone");
     const scaleBtns = this.container.querySelectorAll(".scale-btn");
+    const deepDiveBox = this.container.querySelector("#nmq-deep-dive-box");
 
     // 點擊人體圖向量靶點
     targets.forEach((target) => {
@@ -194,15 +247,86 @@ class BodyMapComponent {
       });
     });
 
-    // 選擇分數 (點擊即生效並自動關閉)
+    // 選擇分數 (0~2分即刻儲存關閉；3~5分啟動方案B漸進式追問)
     scaleBtns.forEach((btn) => {
       btn.addEventListener("click", () => {
         const level = parseInt(btn.getAttribute("data-level"), 10);
-        if (this.activeFocusZone) {
+        if (!this.activeFocusZone) return;
+
+        // 更新分數按鈕視覺
+        scaleBtns.forEach(b => {
+          const bLvl = parseInt(b.getAttribute("data-level"), 10);
+          const lConf = NMQ_SEVERITY_LEVELS.find(l => l.level === bLvl);
+          if (bLvl === level) {
+            b.style.borderColor = lConf.color;
+            b.style.backgroundColor = `${lConf.color}25`;
+          } else {
+            b.style.borderColor = "";
+            b.style.backgroundColor = "";
+          }
+        });
+
+        if (level < 3) {
+          if (deepDiveBox) deepDiveBox.classList.add("hidden");
           this.setZoneLevel(this.activeFocusZone, level);
+        } else {
+          // 3分以上：已達生活與產能顯著干擾閾值，展開 NMQ 關鍵指標
+          this.selectedZones[this.activeFocusZone] = level;
+          if (!this.zoneDetails[this.activeFocusZone]) {
+            this.zoneDetails[this.activeFocusZone] = { days: "8to30", medical: "no" };
+          }
+          if (deepDiveBox) {
+            deepDiveBox.classList.remove("hidden");
+            this.updateDeepDiveSelections(this.activeFocusZone);
+            setTimeout(() => {
+              deepDiveBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }, 50);
+          }
+          this.updateVisuals();
+          this.onChange(this.selectedZones, this.zoneDetails);
         }
       });
     });
+
+    // NMQ 追問 1 按鈕點擊 (累積天數)
+    const daysBtns = this.container.querySelectorAll(".nmq-btn-days");
+    daysBtns.forEach(b => {
+      b.addEventListener("click", () => {
+        if (!this.activeFocusZone) return;
+        const val = b.getAttribute("data-days");
+        if (!this.zoneDetails[this.activeFocusZone]) {
+          this.zoneDetails[this.activeFocusZone] = { days: "8to30", medical: "no" };
+        }
+        this.zoneDetails[this.activeFocusZone].days = val;
+        this.updateDeepDiveSelections(this.activeFocusZone);
+        this.onChange(this.selectedZones, this.zoneDetails);
+      });
+    });
+
+    // NMQ 追問 2 按鈕點擊 (就醫復健史)
+    const medBtns = this.container.querySelectorAll(".nmq-btn-med");
+    medBtns.forEach(b => {
+      b.addEventListener("click", () => {
+        if (!this.activeFocusZone) return;
+        const val = b.getAttribute("data-medical");
+        if (!this.zoneDetails[this.activeFocusZone]) {
+          this.zoneDetails[this.activeFocusZone] = { days: "8to30", medical: "no" };
+        }
+        this.zoneDetails[this.activeFocusZone].medical = val;
+        this.updateDeepDiveSelections(this.activeFocusZone);
+        this.onChange(this.selectedZones, this.zoneDetails);
+      });
+    });
+
+    // 確定儲存按鈕
+    const btnConfirm = this.container.querySelector("#btn-confirm-zone");
+    if (btnConfirm) {
+      btnConfirm.addEventListener("click", () => {
+        this.updateVisuals();
+        this.onChange(this.selectedZones, this.zoneDetails);
+        this.closeScaleDrawer();
+      });
+    }
 
     // 設為 0 分
     if (btnClear) {
@@ -222,17 +346,44 @@ class BodyMapComponent {
     }
   }
 
+  updateDeepDiveSelections(zoneId) {
+    const detail = this.zoneDetails[zoneId] || { days: "8to30", medical: "no" };
+    
+    // 更新天數按鈕
+    const daysBtns = this.container.querySelectorAll(".nmq-btn-days");
+    daysBtns.forEach(b => {
+      const val = b.getAttribute("data-days");
+      if (val === detail.days) {
+        b.className = "nmq-btn-days py-2 px-1 rounded-lg border border-sky-500 bg-sky-600 text-white text-[11px] font-bold text-center touch-press shadow-xs";
+      } else {
+        b.className = "nmq-btn-days py-2 px-1 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 font-medium hover:border-sky-300 transition-all text-center touch-press shadow-xs";
+      }
+    });
+
+    // 更新就醫按鈕
+    const medBtns = this.container.querySelectorAll(".nmq-btn-med");
+    medBtns.forEach(b => {
+      const val = b.getAttribute("data-medical");
+      if (val === detail.medical) {
+        b.className = "nmq-btn-med py-2 px-2 rounded-lg border border-sky-500 bg-sky-600 text-white text-[11px] font-bold text-center touch-press shadow-xs";
+      } else {
+        b.className = "nmq-btn-med py-2 px-2 rounded-lg border border-slate-200 bg-white text-[11px] text-slate-700 font-medium hover:border-sky-300 transition-all text-center touch-press shadow-xs";
+      }
+    });
+  }
+
   openScaleDrawer(id) {
     this.activeFocusZone = id;
     const drawer = this.container.querySelector("#zone-scale-drawer");
     const backdrop = this.container.querySelector("#bodymap-sheet-backdrop");
     const zoneTitle = this.container.querySelector("#active-zone-title");
+    const deepDiveBox = this.container.querySelector("#nmq-deep-dive-box");
     const zone = NMQ_ZONES.find((z) => z.id === id);
 
     if (drawer && zoneTitle && zone) {
       const curLevel = this.selectedZones[id] || 0;
       const curLabel = curLevel > 0 ? ` (目前: ${curLevel}分)` : " (目前無不適)";
-      zoneTitle.innerHTML = `設定【${zone.name}】酸痛程度 <span class="text-xs font-normal text-slate-400">${curLabel}</span>`;
+      zoneTitle.innerHTML = `設定【${zone.name}】酸痛程度 <span class="text-xs font-normal text-slate-500">${curLabel}</span>`;
 
       // 標記目前已選擇的按鈕
       const scaleBtns = this.container.querySelectorAll(".scale-btn");
@@ -247,6 +398,14 @@ class BodyMapComponent {
           btn.style.backgroundColor = "";
         }
       });
+
+      // 判斷是否顯示追問區
+      if (curLevel >= 3) {
+        if (deepDiveBox) deepDiveBox.classList.remove("hidden");
+        this.updateDeepDiveSelections(id);
+      } else {
+        if (deepDiveBox) deepDiveBox.classList.add("hidden");
+      }
 
       // 喚出底部滑出抽屜與遮罩
       if (backdrop) {
@@ -274,16 +433,21 @@ class BodyMapComponent {
   setZoneLevel(id, level) {
     if (level <= 0) {
       delete this.selectedZones[id];
+      delete this.zoneDetails[id];
     } else {
       this.selectedZones[id] = level;
+      if (level < 3) {
+        delete this.zoneDetails[id];
+      }
     }
     this.updateVisuals();
-    this.onChange(this.selectedZones);
-    this.closeScaleDrawer();
+    this.onChange(this.selectedZones, this.zoneDetails);
+    setTimeout(() => this.closeScaleDrawer(), 120);
   }
 
-  setData(zonesData) {
+  setData(zonesData, zoneDetailsData) {
     this.selectedZones = { ...zonesData };
+    this.zoneDetails = zoneDetailsData ? { ...zoneDetailsData } : {};
     this.updateVisuals();
   }
 

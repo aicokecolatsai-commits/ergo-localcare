@@ -196,6 +196,11 @@ class DataBridge {
           trap_glare: Math.random() > 0.6,
           trap_sedentary: Math.random() > 0.3
         },
+        nmqDetails: {
+          neck: { days: "8to30", medical: Math.random() > 0.5 ? "yes" : "no" },
+          shoulder_r: { days: "gt30", medical: Math.random() > 0.6 ? "yes" : "no" },
+          lowerback: { days: "8to30", medical: Math.random() > 0.5 ? "yes" : "no" }
+        },
         timestamp: Date.now() - (count - i) * 2000
       });
     }

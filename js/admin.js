@@ -101,6 +101,9 @@ document.addEventListener("DOMContentLoaded", () => {
       "Tier",
       "Duration_Sec",
       "Quality_Flag",
+      "NMQ_HighRisk_Count",
+      "NMQ_Medical_Count",
+      "NMQ_Chronic_Count",
       "NMQ_Neck",
       "NMQ_Shoulder_L",
       "NMQ_Shoulder_R",
@@ -120,14 +123,55 @@ document.addEventListener("DOMContentLoaded", () => {
       "Trap_ChairWristSupport",
       "Trap_EnvironmentGlare",
       "Trap_SedentaryOver2Hours",
+      "NMQ_HighRisk_Summary",
       "Timestamp"
     ];
 
     const rows = list.map((item) => {
       const nmq = item.nmqData || {};
+      const details = item.nmqDetails || {};
       const traps = item.traps || {};
       const duration = item.durationSeconds || 0;
       const quality = item.qualityFlag || (duration < 8 ? "Speedrun" : "Valid");
+
+      // 計算高風險部位與就醫天數統計
+      let highRiskCount = 0;
+      let medicalCount = 0;
+      let chronicCount = 0;
+      const summaryList = [];
+
+      const zoneNameMap = {
+        neck: "頸部",
+        shoulder_l: "左肩",
+        shoulder_r: "右肩",
+        upperback: "上背",
+        elbow_l: "左肘",
+        elbow_r: "右肘",
+        lowerback: "下背",
+        wrist_l: "左腕",
+        wrist_r: "右腕",
+        hip_l: "左臀",
+        hip_r: "右臀",
+        knee_l: "左膝",
+        knee_r: "右膝",
+        ankle_l: "左踝",
+        ankle_r: "右踝"
+      };
+
+      Object.keys(nmq).forEach((zk) => {
+        const score = nmq[zk] || 0;
+        if (score >= 3) {
+          highRiskCount++;
+          const d = details[zk] || {};
+          const daysText = d.days === "gt30" ? ">30天" : (d.days === "8to30" ? "8-30天" : "<7天");
+          const medText = d.medical === "yes" ? "曾就醫" : "未就醫";
+          if (d.medical === "yes") medicalCount++;
+          if (d.days === "gt30") chronicCount++;
+          summaryList.push(`${zoneNameMap[zk] || zk}(${score}分/${daysText}/${medText})`);
+        }
+      });
+
+      const summaryStr = summaryList.length > 0 ? `"${summaryList.join("; ")}"` : '""';
 
       return [
         item.id,
@@ -137,6 +181,9 @@ document.addEventListener("DOMContentLoaded", () => {
         item.tier,
         duration,
         quality,
+        highRiskCount,
+        medicalCount,
+        chronicCount,
         nmq.neck || 0,
         nmq.shoulder_l || 0,
         nmq.shoulder_r || 0,
@@ -156,6 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
         traps.trap_chair ? 1 : 0,
         traps.trap_glare ? 1 : 0,
         traps.trap_sedentary ? 1 : 0,
+        summaryStr,
         new Date(item.timestamp).toLocaleString()
       ];
     });

@@ -18,10 +18,39 @@ const APP_CONFIG = {
     appId: ""
   },
 
-  // 取得目前 URL 中的 session 參數
+  // 取得目前有效的 session 參數 (支援 URL 參數優先、LocalStorage 記憶與自動日期)
   getSessionId: function() {
     const params = new URLSearchParams(window.location.search);
-    return params.get("session") || this.defaultSessionId;
+    const urlSession = params.get("session");
+    
+    // 1. 若網址中帶有明確的 ?session=xxx，以此為準並儲存至本機快取
+    if (urlSession && urlSession.trim() !== "") {
+      const cleanSession = urlSession.trim();
+      try {
+        localStorage.setItem("ergo_active_session", cleanSession);
+      } catch (e) {}
+      return cleanSession;
+    }
+    
+    // 2. 若網址未帶參數，優先讀取上次管理員或學員活躍的場次
+    try {
+      const savedSession = localStorage.getItem("ergo_active_session");
+      if (savedSession && savedSession.trim() !== "" && savedSession !== "demo_session") {
+        return savedSession.trim();
+      }
+    } catch (e) {}
+    
+    // 3. 若完全無紀錄，自動產生當日日期預設場次 (例如: 20260915_人因研習)
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, "0");
+    const d = String(today.getDate()).padStart(2, "0");
+    const defaultDateSession = `${y}${m}${d}_人因研習`;
+    
+    try {
+      localStorage.setItem("ergo_active_session", defaultDateSession);
+    } catch (e) {}
+    return defaultDateSession;
   },
 
   // 檢查 Firebase 是否已設定

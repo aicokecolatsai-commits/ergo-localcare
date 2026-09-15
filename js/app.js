@@ -26,6 +26,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (elSessionBadge) {
     elSessionBadge.innerText = `場次：${sessionId}`;
+    elSessionBadge.style.cursor = "pointer";
+    elSessionBadge.title = "點擊可切換或查看演講場次代碼";
+    elSessionBadge.addEventListener("click", () => {
+      const customSession = prompt("目前場次代碼為：" + sessionId + "\n如需手動切換至其他場次，請輸入新代碼：", sessionId);
+      if (customSession && customSession.trim() !== "" && customSession.trim() !== sessionId) {
+        window.location.href = `index.html?session=${encodeURIComponent(customSession.trim())}`;
+      }
+    });
   }
 
   // 1. 渲染角色挑選卡片 (純粹專業、無浮誇假 3D 與刺眼漸層)

@@ -31,6 +31,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     currentSession = newSession;
+    try {
+      localStorage.setItem("ergo_active_session", newSession);
+    } catch (e) {}
     saveRecentSession(newSession);
     updateSessionLinks(newSession);
     renderRecentSessions();
@@ -130,9 +133,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function getRecentSessions() {
     try {
       const data = localStorage.getItem("ergo_recent_sessions");
-      return data ? JSON.parse(data) : ["demo_session"];
+      return data ? JSON.parse(data) : [];
     } catch (e) {
-      return ["demo_session"];
+      return [];
     }
   }
 

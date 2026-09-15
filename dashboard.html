@@ -107,12 +107,12 @@
       </div>
     </div>
 
-    <!-- 右側欄：痛點排行榜、環境地雷與講師提詞 (佔 8 欄) -->
+    <!-- 右側欄：人體熱力圖、左右側對比與環境地雷 (佔 8 欄) -->
     <div class="lg:col-span-8 flex flex-col gap-4">
       
       <!-- 狀態總評與現場提詞卡片 -->
       <div class="ergo-card p-5 border border-[#30363d] bg-[#161b22] flex flex-col justify-between">
-        <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center justify-between mb-1.5">
           <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">全場人因風險指標</span>
           <span id="dash-status-badge" class="px-3 py-0.5 rounded-full text-xs font-bold border border-slate-700 bg-slate-800 text-slate-400">
             等待數據中...
@@ -123,26 +123,54 @@
         </div>
       </div>
 
-      <!-- 肌肉骨骼四大痛點排行榜 (TOP 4) -->
-      <div class="ergo-card p-5 border border-[#30363d] bg-[#161b22]">
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-sm font-bold text-white">
-            🚨 全場肌肉骨骼過載分佈 (NMQ 負載指標)
-          </h3>
-          <span class="text-xs text-slate-400">依受影響人數佔比排序</span>
+      <!-- 中間雙欄：左側人體熱力透視圖 + 右側左右對比與痛點排行 -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+        
+        <!-- 全場 NMQ 人體熱力圖 (佔 5 欄) -->
+        <div class="md:col-span-5 ergo-card p-4 border border-[#30363d] bg-[#161b22] flex flex-col items-center">
+          <div class="w-full flex items-center justify-between mb-2">
+            <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+              <span>🧍</span> 全場人體熱力透視圖
+            </h3>
+            <span class="text-[10px] text-slate-400">紅:高溫 / 藍:低溫</span>
+          </div>
+          <div id="dash-heatmap-container" class="w-full flex justify-center py-1"></div>
         </div>
-        <div id="pain-rank-list" class="space-y-2.5">
-          <div class="text-center py-8 text-slate-500 text-sm">尚無作答數據，等待連線...</div>
+
+        <!-- 左右側負載對比與排行 (佔 7 欄) -->
+        <div class="md:col-span-7 ergo-card p-4 border border-[#30363d] bg-[#161b22] flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xs font-bold text-white">
+                ⚖️ 左右側單側負載對稱性分析
+              </h3>
+              <span class="text-[10px] text-slate-400">滑鼠/單側習慣指標</span>
+            </div>
+            
+            <!-- 左右對比條 -->
+            <div id="asymmetry-list" class="space-y-2 mb-4">
+              <!-- 由 dashboard.js 動態渲染 -->
+            </div>
+          </div>
+
+          <!-- 全場三大痛點排行 -->
+          <div class="pt-3 border-t border-slate-800">
+            <h4 class="text-xs font-bold text-slate-300 mb-2">🚨 負載前三大部位排行</h4>
+            <div id="pain-rank-list" class="space-y-1.5">
+              <div class="text-center py-2 text-slate-500 text-xs">數據收集中...</div>
+            </div>
+          </div>
         </div>
+
       </div>
 
       <!-- 工作站人因地雷統計 (扣分原因) -->
-      <div class="ergo-card p-5 border border-[#30363d] bg-[#161b22]">
-        <h3 class="text-sm font-bold text-amber-400 mb-3">
+      <div class="ergo-card p-4 border border-[#30363d] bg-[#161b22]">
+        <h3 class="text-xs font-bold text-amber-400 mb-2.5">
           🛠️ 工作站人因環境盲點分佈 (作業姿態與環境配置)
         </h3>
-        <div id="traps-list" class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-          <div class="text-center py-4 text-slate-500 text-xs col-span-2">數據收集中...</div>
+        <div id="traps-list" class="grid grid-cols-1 md:grid-cols-2 gap-2">
+          <div class="text-center py-2 text-slate-500 text-xs col-span-2">數據收集中...</div>
         </div>
       </div>
 
@@ -158,6 +186,7 @@
 
   <!-- 腳本引入 -->
   <script src="js/config.js"></script>
+  <script src="js/bodymap.js"></script>
   <script src="js/questions.js"></script>
   <script src="js/dashboard.js"></script>
 </body>

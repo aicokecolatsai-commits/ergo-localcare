@@ -159,7 +159,6 @@ class DataBridge {
     
     for (let i = 0; i < count; i++) {
       const role = roles[Math.floor(Math.random() * roles.length)];
-      // 隨機產生 45 ~ 95 分之間的常態分佈
       const score = Math.floor(Math.random() * 45) + 50;
       
       dummyList.push({
@@ -168,11 +167,22 @@ class DataBridge {
         role: role,
         totalScore: score,
         tier: score >= 85 ? "tier_green" : (score >= 70 ? "tier_yellow" : (score >= 50 ? "tier_orange" : "tier_red")),
-        painPoints: {
-          neck: Math.random() > 0.3 ? 10 : 0,
-          back: Math.random() > 0.4 ? 10 : 0,
-          wrist: Math.random() > 0.5 ? 10 : 0,
-          eye: Math.random() > 0.35 ? 10 : 0
+        nmqData: {
+          neck: Math.random() > 0.3 ? (Math.random() > 0.5 ? 3 : 2) : 0,
+          shoulder_l: Math.random() > 0.75 ? 2 : 0,
+          shoulder_r: Math.random() > 0.35 ? (Math.random() > 0.6 ? 3 : 2) : 0, // 右肩顯著高於左肩
+          upperback: Math.random() > 0.6 ? 2 : 0,
+          elbow_l: Math.random() > 0.85 ? 2 : 0,
+          elbow_r: Math.random() > 0.65 ? 2 : 0,
+          lowerback: Math.random() > 0.4 ? (Math.random() > 0.5 ? 3 : 2) : 0,
+          wrist_l: Math.random() > 0.8 ? 2 : 0,
+          wrist_r: Math.random() > 0.4 ? (Math.random() > 0.5 ? 3 : 2) : 0, // 右腕滑鼠手顯著高
+          hip_l: Math.random() > 0.7 ? 2 : 0,
+          hip_r: Math.random() > 0.6 ? 2 : 0,
+          knee_l: Math.random() > 0.75 ? 2 : 0,
+          knee_r: Math.random() > 0.7 ? 2 : 0,
+          ankle_l: Math.random() > 0.8 ? 2 : 0,
+          ankle_r: Math.random() > 0.75 ? 2 : 0
         },
         traps: {
           trap_screen: Math.random() > 0.3,

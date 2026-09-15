@@ -1,6 +1,6 @@
 /**
- * 講師大螢幕投影看板即時引擎 (dashboard.js)
- * 負責即時監聽資料庫、動態數字動畫、Gauge 分數儀表、三大痛點排行與環境地雷統計
+ * 講師大螢幕投影看板即時引擎 (dashboard.js) - 升級版
+ * 整合全場 NMQ 向量人體熱力圖、左右側單側負載對稱性分析與即時排行
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -15,15 +15,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const elStatusInsight = document.getElementById("dash-status-insight");
   const elRolePieContainer = document.getElementById("rolePieChart");
   const elPainRankList = document.getElementById("pain-rank-list");
+  const elAsymmetryList = document.getElementById("asymmetry-list");
   const elTrapsList = document.getElementById("traps-list");
   const elQrContainer = document.getElementById("qrcode-container");
   const elQrLink = document.getElementById("qr-target-link");
+
+  let dashBodyMap = null;
+  let rolePieChart = null;
 
   if (elSessionTitle) {
     elSessionTitle.innerText = `場次代碼：${sessionId}`;
   }
 
-  // 動態生成學員填寫端 QR Code (包含當前 Host 與 session)
+  // 初始化大螢幕人體圖
+  dashBodyMap = new BodyMapComponent({
+    containerId: "dash-heatmap-container",
+    interactive: false
+  });
+
+  // 生成 QR Code
   const studentUrl = `${window.location.origin}${window.location.pathname.replace("dashboard.html", "index.html").replace("dashboard", "")}?session=${sessionId}`;
   if (elQrContainer && window.QRCode) {
     elQrContainer.innerHTML = "";
@@ -40,8 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
     elQrLink.innerText = studentUrl;
     elQrLink.href = studentUrl;
   }
-
-  let rolePieChart = null;
 
   // 監聽即時數據變更
   dataBridge.onDataChange((submissions) => {
@@ -67,8 +75,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (total === 0) {
       elAvgScore.innerText = "--";
       elStatusBadge.innerText = "等待學員連線中...";
-      elStatusBadge.className = "px-3 py-1 rounded-full text-xs font-semibold border border-slate-700 bg-slate-800 text-slate-400";
-      elStatusInsight.innerText = "請全場掃描左側 QR Code，開始 60 秒工作站與人因檢測。";
+      elStatusBadge.className = "px-3 py-0.5 rounded-full text-xs font-semibold border border-slate-700 bg-slate-800 text-slate-400";
+      elStatusInsight.innerText = "請全場掃描左側 QR Code，開始 60 秒工作站人因檢核。";
       renderEmptyState();
       return;
     }
@@ -80,58 +88,125 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const tier = ERGO_CONFIG.scoreTiers.find((t) => avg >= t.min && avg <= t.max) || ERGO_CONFIG.scoreTiers[ERGO_CONFIG.scoreTiers.length - 1];
     elStatusBadge.innerText = tier.title;
-    elStatusBadge.className = `px-3 py-1 rounded-full text-xs md:text-sm font-bold border ${tier.badgeColor}`;
-    
-    // 2. 統計痛點排行 (NMQ Dimensions)
-    const painCounts = {
-      "頸肩部過載 (頸椎前傾力矩大)": 0,
-      "腰背部受力 (腰椎懸空/支撐不足)": 0,
-      "手腕手肘過勞 (腕部壓迫/重複施力)": 0,
-      "視覺疲勞 (光線眩光/注視超時)": 0
-    };
+    elStatusBadge.className = `px-3 py-0.5 rounded-full text-xs font-bold border ${tier.badgeColor}`;
+
+    // 2. 統計 15 個 NMQ 解剖區域的受影響人數與百分比
+    const zoneCounts = {};
+    NMQ_ZONES.forEach((z) => (zoneCounts[z.id] = 0));
 
     list.forEach((sub) => {
-      if (sub.painPoints) {
-        if (sub.painPoints.neck > 0) painCounts["頸肩部過載 (頸椎前傾力矩大)"]++;
-        if (sub.painPoints.back > 0) painCounts["腰背部受力 (腰椎懸空/支撐不足)"]++;
-        if (sub.painPoints.wrist > 0) painCounts["手腕手肘過勞 (腕部壓迫/重複施力)"]++;
-        if (sub.painPoints.eye > 0) painCounts["視覺疲勞 (光線眩光/注視超時)"]++;
+      if (sub.nmqData) {
+        Object.keys(sub.nmqData).forEach((zid) => {
+          if (sub.nmqData[zid] && sub.nmqData[zid] > 0) {
+            zoneCounts[zid] = (zoneCounts[zid] || 0) + 1;
+          }
+        });
       }
     });
 
-    const sortedPains = Object.entries(painCounts).sort((a, b) => b[1] - a[1]);
+    const percentages = {};
+    NMQ_ZONES.forEach((z) => {
+      percentages[z.id] = Math.round(((zoneCounts[z.id] || 0) / total) * 100);
+    });
 
-    // 渲染痛點排行榜
-    elPainRankList.innerHTML = sortedPains
-      .map(([name, count], idx) => {
-        const percent = Math.round((count / total) * 100);
-        const medals = ["1.", "2.", "3.", "4."];
-        const barColor = idx === 0 ? "bg-rose-500" : (idx === 1 ? "bg-orange-500" : "bg-amber-500");
+    // 更新大螢幕人體熱力圖
+    if (dashBodyMap) {
+      dashBodyMap.setAggregateHeatmap(percentages);
+    }
+
+    // 3. 左右側單側負載對稱性分析
+    renderAsymmetry(percentages);
+
+    // 4. 全場前三大痛點部位排行
+    renderTopPains(zoneCounts, total);
+
+    // 5. 講師即時洞察提詞
+    const sortedZones = Object.entries(zoneCounts).sort((a, b) => b[1] - a[1]);
+    const topZoneObj = NMQ_ZONES.find((z) => z.id === sortedZones[0][0]);
+    const topName = topZoneObj ? topZoneObj.name : "頸肩部";
+    const topPercent = Math.round((sortedZones[0][1] / total) * 100);
+    elStatusInsight.innerHTML = `
+      🚨 <strong class="text-rose-400">現場統計警示：</strong> 全場高達 <span class="text-sky-400 font-bold">${topPercent}%</span> 的學員在「<strong>${topName}</strong>」出現顯著過載！整體作業風險落在「${tier.subtitle}」。
+    `;
+
+    // 6. 工作站環境盲點 (Traps)
+    renderTraps(list, total);
+
+    // 7. 族群分佈圓餅圖
+    renderRolePieChart(list);
+  }
+
+  // 渲染左右側負載對照
+  function renderAsymmetry(percentages) {
+    const pairs = [
+      { name: "肩部負載", leftId: "shoulder_l", rightId: "shoulder_r", note: "滑鼠 / 單肩揹負" },
+      { name: "手腕負載", leftId: "wrist_l", rightId: "wrist_r", note: "滑鼠手 vs 鍵盤手" },
+      { name: "下肢膝踝", leftId: "knee_l", rightId: "knee_r", note: "站姿重心單側傾斜" }
+    ];
+
+    elAsymmetryList.innerHTML = pairs
+      .map((p) => {
+        const lVal = percentages[p.leftId] || 0;
+        const rVal = percentages[p.rightId] || 0;
+        const diff = Math.abs(rVal - lVal);
+        const diffLabel = diff >= 20 ? `<span class="text-[10px] text-rose-400 font-bold">⚠️ 顯著單側失衡 (${diff}%)</span>` : "";
+
         return `
-        <div class="p-3 rounded-xl border border-[#30363d] bg-[#161b22]">
-          <div class="flex items-center justify-between text-xs md:text-sm font-semibold text-slate-200 mb-1.5">
-            <span class="flex items-center gap-1.5 truncate">
-              <span class="text-slate-400 font-mono">${medals[idx]}</span>
-              <span class="truncate">${name}</span>
-            </span>
-            <span class="text-sky-400 font-bold flex-shrink-0">${percent}% (${count}人)</span>
+        <div class="p-2 rounded-lg bg-slate-850 border border-[#30363d] text-xs">
+          <div class="flex items-center justify-between mb-1 text-slate-300 font-medium">
+            <span>${p.name} <span class="text-[10px] text-slate-500">(${p.note})</span></span>
+            ${diffLabel}
           </div>
-          <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
-            <div class="${barColor} h-full rounded-full transition-all duration-300" style="width: ${percent}%"></div>
+          <div class="grid grid-cols-2 gap-2 text-[11px]">
+            <div class="flex items-center justify-between bg-slate-900/80 px-2 py-1 rounded">
+              <span class="text-slate-400">左側 (L):</span>
+              <span class="font-bold text-sky-400">${lVal}%</span>
+            </div>
+            <div class="flex items-center justify-between bg-slate-900/80 px-2 py-1 rounded">
+              <span class="text-slate-400">右側 (R):</span>
+              <span class="font-bold text-sky-400">${rVal}%</span>
+            </div>
           </div>
         </div>
       `;
       })
       .join("");
+  }
 
-    // 3. 講師即時洞察提詞
-    const topPainName = sortedPains[0][0].split(" ")[0];
-    const topPercent = Math.round((sortedPains[0][1] / total) * 100);
-    elStatusInsight.innerHTML = `
-      🚨 <strong class="text-rose-400">現場統計警示：</strong> 全場有 <span class="text-sky-400 font-bold">${topPercent}%</span> 的學員正承受「<strong>${topPainName}</strong>」的顯著肌肉骨骼負載！平均作業風險落在「${tier.subtitle}」。
-    `;
+  // 渲染三大痛點
+  function renderTopPains(zoneCounts, total) {
+    const sorted = Object.entries(zoneCounts)
+      .filter(([id, count]) => count > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
 
-    // 4. 統計環境三大地雷 (Traps)
+    if (sorted.length === 0) {
+      elPainRankList.innerHTML = `<div class="text-center py-2 text-slate-500 text-xs">尚無顯著酸痛通報</div>`;
+      return;
+    }
+
+    elPainRankList.innerHTML = sorted
+      .map(([id, count], idx) => {
+        const zone = NMQ_ZONES.find((z) => z.id === id);
+        const name = zone ? zone.name : id;
+        const pct = Math.round((count / total) * 100);
+        const barColor = idx === 0 ? "bg-rose-500" : (idx === 1 ? "bg-orange-500" : "bg-amber-500");
+
+        return `
+        <div class="flex items-center justify-between text-xs p-1.5 rounded bg-slate-900/60">
+          <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+            <span class="font-mono text-slate-500">${idx + 1}.</span>
+            <span>${name}</span>
+          </span>
+          <span class="font-bold text-sky-400">${pct}% (${count}人)</span>
+        </div>
+      `;
+      })
+      .join("");
+  }
+
+  // 渲染環境盲點
+  function renderTraps(list, total) {
     const trapCounts = {
       "螢幕過低 / 視線低頭前傾": 0,
       "腰背懸空 / 手臂無支撐": 0,
@@ -152,15 +227,13 @@ document.addEventListener("DOMContentLoaded", () => {
       .map(([name, count]) => {
         const percent = Math.round((count / total) * 100);
         return `
-        <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-850 border border-[#30363d] text-xs md:text-sm">
+        <div class="flex items-center justify-between p-2 rounded bg-slate-850 border border-[#30363d] text-xs">
           <span class="text-slate-300">${name}</span>
           <span class="font-bold text-amber-400">${percent}%</span>
         </div>
       `;
       })
       .join("");
-
-    renderRolePieChart(list);
   }
 
   // 渲染族群圓餅圖
@@ -193,12 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
         datasets: [
           {
             data: dataValues,
-            backgroundColor: [
-              "#38bdf8",
-              "#34d399",
-              "#fbbf24",
-              "#a78bfa"
-            ],
+            backgroundColor: ["#38bdf8", "#34d399", "#fbbf24", "#a78bfa"],
             borderColor: "#0f172a",
             borderWidth: 2
           }
@@ -233,7 +301,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderEmptyState() {
-    elPainRankList.innerHTML = `<div class="text-center py-6 text-slate-500 text-sm">尚無作答數據，等待連線...</div>`;
-    elTrapsList.innerHTML = `<div class="text-center py-4 text-slate-500 text-xs">數據收集中...</div>`;
+    elPainRankList.innerHTML = `<div class="text-center py-2 text-slate-500 text-xs">尚無作答數據，等待連線...</div>`;
+    elAsymmetryList.innerHTML = `<div class="text-center py-2 text-slate-500 text-xs">數據收集中...</div>`;
+    elTrapsList.innerHTML = `<div class="text-center py-2 text-slate-500 text-xs col-span-2">數據收集中...</div>`;
   }
 });

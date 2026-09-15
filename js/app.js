@@ -1,6 +1,10 @@
 /**
- * 學員端問卷核心互動邏輯 (app.js)
- * 具備：角色挑選、雙向上一題/下一題導航、作答狀態記憶、NMQ-Lite 計算與人因改善指引報告
+ * 學員端問卷核心互動邏輯 (app.js) - 升級版
+ * 流程：
+ * 步驟 0：選擇作業型態
+ * 步驟 1：互動式人體圖 NMQ 不適部位標記 (左右側分開)
+ * 步驟 2：工作站環境配置檢核 (4 題)
+ * 步驟 3：個人人因檢核報告卡 (含個人人體圖透視、總分、改善指引與免責警語)
  */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -9,34 +13,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 狀態管理
   let selectedRole = null;
+  let userBodymapData = {}; // { zoneId: 2 (中度) 或 3 (重度) }
   let currentQuestionIndex = 0;
-  let userAnswers = []; // 保存每題作答狀態 [{questionId, dimension, penalty, selectedOptionIndex}]
-  let questions = [];
+  let userAnswers = []; // 保存工作站檢核作答狀態
+  let envQuestions = [];
 
   // DOM 元素
   const elSessionBadge = document.getElementById("session-badge");
   const elStepRole = document.getElementById("step-role");
+  const elStepBodymap = document.getElementById("step-bodymap");
   const elStepQuiz = document.getElementById("step-quiz");
   const elStepResult = document.getElementById("step-result");
+  
   const elRoleContainer = document.getElementById("role-cards-container");
+  const elBodymapSummary = document.getElementById("bodymap-summary");
+  const elBtnBodymapBack = document.getElementById("btn-bodymap-back");
+  const elBtnBodymapNext = document.getElementById("btn-bodymap-next");
+
   const elProgressBar = document.getElementById("progress-bar");
   const elProgressText = document.getElementById("progress-text");
   const elQuestionContainer = document.getElementById("question-container");
   const elBtnPrev = document.getElementById("btn-prev-question");
 
+  let studentBodyMap = null;
+
+  // 初始化場次標籤
   if (elSessionBadge) {
     elSessionBadge.innerText = `場次：${sessionId}`;
     elSessionBadge.style.cursor = "pointer";
     elSessionBadge.title = "點擊可切換或查看演講場次代碼";
     elSessionBadge.addEventListener("click", () => {
-      const customSession = prompt("目前場次代碼為：" + sessionId + "\n如需手動切換至其他場次，請輸入新代碼：", sessionId);
+      const customSession = prompt("目前場次代碼為：" + sessionId + "\n如需切換至其他場次，請輸入新代碼：", sessionId);
       if (customSession && customSession.trim() !== "" && customSession.trim() !== sessionId) {
         window.location.href = `index.html?session=${encodeURIComponent(customSession.trim())}`;
       }
     });
   }
 
-  // 1. 渲染角色挑選卡片 (純粹專業、無浮誇假 3D 與刺眼漸層)
+  // 1. 渲染角色挑選卡片
   function renderRoles() {
     elRoleContainer.innerHTML = "";
     ERGO_CONFIG.roles.forEach((role) => {
@@ -53,53 +67,105 @@ document.addEventListener("DOMContentLoaded", () => {
           <p class="text-xs md:text-sm text-slate-400 leading-relaxed">${role.desc}</p>
         </div>
         <div class="mt-3 flex items-center justify-end text-xs font-semibold text-sky-400 group-hover:translate-x-0.5 transition-transform">
-          開始自我檢核 ➔
+          進入人體圖標記 ➔
         </div>
       `;
-      card.addEventListener("click", () => startQuiz(role.id));
+      card.addEventListener("click", () => startBodymapStep(role.id));
       elRoleContainer.appendChild(card);
     });
   }
 
-  // 2. 開始測驗
-  function startQuiz(roleId) {
+  // 2. 進入人體圖標記步驟
+  function startBodymapStep(roleId) {
     selectedRole = roleId;
-    questions = ERGO_CONFIG.questionSets[roleId] || ERGO_CONFIG.questionSets.office;
-    currentQuestionIndex = 0;
-    userAnswers = new Array(questions.length).fill(null);
-
     elStepRole.classList.add("hidden");
+    elStepBodymap.classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // 初始化人體圖元件
+    if (!studentBodyMap) {
+      studentBodyMap = new BodyMapComponent({
+        containerId: "student-bodymap-container",
+        interactive: true,
+        onChange: (selectedData) => {
+          userBodymapData = { ...selectedData };
+          updateBodymapSummary();
+        }
+      });
+    } else {
+      studentBodyMap.setData(userBodymapData);
+    }
+    updateBodymapSummary();
+  }
+
+  // 更新人體圖選取摘要
+  function updateBodymapSummary() {
+    const keys = Object.keys(userBodymapData);
+    if (keys.length === 0) {
+      elBodymapSummary.innerHTML = "目前尚未標記任何不適部位（若完全無症狀，可直接點擊下一步）";
+      return;
+    }
+
+    const items = keys.map((key) => {
+      const zone = NMQ_ZONES.find((z) => z.id === key);
+      const name = zone ? zone.name : key;
+      const intensity = userBodymapData[key] === 3 ? "重度" : "中度";
+      const badgeClass = userBodymapData[key] === 3 ? "text-rose-400 bg-rose-950/60 border-rose-800" : "text-amber-400 bg-amber-950/60 border-amber-800";
+      return `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border ${badgeClass}">${name} (${intensity})</span>`;
+    });
+
+    elBodymapSummary.innerHTML = `<div class="flex flex-wrap items-center justify-center gap-1.5">已標記部位：${items.join("")}</div>`;
+  }
+
+  // 人體圖按鈕導航
+  elBtnBodymapBack.addEventListener("click", () => {
+    elStepBodymap.classList.add("hidden");
+    elStepRole.classList.remove("hidden");
+  });
+
+  elBtnBodymapNext.addEventListener("click", () => {
+    startQuizStep();
+  });
+
+  // 3. 進入工作站環境檢核 4 題
+  function startQuizStep() {
+    const allQuestions = ERGO_CONFIG.questionSets[selectedRole] || ERGO_CONFIG.questionSets.office;
+    // 取後 4 題環境題 (Q5~Q8)
+    envQuestions = allQuestions.slice(4);
+    currentQuestionIndex = 0;
+    userAnswers = new Array(envQuestions.length).fill(null);
+
+    elStepBodymap.classList.add("hidden");
     elStepQuiz.classList.remove("hidden");
     window.scrollTo({ top: 0, behavior: "smooth" });
 
     renderQuestion();
   }
 
-  // 3. 渲染單一題目
+  // 4. 渲染單一題目
   function renderQuestion() {
-    const q = questions[currentQuestionIndex];
-    const totalQ = questions.length;
+    const q = envQuestions[currentQuestionIndex];
+    const totalQ = envQuestions.length;
     const progressPercent = ((currentQuestionIndex + 1) / totalQ) * 100;
 
     elProgressBar.style.width = `${progressPercent}%`;
-    elProgressText.innerText = `進度 ${currentQuestionIndex + 1} / ${totalQ}`;
+    elProgressText.innerText = `環境檢核 ${currentQuestionIndex + 1} / ${totalQ}`;
 
-    // 更新上一題按鈕狀態
+    // 更新上一題按鈕文案
     if (elBtnPrev) {
       if (currentQuestionIndex === 0) {
-        elBtnPrev.innerText = "⬅️ 重新選擇作業型態";
+        elBtnPrev.innerText = "⬅️ 返回人體圖修改";
       } else {
         elBtnPrev.innerText = "⬅️ 返回上一題";
       }
     }
 
-    // 檢查本題是否已有歷史作答紀錄
     const prevAnswer = userAnswers[currentQuestionIndex];
     const prevSelectedIdx = prevAnswer !== null ? prevAnswer.selectedOptionIndex : null;
 
     elQuestionContainer.innerHTML = `
       <div class="fade-in">
-        <div class="flex items-center gap-2 mb-2.5">
+        <div class="flex items-center gap-2 mb-2">
           <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-800 text-sky-300 border border-slate-700">
             ${q.dimensionName}
           </span>
@@ -136,7 +202,6 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
-    // 綁定選項點擊事件
     const optionBtns = elQuestionContainer.querySelectorAll(".option-btn");
     optionBtns.forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -147,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 4. 處理答題
+  // 5. 處理答題
   function handleAnswer(optionIdx, penalty, questionObj) {
     userAnswers[currentQuestionIndex] = {
       questionId: questionObj.id,
@@ -156,32 +221,43 @@ document.addEventListener("DOMContentLoaded", () => {
       selectedOptionIndex: optionIdx
     };
 
-    if (currentQuestionIndex < questions.length - 1) {
+    if (currentQuestionIndex < envQuestions.length - 1) {
       currentQuestionIndex++;
       renderQuestion();
     } else {
-      finishQuiz();
+      finishAssessment();
     }
   }
 
-  // 5. 上一題邏輯
+  // 6. 返回上一題邏輯
   if (elBtnPrev) {
     elBtnPrev.addEventListener("click", () => {
       if (currentQuestionIndex > 0) {
         currentQuestionIndex--;
         renderQuestion();
       } else {
-        // 第一題點上一題，返回身分挑選
+        // 返回人體圖步驟
         elStepQuiz.classList.add("hidden");
-        elStepRole.classList.remove("hidden");
+        elStepBodymap.classList.remove("hidden");
       }
     });
   }
 
-  // 6. 計算總分與產出評估報告
-  async function finishQuiz() {
+  // 7. 計算總分與產出評估報告 (NMQ 人體圖負載 + 環境檢核)
+  async function finishAssessment() {
     let totalScore = 100;
-    const painPoints = { neck: 0, back: 0, wrist: 0, eye: 0 };
+    
+    // 計算 NMQ 人體圖扣分 (最高扣 40 分)
+    let nmqPenaltySum = 0;
+    Object.keys(userBodymapData).forEach((key) => {
+      const val = userBodymapData[key];
+      if (val === 2) nmqPenaltySum += 5; // 中度
+      if (val === 3) nmqPenaltySum += 10; // 重度
+    });
+    const nmqPenalty = Math.min(40, nmqPenaltySum);
+    totalScore -= nmqPenalty;
+
+    // 計算工作站環境與行為扣分 (最高扣 60 分)
     const traps = {
       trap_screen: false,
       trap_chair: false,
@@ -192,9 +268,6 @@ document.addEventListener("DOMContentLoaded", () => {
     userAnswers.forEach((ans) => {
       if (!ans) return;
       totalScore -= ans.penalty;
-      if (painPoints[ans.dimension] !== undefined) {
-        painPoints[ans.dimension] = ans.penalty;
-      }
       if (traps[ans.dimension] !== undefined && ans.penalty > 0) {
         traps[ans.dimension] = true;
       }
@@ -206,20 +279,26 @@ document.addEventListener("DOMContentLoaded", () => {
       ERGO_CONFIG.scoreTiers.find((t) => totalScore >= t.min && totalScore <= t.max) ||
       ERGO_CONFIG.scoreTiers[ERGO_CONFIG.scoreTiers.length - 1];
 
+    // 建立 15 個解剖區域的 NMQ 資料庫格式
+    const nmqData = {};
+    NMQ_ZONES.forEach((z) => {
+      nmqData[z.id] = userBodymapData[z.id] || 0;
+    });
+
     const submissionData = {
       role: selectedRole,
       totalScore: totalScore,
       tier: tierInfo.tier,
-      painPoints: painPoints,
+      nmqData: nmqData,
       traps: traps
     };
 
     await dataBridge.submitAssessment(submissionData);
-    showResult(totalScore, tierInfo, painPoints);
+    showResult(totalScore, tierInfo, nmqData);
   }
 
-  // 7. 渲染個人評估結果報告
-  function showResult(score, tierInfo, painPoints) {
+  // 8. 渲染個人評估結果報告
+  function showResult(score, tierInfo, nmqData) {
     elStepQuiz.classList.add("hidden");
     elStepResult.classList.remove("hidden");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -230,6 +309,41 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("res-analysis").innerText = tierInfo.analysis;
     document.getElementById("res-score-badge").className = `inline-block px-3 py-1 rounded-full text-xs font-bold border ${tierInfo.badgeColor} mb-2`;
     document.getElementById("res-score-badge").innerText = tierInfo.title;
+
+    // 渲染個人結果人體圖 (唯讀)
+    const resMapContainer = document.getElementById("result-bodymap-container");
+    resMapContainer.innerHTML = "";
+    const resultMap = new BodyMapComponent({
+      containerId: "result-bodymap-container",
+      interactive: false
+    });
+    resultMap.setData(userBodymapData);
+
+    // 渲染標記文字清單
+    const resListEl = document.getElementById("result-bodymap-list");
+    const activeKeys = Object.keys(userBodymapData);
+    if (activeKeys.length === 0) {
+      resListEl.innerHTML = `<div class="text-slate-400 text-center py-1">全身體幹與關節目前無顯著酸痛標記</div>`;
+    } else {
+      resListEl.innerHTML = activeKeys
+        .map((k) => {
+          const z = NMQ_ZONES.find((item) => item.id === k);
+          const name = z ? z.name : k;
+          const isSevere = userBodymapData[k] === 3;
+          const statusTxt = isSevere ? "重度負載 (持續酸麻/刺痛)" : "中度負載 (常態僵硬緊繃)";
+          const dotColor = isSevere ? "bg-rose-500" : "bg-amber-500";
+          return `
+          <div class="flex items-center justify-between p-2 rounded bg-slate-850 border border-[#30363d] text-xs">
+            <span class="flex items-center gap-2 font-bold text-slate-200">
+              <span class="w-2 h-2 rounded-full ${dotColor}"></span>
+              <span>${name}</span>
+            </span>
+            <span class="text-slate-400">${statusTxt}</span>
+          </div>
+        `;
+        })
+        .join("");
+    }
 
     // 改善指引清單
     const elGuides = document.getElementById("res-action-guides");
@@ -248,87 +362,16 @@ document.addEventListener("DOMContentLoaded", () => {
         .join("");
     }
 
-    // 渲染免責聲明警語
     const elDisclaimer = document.getElementById("res-disclaimer");
     if (elDisclaimer) {
       elDisclaimer.innerText = ERGO_CONFIG.disclaimer;
     }
 
-    renderPainChart(painPoints);
-
     document.getElementById("btn-restart").addEventListener("click", () => {
+      userBodymapData = {};
       elStepResult.classList.add("hidden");
       elStepRole.classList.remove("hidden");
       renderRoles();
-    });
-  }
-
-  // 8. 渲染 NMQ 扣分長條圖 (專業乾淨配色)
-  function renderPainChart(painPoints) {
-    const ctx = document.getElementById("painChart");
-    if (!ctx) return;
-
-    if (window.myPainChart) {
-      window.myPainChart.destroy();
-    }
-
-    const labels = ["頸肩部", "腰背部", "手腕關節", "視覺調節"];
-    const values = [
-      painPoints.neck || 0,
-      painPoints.back || 0,
-      painPoints.wrist || 0,
-      painPoints.eye || 0
-    ];
-
-    window.myPainChart = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: "負載扣分 (越高代表該部位負荷越重)",
-            data: values,
-            backgroundColor: [
-              "rgba(244, 63, 94, 0.8)",
-              "rgba(249, 115, 22, 0.8)",
-              "rgba(234, 179, 8, 0.8)",
-              "rgba(56, 189, 248, 0.8)"
-            ],
-            borderColor: [
-              "#f43f5e",
-              "#f97316",
-              "#eab308",
-              "#38bdf8"
-            ],
-            borderWidth: 1,
-            borderRadius: 6
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false }
-        },
-        scales: {
-          y: {
-            min: 0,
-            max: 10,
-            ticks: {
-              stepSize: 5,
-              color: "#64748b",
-              font: { size: 11 },
-              callback: (v) => (v === 0 ? "低負載" : (v === 5 ? "中度負載" : "重度負載"))
-            },
-            grid: { color: "rgba(255, 255, 255, 0.05)" }
-          },
-          x: {
-            ticks: { color: "#94a3b8", font: { size: 12, weight: "bold" } },
-            grid: { display: false }
-          }
-        }
-      }
     });
   }
 

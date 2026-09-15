@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // 5. 匯出 CSV 報表
+  // 5. 匯出標準化 NMQ 人因工程 CSV 報表
   elBtnExportCsv.addEventListener("click", () => {
     const bridge = new DataBridge(currentSession);
     const list = bridge.getLocalSubmissions();
@@ -81,26 +81,72 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const headers = ["ID", "場次代碼", "角色族群", "總分", "評級", "後頸扣分", "腰部扣分", "手腕扣分", "視覺扣分", "時間戳記"];
-    const rows = list.map((item) => [
-      item.id,
-      item.sessionId,
-      item.role,
-      item.totalScore,
-      item.tier,
-      item.painPoints ? item.painPoints.neck : 0,
-      item.painPoints ? item.painPoints.back : 0,
-      item.painPoints ? item.painPoints.wrist : 0,
-      item.painPoints ? item.painPoints.eye : 0,
-      new Date(item.timestamp).toLocaleString()
-    ]);
+    const headers = [
+      "Submission_ID",
+      "Session_ID",
+      "Role",
+      "Total_Score",
+      "Tier",
+      "NMQ_Neck",
+      "NMQ_Shoulder_L",
+      "NMQ_Shoulder_R",
+      "NMQ_UpperBack",
+      "NMQ_Elbow_L",
+      "NMQ_Elbow_R",
+      "NMQ_LowerBack",
+      "NMQ_Wrist_L",
+      "NMQ_Wrist_R",
+      "NMQ_Hip_L",
+      "NMQ_Hip_R",
+      "NMQ_Knee_L",
+      "NMQ_Knee_R",
+      "NMQ_Ankle_L",
+      "NMQ_Ankle_R",
+      "Trap_ScreenHeight",
+      "Trap_ChairWristSupport",
+      "Trap_EnvironmentGlare",
+      "Trap_SedentaryOver2Hours",
+      "Timestamp"
+    ];
+
+    const rows = list.map((item) => {
+      const nmq = item.nmqData || {};
+      const traps = item.traps || {};
+      return [
+        item.id,
+        item.sessionId,
+        item.role,
+        item.totalScore,
+        item.tier,
+        nmq.neck || 0,
+        nmq.shoulder_l || 0,
+        nmq.shoulder_r || 0,
+        nmq.upperback || 0,
+        nmq.elbow_l || 0,
+        nmq.elbow_r || 0,
+        nmq.lowerback || 0,
+        nmq.wrist_l || 0,
+        nmq.wrist_r || 0,
+        nmq.hip_l || 0,
+        nmq.hip_r || 0,
+        nmq.knee_l || 0,
+        nmq.knee_r || 0,
+        nmq.ankle_l || 0,
+        nmq.ankle_r || 0,
+        traps.trap_screen ? 1 : 0,
+        traps.trap_chair ? 1 : 0,
+        traps.trap_glare ? 1 : 0,
+        traps.trap_sedentary ? 1 : 0,
+        new Date(item.timestamp).toLocaleString()
+      ];
+    });
 
     let csvContent = "\uFEFF" + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `人因工程報告_${currentSession}_${Date.now()}.csv`;
+    a.download = `NMQ人因工程評估數據_${currentSession}_${Date.now()}.csv`;
     a.click();
   });
 

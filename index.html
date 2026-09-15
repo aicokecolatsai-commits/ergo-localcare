@@ -148,12 +148,27 @@
 
     <!-- 步驟 1：NMQ 互動式向量人體圖 (手機優先排版 + 底部滑出抽屜) -->
     <section id="step-bodymap" class="hidden space-y-3">
+      
+      <!-- 課堂改善後複測專屬提示橫幅 -->
+      <div id="bodymap-retest-banner" class="hidden p-3 rounded-xl bg-indigo-50 border-2 border-indigo-300 text-xs text-indigo-950 font-bold flex items-center justify-between gap-2 shadow-xs animate-in fade-in">
+        <div class="flex items-center gap-2">
+          <span class="text-xl flex-shrink-0">🔄</span>
+          <div class="text-left">
+            <div class="font-black text-indigo-950 text-xs">【課堂改善後複測中】請依當前體感重新評估</div>
+            <div class="text-[10.5px] text-indigo-800 font-normal mt-0.5">依據微調螢幕、坐姿與伸展後的感受重新點選（若已舒緩可直接點下方「全無酸痛」）</div>
+          </div>
+        </div>
+        <button id="btn-cancel-retest" type="button" class="text-[11px] text-slate-500 hover:text-slate-800 underline flex-shrink-0">
+          取消複測
+        </button>
+      </div>
+
       <div class="space-y-0.5 text-center pb-0.5">
         <span class="text-[11px] font-bold text-[#2e6284] uppercase tracking-wider">
           步驟 2 / 4 ｜ 肌肉骨骼不適標記 (NMQ)
         </span>
-        <h2 class="text-base md:text-lg font-bold text-slate-900">點選近一個月常感酸痛、僵硬或麻木部位</h2>
-        <p class="text-[11px] text-slate-500 max-w-sm mx-auto">
+        <h2 class="text-base md:text-lg font-bold text-slate-900" id="bodymap-step-title">點選近一個月常感酸痛、僵硬或麻木部位</h2>
+        <p class="text-[11px] text-slate-500 max-w-sm mx-auto" id="bodymap-step-subtitle">
           可直接點選人體圖或滑動上方膠囊，於下方彈出選單設定程度
         </p>
       </div>
@@ -224,7 +239,7 @@
             <span class="text-2xl flex-shrink-0">🔄</span>
             <div>
               <h4 class="text-xs md:text-sm font-black text-indigo-950 flex items-center gap-1.5">
-                <span>第一性原理：前後測身體折舊改善對照 (Before / After)</span>
+                <span>課堂前後測成效對照 (Before / After 改善評估)</span>
                 <span id="retest-status-badge" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-600 text-white shadow-xs">初次基準 (前測)</span>
               </h4>
               <p id="retest-desc-text" class="text-[11px] text-slate-600 font-medium mt-0.5">
@@ -233,11 +248,11 @@
             </div>
           </div>
           <div class="flex items-center gap-2">
-            <button id="btn-trigger-retest" type="button" class="py-2 px-3 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white text-xs font-black transition-all shadow-sm flex items-center gap-1 touch-press">
+            <button id="btn-trigger-retest" type="button" class="py-2 px-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white text-xs font-black transition-all shadow-sm flex items-center gap-1.5 touch-press">
               <span>✨ 進行現場改善後複測</span>
             </button>
-            <button id="btn-reset-baseline" type="button" class="hidden py-1.5 px-2.5 rounded-lg border border-slate-300 bg-white text-slate-600 hover:text-slate-900 text-[11px] font-semibold">
-              重設前測
+            <button id="btn-reset-baseline" type="button" class="hidden py-1.5 px-2.5 rounded-lg border border-slate-300 bg-white text-slate-600 hover:text-slate-900 text-[11px] font-semibold touch-press">
+              清除前測
             </button>
           </div>
         </div>
@@ -376,10 +391,10 @@
         </details>
       </div>
 
-      <!-- 個人化 NMQ 痛點人體圖展示 -->
+      <!-- 個人化 NMQ 痛點人體圖展示 (支援前後測雙人體圖對照) -->
       <div class="ergo-card p-5 border border-slate-200 bg-white shadow-sm">
         <h4 class="text-xs md:text-sm font-bold text-slate-900 mb-2 flex items-center justify-between">
-          <span>🧍 您的個人肌肉骨骼不適分佈圖</span>
+          <span id="bodymap-card-title">🧍 您的個人肌肉骨骼不適分佈圖</span>
           <span class="text-[11px] text-slate-500 font-medium">黃色:中度 / 紅色:重度</span>
         </h4>
         <div id="result-bodymap-container" class="w-full flex justify-center py-2"></div>
@@ -472,59 +487,6 @@
         </div>
       </div>
 
-      <!-- 系統動力學：課後 21 天微習慣助推 ＆ 行事曆定時提醒專區 -->
-      <div id="nudge-habit-card" class="ergo-card p-4 md:p-5 border-2 border-teal-300 bg-gradient-to-r from-teal-50/80 via-emerald-50/70 to-sky-50/60 shadow-md space-y-3.5">
-        <div class="flex items-center justify-between flex-wrap gap-2">
-          <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-2xl bg-white border border-teal-300 shadow-sm flex items-center justify-center text-2xl flex-shrink-0">
-              📅
-            </div>
-            <div class="text-left">
-              <div class="flex items-center gap-2">
-                <h4 class="text-xs md:text-sm font-black text-teal-950">
-                  課後微習慣養成・加入行事曆定時伸展提醒
-                </h4>
-                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-teal-700 text-white shadow-xs">行為助推</span>
-              </div>
-              <p class="text-[11px] text-slate-600 font-medium mt-0.5">
-                每日下午 15:00 定時提醒「辦公室 3 分鐘疲勞消除微伸展」，告別下班疲憊！
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- 一鍵加入行事曆按鈕群 -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-teal-200/80">
-          <a id="btn-add-gcal" href="#" target="_blank" rel="noopener noreferrer" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-teal-700 to-emerald-700 hover:from-teal-800 hover:to-emerald-800 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 touch-press">
-            <span>🗓️ 一鍵加入 Google 行事曆 (每日15:00)</span>
-            <span>↗</span>
-          </a>
-          <button id="btn-download-ics" type="button" class="py-2.5 px-3 rounded-xl bg-white hover:bg-slate-50 text-teal-900 border-2 border-teal-300 font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 touch-press">
-            <span>📱 下載 Apple / Outlook 行事曆檔 (.ics)</span>
-          </button>
-        </div>
-
-        <!-- 21 天微習慣打卡檢核板 -->
-        <div class="p-3 rounded-xl bg-white/90 border border-teal-200 space-y-2">
-          <div class="flex items-center justify-between text-xs">
-            <span class="font-black text-slate-800 flex items-center gap-1.5">
-              <span>📋</span> 21 天職場人因微習慣打卡進度
-            </span>
-            <span id="habit-progress-text" class="text-[11px] font-bold text-teal-700">0 / 21 天 (0%)</span>
-          </div>
-          <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200">
-            <div id="habit-progress-bar" class="bg-gradient-to-r from-teal-500 to-emerald-500 h-full w-0 transition-all duration-300"></div>
-          </div>
-          <div class="grid grid-cols-7 gap-1.5 pt-1.5" id="habit-check-grid">
-            <!-- 由 app.js 動態渲染 21 個打卡天數按鈕 -->
-          </div>
-          <div class="text-[10.5px] text-slate-500 flex items-center justify-between pt-1">
-            <span>🎯 核心 3 微習慣：① 視線平視螢幕上緣 ② 每 50 分鐘椅前彎 ③ 坐滿椅背貼地</span>
-            <button id="btn-reset-habit" type="button" class="text-[10px] text-slate-400 hover:text-slate-600 underline">重置打卡</button>
-          </div>
-        </div>
-      </div>
-
       <!-- 個人 A4 人因戰情室 PDF 報告下載與分享專區 (依需求放置於課堂實作卡片之後) -->
       <div id="pdf-export-card" class="ergo-card p-4 md:p-5 border-2 border-sky-300 bg-gradient-to-r from-sky-50 via-indigo-50/70 to-emerald-50/60 shadow-md space-y-3">
         <div class="flex items-center justify-between flex-wrap gap-2">
@@ -600,9 +562,88 @@
             <span>➔</span>
           </a>
         </div>
-        <p class="text-[11px] text-slate-700 leading-relaxed pt-2 border-t border-emerald-100">
-          想了解更多關於「身體折舊論」、「電腦工作站人因微調」與「骨骼肌肉疲勞消除」之實戰圖文解析，歡迎訂閱與造訪蔡健儀專家之官方部落格！
-        </p>
+      </div>
+
+      <!-- 職場健康微習慣定時助推助手 (置於最底部，寬敞大氣・勾選實用習慣直接加入行事曆) -->
+      <div id="nudge-habit-card" class="ergo-card p-4 md:p-5 border-2 border-teal-300 bg-gradient-to-r from-teal-50/90 via-emerald-50/80 to-sky-50/70 shadow-md space-y-4">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-white border border-teal-300 shadow-sm flex items-center justify-center text-2xl flex-shrink-0">
+              🌱
+            </div>
+            <div class="text-left">
+              <div class="flex items-center gap-2">
+                <h4 class="text-xs md:text-sm font-black text-teal-950">
+                  職場健康微習慣・一鍵排程推播助手
+                </h4>
+                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-teal-700 text-white shadow-xs">日常助推</span>
+              </div>
+              <p class="text-[11px] text-slate-600 font-medium mt-0.5">
+                勾選您想建立的職場微習慣，系統為您自動產生專屬行事曆提醒與動作指引！
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 大實用微習慣勾選清單 (寬敞卡片式佈局，防誤觸，清楚明瞭) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+          
+          <label class="p-3 rounded-xl border-2 transition-all bg-white hover:border-teal-400 cursor-pointer flex items-start gap-2.5 shadow-xs border-teal-200">
+            <input type="checkbox" id="chk-habit-water" class="mt-1 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500" checked>
+            <div class="text-left">
+              <div class="text-xs font-black text-slate-900 flex items-center gap-1">
+                <span>💧</span> 規律補水與起身如廁
+              </div>
+              <p class="text-[11px] text-slate-500 mt-0.5">每 60 分鐘喝水 200ml，自然起身走動，預防靜脈回流停滯與下肢水腫。</p>
+            </div>
+          </label>
+
+          <label class="p-3 rounded-xl border-2 transition-all bg-white hover:border-teal-400 cursor-pointer flex items-start gap-2.5 shadow-xs border-teal-200">
+            <input type="checkbox" id="chk-habit-stand" class="mt-1 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500" checked>
+            <div class="text-left">
+              <div class="text-xs font-black text-slate-900 flex items-center gap-1">
+                <span>🚶</span> 50 分鐘防久坐站立走動
+              </div>
+              <p class="text-[11px] text-slate-500 mt-0.5">每工作 50 分鐘站立活動 1~2 分鐘，重啟脊椎血流循環，釋放椎間盤壓力。</p>
+            </div>
+          </label>
+
+          <label class="p-3 rounded-xl border-2 transition-all bg-white hover:border-teal-400 cursor-pointer flex items-start gap-2.5 shadow-xs border-teal-200">
+            <input type="checkbox" id="chk-habit-stretch" class="mt-1 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500" checked>
+            <div class="text-left">
+              <div class="text-xs font-black text-slate-900 flex items-center gap-1">
+                <span>🧘</span> 每日 15:00 辦公室微伸展
+              </div>
+              <p class="text-[11px] text-slate-500 mt-0.5">下午疲勞高峰施作「椅上體前彎 30 秒」與「擴胸放鬆」，告別下班沉重感。</p>
+            </div>
+          </label>
+
+          <label class="p-3 rounded-xl border-2 transition-all bg-white hover:border-teal-400 cursor-pointer flex items-start gap-2.5 shadow-xs border-teal-200">
+            <input type="checkbox" id="chk-habit-eye" class="mt-1 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500" checked>
+            <div class="text-left">
+              <div class="text-xs font-black text-slate-900 flex items-center gap-1">
+                <span>👀</span> 20-20-20 護眼放鬆法則
+              </div>
+              <p class="text-[11px] text-slate-500 mt-0.5">每看螢幕 20 分鐘，遠眺 20 呎（6公尺）外景物 20 秒，放鬆睫狀肌。</p>
+            </div>
+          </label>
+
+        </div>
+
+        <!-- 一鍵加入行事曆按鈕群 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-teal-200">
+          <a id="btn-add-gcal" href="#" target="_blank" rel="noopener noreferrer" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-teal-700 to-emerald-700 hover:from-teal-800 hover:to-emerald-800 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 touch-press">
+            <span>🗓️ 一鍵加入 Google 行事曆定時提醒</span>
+            <span>↗</span>
+          </a>
+          <button id="btn-download-ics" type="button" class="py-2.5 px-3 rounded-xl bg-white hover:bg-slate-50 text-teal-900 border-2 border-teal-300 font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 touch-press">
+            <span>📱 下載 Apple / Outlook 行事曆檔 (.ics)</span>
+          </button>
+        </div>
+
+        <div class="text-[10.5px] text-slate-500 text-center">
+          💡 點擊後將自動匯入所選習慣至您的個人手機日曆，每日於辦公時段定時推播助推！
+        </div>
       </div>
 
       <!-- 合規醫療與健康免責警語 -->

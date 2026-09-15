@@ -51,6 +51,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let studentBodyMap = null;
 
+  // 學員識別碼與姓名本地記憶持久化 (關閉網頁永不丟失)
+  let studentUid = localStorage.getItem("ergo_student_uid");
+  if (!studentUid) {
+    studentUid = "U-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+    localStorage.setItem("ergo_student_uid", studentUid);
+  }
+  const elStudentUid = document.getElementById("display-student-uid");
+  if (elStudentUid) elStudentUid.innerText = `UID: ${studentUid}`;
+
+  const elInputName = document.getElementById("input-student-name");
+  let studentName = localStorage.getItem("ergo_student_name") || "";
+  if (elInputName) {
+    elInputName.value = studentName;
+    elInputName.addEventListener("input", (e) => {
+      studentName = e.target.value.trim();
+      localStorage.setItem("ergo_student_name", studentName);
+    });
+  }
+
   // 初始化場次標籤
   if (elSessionBadge) {
     elSessionBadge.innerText = `場次：${sessionId}`;
@@ -382,6 +401,10 @@ document.addEventListener("DOMContentLoaded", () => {
     showResult(totalScore, tierInfo, nmqData, personalizedGuides, userBodymapDetails);
   }
 
+  // 前後測狀態變數
+  let baselineAssessment = null;
+  let isRetestMode = false;
+
   // 8. 渲染個人評估結果報告
   function showResult(score, tierInfo, nmqData, customGuides, detailsData = {}) {
     elStepQuiz.classList.add("hidden");
@@ -403,13 +426,88 @@ document.addEventListener("DOMContentLoaded", () => {
       customGuides,
       detailsData,
       bodymapData: { ...userBodymapData },
-      role: selectedRole
+      role: selectedRole,
+      isRetest: isRetestMode
     };
+
+    // 前後測邏輯判定
+    const retestBadge = document.getElementById("retest-status-badge");
+    const retestDiffPanel = document.getElementById("retest-diff-panel");
+    const btnTriggerRetest = document.getElementById("btn-trigger-retest");
+    const btnResetBaseline = document.getElementById("btn-reset-baseline");
+
+    if (isRetestMode && baselineAssessment) {
+      // 複測模式已完成，顯示前後測對照成效
+      if (retestBadge) {
+        retestBadge.innerText = "✨ 現場改善後 (後測)";
+        retestBadge.className = "text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-600 text-white shadow-xs";
+      }
+      if (retestDiffPanel) {
+        retestDiffPanel.classList.remove("hidden");
+        document.getElementById("diff-baseline-score").innerText = `${baselineAssessment.score} 分`;
+        document.getElementById("diff-baseline-tier").innerText = baselineAssessment.tierInfo.title;
+        document.getElementById("diff-current-score").innerText = `${score} 分`;
+        document.getElementById("diff-current-tier").innerText = tierInfo.title;
+
+        const delta = score - baselineAssessment.score;
+        const deltaEl = document.getElementById("diff-delta-badge");
+        if (deltaEl) {
+          deltaEl.innerText = `${delta >= 0 ? '+' : ''}${delta} 分`;
+          deltaEl.className = `text-2xl font-black ${delta >= 0 ? 'text-emerald-700' : 'text-rose-700'}`;
+        }
+      }
+      if (btnResetBaseline) btnResetBaseline.classList.remove("hidden");
+      if (btnTriggerRetest) {
+        btnTriggerRetest.querySelector("span").innerText = "🔄 再次重新複測";
+      }
+    } else {
+      // 初次基準測試，保存為前測基準
+      baselineAssessment = {
+        score,
+        tierInfo,
+        nmqData: { ...nmqData },
+        customGuides: [...customGuides],
+        detailsData: { ...detailsData },
+        bodymapData: { ...userBodymapData },
+        role: selectedRole
+      };
+      if (retestBadge) {
+        retestBadge.innerText = "初次基準 (前測)";
+        retestBadge.className = "text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-600 text-white shadow-xs";
+      }
+      if (retestDiffPanel) retestDiffPanel.classList.add("hidden");
+      if (btnResetBaseline) btnResetBaseline.classList.add("hidden");
+      if (btnTriggerRetest) {
+        btnTriggerRetest.querySelector("span").innerText = "✨ 進行現場改善後複測";
+      }
+    }
+
+    // 綁定前後測複測按鈕
+    if (btnTriggerRetest) {
+      btnTriggerRetest.onclick = () => {
+        isRetestMode = true;
+        elStepResult.classList.add("hidden");
+        // 進入人體圖讓學員調整放鬆後的部位，或直接進環境題
+        elStepBodymap.classList.remove("hidden");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+    }
+    if (btnResetBaseline) {
+      btnResetBaseline.onclick = () => {
+        isRetestMode = false;
+        baselineAssessment = null;
+        showResult(score, tierInfo, nmqData, customGuides, detailsData);
+      };
+    }
+
+    // 初始化課後 21 天微習慣與行事曆
+    initHabitModule();
+    initCalendarButtons(score, customGuides);
 
     // 儲存至本地記憶，防學員演講中途跳出或重新整理遺失
     try {
       localStorage.setItem("ergo_last_report_" + sessionId, JSON.stringify({
-        score, tierInfo, nmqData, customGuides, detailsData, bodymapData: userBodymapData, role: selectedRole
+        score, tierInfo, nmqData, customGuides, detailsData, bodymapData: userBodymapData, role: selectedRole, baseline: baselineAssessment
       }));
     } catch (e) {}
 
@@ -954,6 +1052,31 @@ document.addEventListener("DOMContentLoaded", () => {
     else if (score < 70) scoreColor = "#f97316";
     else if (score < 85) scoreColor = "#eab308";
 
+    // 前後測對照區塊 HTML (若有前測基準)
+    let beforeAfterHtml = "";
+    if (baselineAssessment && isRetestMode) {
+      const delta = score - baselineAssessment.score;
+      beforeAfterHtml = `
+        <div style="background: #eef2ff; border: 1.5px solid #c7d2fe; border-radius: 8px; padding: 7px 12px; margin-bottom: 10px;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="vertical-align: middle;">
+                <div style="font-size: 10.5px; font-weight: 900; color: #3730a3;">🔄 第一性原理：前後測身體折舊改善對照 (Before / After)</div>
+                <div style="font-size: 9.5px; color: #4338ca; margin-top: 2px;">
+                  前測基準 ${baselineAssessment.score}分 (${baselineAssessment.tierInfo.title.split(' ')[0]}) ➔ 改善後複測 <strong>${score}分</strong> (${tierInfo.title.split(' ')[0]})
+                </div>
+              </td>
+              <td style="text-align: right; vertical-align: middle;">
+                <span style="display: inline-block; font-size: 10.5px; font-weight: 900; color: ${delta >= 0 ? '#15803d' : '#b91c1c'}; background: ${delta >= 0 ? '#dcfce7' : '#fee2e2'}; border: 1px solid ${delta >= 0 ? '#86efac' : '#fca5a5'}; padding: 2px 8px; border-radius: 6px;">
+                  📈 健康減壓躍升 ${delta >= 0 ? '+' : ''}${delta} 分
+                </span>
+              </td>
+            </tr>
+          </table>
+        </div>
+      `;
+    }
+
     // 使用完全相容 html2canvas 的 table 與 inline-block 排版架構
     return `
       <div style="width: 746px; margin: 0 auto; padding: 18px 20px; background: #ffffff; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans TC', sans-serif; box-sizing: border-box;">
@@ -972,7 +1095,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </span>
               </div>
               <div style="font-size: 10.5px; color: #0369a1; font-weight: bold; margin-top: 2px;">
-                北歐肌肉骨骼問卷 (Nordic Musculoskeletal Questionnaire, NMQ) 臨床人因工程評估
+                受檢學員：<span style="color: #0f172a; text-decoration: underline;">${studentName ? studentName : '專案受檢人員'}</span> (${studentUid}) ｜ NMQ 臨床人因工程評估
               </div>
             </td>
             <td style="vertical-align: middle; text-align: right; font-size: 9.5px; color: #64748b; line-height: 1.4; width: 200px;">
@@ -982,6 +1105,8 @@ document.addEventListener("DOMContentLoaded", () => {
             </td>
           </tr>
         </table>
+
+        ${beforeAfterHtml}
 
         <!-- 戰情報告基本屬性列 -->
         <table style="width: 100%; border-collapse: collapse; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 10px;">
@@ -1183,6 +1308,25 @@ document.addEventListener("DOMContentLoaded", () => {
           </table>
         </div>
 
+        <!-- 21天微習慣打卡表格 (供學員列印張貼於辦公桌) -->
+        <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 8px; padding: 6px 10px; margin-bottom: 8px;">
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 4px;">
+            <tr>
+              <td style="font-size: 9.5px; font-weight: bold; color: #115e59;">
+                📋 21 天職場人因微習慣打卡表（可列印張貼於辦公桌隔板・每日 15:00 伸展）
+              </td>
+              <td style="text-align: right; font-size: 8.5px; color: #0d9488;">
+                核心：① 視線平視螢幕上緣 ② 50分椅前彎 ③ 坐滿椅背貼地
+              </td>
+            </tr>
+          </table>
+          <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 7.5px; color: #134e4a;">
+            <tr>
+              ${Array.from({ length: 21 }, (_, i) => `<td style="border: 1px solid #ccfbf1; padding: 2px 1px; background: #ffffff;">D${i + 1}<br><span style="display:inline-block; width: 7px; height: 7px; border: 1px solid #99f6e4; border-radius: 2px; margin-top: 1px;"></span></td>`).join("")}
+            </tr>
+          </table>
+        </div>
+
         <!-- 第四層：官方延伸工具與知識庫連結 -->
         <table style="width: 100%; border-collapse: collapse; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px; margin-bottom: 8px; font-size: 9.5px;">
           <tr>
@@ -1203,6 +1347,125 @@ document.addEventListener("DOMContentLoaded", () => {
 
       </div>
     `;
+  }
+
+  // 課後 21 天職場人因微習慣打卡模組 (保證 localStorage 持久化，關閉網頁永不丟失)
+  function initHabitModule() {
+    const grid = document.getElementById("habit-check-grid");
+    const progressBar = document.getElementById("habit-progress-bar");
+    const progressText = document.getElementById("habit-progress-text");
+    const btnReset = document.getElementById("btn-reset-habit");
+    if (!grid) return;
+
+    let habitRecord = {};
+    try {
+      const raw = localStorage.getItem("ergo_habit_21_" + sessionId);
+      if (raw) habitRecord = JSON.parse(raw);
+    } catch (e) {}
+
+    function renderHabitGrid() {
+      grid.innerHTML = "";
+      let checkedCount = 0;
+
+      for (let day = 1; day <= 21; day++) {
+        const isDone = !!habitRecord[day];
+        if (isDone) checkedCount++;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = `py-1 px-0.5 rounded-lg border text-center transition-all touch-press ${
+          isDone
+            ? "bg-teal-600 text-white border-teal-700 shadow-xs ring-1 ring-teal-400 font-black"
+            : "bg-white hover:bg-teal-50/50 text-slate-700 border-slate-200 font-bold"
+        }`;
+        btn.innerHTML = `<span class="text-[10px] block">D${day}</span><span class="text-[9px] block ${isDone ? 'text-white' : 'text-slate-400'}">${isDone ? '✓' : '○'}</span>`;
+
+        btn.onclick = () => {
+          habitRecord[day] = !habitRecord[day];
+          try {
+            localStorage.setItem("ergo_habit_21_" + sessionId, JSON.stringify(habitRecord));
+          } catch (e) {}
+          renderHabitGrid();
+        };
+
+        grid.appendChild(btn);
+      }
+
+      const percent = Math.round((checkedCount / 21) * 100);
+      if (progressBar) progressBar.style.width = `${percent}%`;
+      if (progressText) progressText.innerText = `${checkedCount} / 21 天 (${percent}%)`;
+    }
+
+    renderHabitGrid();
+
+    if (btnReset) {
+      btnReset.onclick = () => {
+        if (confirm("確定要重設 21 天打卡進度嗎？")) {
+          habitRecord = {};
+          try {
+            localStorage.removeItem("ergo_habit_21_" + sessionId);
+          } catch (e) {}
+          renderHabitGrid();
+        }
+      };
+    }
+  }
+
+  // 課後行事曆定時提醒生成器 (.ics & Google Calendar)
+  function initCalendarButtons(score, guides) {
+    const btnGCal = document.getElementById("btn-add-gcal");
+    const btnIcs = document.getElementById("btn-download-ics");
+
+    const title = "⏰ 人因小管家・辦公室 3 分鐘疲勞消除微伸展";
+    const details = `蔡健儀 人因工程專家提醒您：\n` +
+      `1. 視線平視螢幕上緣，下巴微收。\n` +
+      `2. 椅上體前彎 30 秒，放鬆膕旁肌減輕腰椎剪力。\n` +
+      `3. 雙手抓背擴胸，消除圓肩與滑鼠手。\n\n` +
+      `您的健康報告與知識庫：https://ergopt.blogspot.com/`;
+
+    if (btnGCal) {
+      const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&details=${encodeURIComponent(details)}&location=${encodeURIComponent("個人辦公工作站")}&recur=RRULE:FREQ=DAILY`;
+      btnGCal.href = gcalUrl;
+    }
+
+    if (btnIcs) {
+      btnIcs.onclick = () => {
+        const icsContent = [
+          "BEGIN:VCALENDAR",
+          "VERSION:2.0",
+          "PRODID:-//Noah Ergonomics//Ergo Care//TW",
+          "CALSCALE:GREGORIAN",
+          "METHOD:PUBLISH",
+          "BEGIN:VEVENT",
+          "SUMMARY:" + title,
+          "DESCRIPTION:" + details.replace(/\n/g, "\\n"),
+          "LOCATION:個人辦公工作站",
+          "RRULE:FREQ=DAILY;COUNT=60",
+          "DTSTART:" + new Date().toISOString().replace(/[-:]/g, "").slice(0, 8) + "T070000Z", // 15:00 TW
+          "DTEND:" + new Date().toISOString().replace(/[-:]/g, "").slice(0, 8) + "T071500Z",
+          "STATUS:CONFIRMED",
+          "BEGIN:VALARM",
+          "TRIGGER:-PT0M",
+          "DESCRIPTION:人因微伸展提醒",
+          "ACTION:DISPLAY",
+          "END:VALARM",
+          "END:VEVENT",
+          "END:VCALENDAR"
+        ].join("\r\n");
+
+        const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "人因小管家_每日1500微伸展提醒.ics";
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          a.remove();
+          URL.revokeObjectURL(url);
+        }, 1500);
+      };
+    }
   }
 
   // LINE 瀏覽器專屬引導彈窗 (解決 LINE In-App 封鎖下載與分享問題)

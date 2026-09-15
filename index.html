@@ -104,6 +104,21 @@
         <p class="text-[11px] text-slate-500 max-w-sm mx-auto">不同的作業型態關節受力與力矩不同，系統將為您切換專屬題庫</p>
       </div>
 
+      <!-- 個人專屬識別 (選填，用於建立專屬前後測履歷與 PDF 戰情室認證) -->
+      <div class="p-3.5 rounded-2xl bg-white border-2 border-sky-200 shadow-xs space-y-2">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-bold text-slate-900 flex items-center gap-1.5">
+            <span>👤</span> 受檢學員姓名 / 暱稱 / 部門 <span class="text-[10px] text-slate-400 font-normal">(選填)</span>
+          </span>
+          <span id="display-student-uid" class="text-[10px] text-sky-800 bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200 font-mono font-bold">
+            UID: --
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <input id="input-student-name" type="text" placeholder="請輸入姓名或部門（例：王大明 / 研發部，將印於 A4 報告）" class="w-full py-2 px-3 text-xs md:text-sm rounded-xl border border-slate-200 focus:border-sky-500 focus:ring-2 focus:ring-sky-200 outline-none transition-all">
+        </div>
+      </div>
+
       <!-- 記憶恢復提示卡 (若本地已有本場次作答記錄) -->
       <div id="banner-restore-result" class="hidden p-3 rounded-xl bg-emerald-50 border border-emerald-300 flex items-center justify-between gap-2 shadow-xs">
         <div class="flex items-center gap-2 text-xs text-emerald-900 font-bold">
@@ -202,6 +217,51 @@
     <!-- 步驟 3：個人人因檢核報告卡片 -->
     <section id="step-result" class="hidden space-y-5 py-2">
       
+      <!-- 前後測改善對照橫幅 (Before / After 對比專區) -->
+      <div id="before-after-banner" class="ergo-card p-4 border-2 border-indigo-300 bg-gradient-to-r from-indigo-50/90 via-sky-50/80 to-emerald-50/90 shadow-md">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl flex-shrink-0">🔄</span>
+            <div>
+              <h4 class="text-xs md:text-sm font-black text-indigo-950 flex items-center gap-1.5">
+                <span>第一性原理：前後測身體折舊改善對照 (Before / After)</span>
+                <span id="retest-status-badge" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-600 text-white shadow-xs">初次基準 (前測)</span>
+              </h4>
+              <p id="retest-desc-text" class="text-[11px] text-slate-600 font-medium mt-0.5">
+                依據講師指導微調螢幕、座椅與伸展後，點擊右側進行改善後複測，量化您的身體減壓成效！
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="btn-trigger-retest" type="button" class="py-2 px-3 rounded-xl bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-700 hover:to-sky-700 text-white text-xs font-black transition-all shadow-sm flex items-center gap-1 touch-press">
+              <span>✨ 進行現場改善後複測</span>
+            </button>
+            <button id="btn-reset-baseline" type="button" class="hidden py-1.5 px-2.5 rounded-lg border border-slate-300 bg-white text-slate-600 hover:text-slate-900 text-[11px] font-semibold">
+              重設前測
+            </button>
+          </div>
+        </div>
+
+        <!-- 前後測對比成效卡 (複測完成後顯示) -->
+        <div id="retest-diff-panel" class="hidden mt-3 pt-3 border-t border-indigo-200 grid grid-cols-1 sm:grid-cols-3 gap-2 text-center animate-in fade-in">
+          <div class="p-2.5 rounded-xl bg-white border border-indigo-100 shadow-xs">
+            <div class="text-[10px] text-slate-500 font-bold">改善前 (前測基準)</div>
+            <div id="diff-baseline-score" class="text-xl font-black text-slate-700">-- 分</div>
+            <div id="diff-baseline-tier" class="text-[10px] text-slate-500">--</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-emerald-50 border-2 border-emerald-300 shadow-xs">
+            <div class="text-[10px] text-emerald-800 font-bold">改善後 (當前複測)</div>
+            <div id="diff-current-score" class="text-2xl font-black text-emerald-700">-- 分</div>
+            <div id="diff-current-tier" class="text-[10.5px] font-bold text-emerald-800">--</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-sky-50 border-2 border-sky-300 shadow-xs flex flex-col justify-center items-center">
+            <div class="text-[10px] text-sky-800 font-bold">健康減壓成效躍升</div>
+            <div id="diff-delta-badge" class="text-xl font-black text-sky-700">--</div>
+            <div class="text-[9.5px] text-sky-800 font-semibold">大幅降低職業疲勞累積</div>
+          </div>
+        </div>
+      </div>
+
       <!-- 總分與評級主卡片 -->
       <div class="ergo-card p-6 text-center border border-slate-200 bg-white shadow-sm relative overflow-hidden">
         <!-- 品牌浮水印標籤 -->
@@ -214,8 +274,8 @@
           等級評定中...
         </span>
         
-        <div class="flex items-baseline justify-center gap-1 my-1">
-          <span id="res-score" class="text-5xl md:text-6xl font-black text-slate-900">
+        <div class="flex items-baseline justify-center gap-1 mb-1">
+          <span class="text-5xl font-black tracking-tight text-slate-900" id="res-score">
             --
           </span>
           <span class="text-sm font-bold text-slate-500">/ 100 分滿分</span>
@@ -408,6 +468,59 @@
               </button>
             </div>
             <div id="flex-result-lower" class="hidden p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-[11px] font-medium mt-1"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 系統動力學：課後 21 天微習慣助推 ＆ 行事曆定時提醒專區 -->
+      <div id="nudge-habit-card" class="ergo-card p-4 md:p-5 border-2 border-teal-300 bg-gradient-to-r from-teal-50/80 via-emerald-50/70 to-sky-50/60 shadow-md space-y-3.5">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-2xl bg-white border border-teal-300 shadow-sm flex items-center justify-center text-2xl flex-shrink-0">
+              📅
+            </div>
+            <div class="text-left">
+              <div class="flex items-center gap-2">
+                <h4 class="text-xs md:text-sm font-black text-teal-950">
+                  課後微習慣養成・加入行事曆定時伸展提醒
+                </h4>
+                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-teal-700 text-white shadow-xs">行為助推</span>
+              </div>
+              <p class="text-[11px] text-slate-600 font-medium mt-0.5">
+                每日下午 15:00 定時提醒「辦公室 3 分鐘疲勞消除微伸展」，告別下班疲憊！
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 一鍵加入行事曆按鈕群 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-teal-200/80">
+          <a id="btn-add-gcal" href="#" target="_blank" rel="noopener noreferrer" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-teal-700 to-emerald-700 hover:from-teal-800 hover:to-emerald-800 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 touch-press">
+            <span>🗓️ 一鍵加入 Google 行事曆 (每日15:00)</span>
+            <span>↗</span>
+          </a>
+          <button id="btn-download-ics" type="button" class="py-2.5 px-3 rounded-xl bg-white hover:bg-slate-50 text-teal-900 border-2 border-teal-300 font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 touch-press">
+            <span>📱 下載 Apple / Outlook 行事曆檔 (.ics)</span>
+          </button>
+        </div>
+
+        <!-- 21 天微習慣打卡檢核板 -->
+        <div class="p-3 rounded-xl bg-white/90 border border-teal-200 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-black text-slate-800 flex items-center gap-1.5">
+              <span>📋</span> 21 天職場人因微習慣打卡進度
+            </span>
+            <span id="habit-progress-text" class="text-[11px] font-bold text-teal-700">0 / 21 天 (0%)</span>
+          </div>
+          <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200">
+            <div id="habit-progress-bar" class="bg-gradient-to-r from-teal-500 to-emerald-500 h-full w-0 transition-all duration-300"></div>
+          </div>
+          <div class="grid grid-cols-7 gap-1.5 pt-1.5" id="habit-check-grid">
+            <!-- 由 app.js 動態渲染 21 個打卡天數按鈕 -->
+          </div>
+          <div class="text-[10.5px] text-slate-500 flex items-center justify-between pt-1">
+            <span>🎯 核心 3 微習慣：① 視線平視螢幕上緣 ② 每 50 分鐘椅前彎 ③ 坐滿椅背貼地</span>
+            <button id="btn-reset-habit" type="button" class="text-[10px] text-slate-400 hover:text-slate-600 underline">重置打卡</button>
           </div>
         </div>
       </div>

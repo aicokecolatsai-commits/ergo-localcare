@@ -1290,26 +1290,30 @@ document.addEventListener("DOMContentLoaded", () => {
       // 產出完整的個人戰情室 HTML
       const warRoomHtml = buildWarRoomHtml();
 
-      // 構建專屬 A4 高解析度輸出容器 (放在 document (0,0) 並以 z-index: -999 保持渲染有效性)
+      // 構建專屬 A4 高解析度輸出容器
+      // 重要：外層使用零高度溢出隱藏容器 (不干擾螢幕畫面)，內層為標準文檔流區塊 (讓 html2pdf 精確量測 100% 完整高度，絕不坍縮為 0 高度空白頁！)
+      const renderWrapper = document.createElement("div");
+      renderWrapper.id = "pdf-render-wrapper";
+      renderWrapper.style.position = "relative";
+      renderWrapper.style.height = "0";
+      renderWrapper.style.overflow = "hidden";
+      renderWrapper.style.pointerEvents = "none";
+
       const printable = document.createElement("div");
       printable.id = "printable-pdf-document";
-      printable.style.position = "absolute";
-      printable.style.left = "0";
-      printable.style.top = "0";
       printable.style.width = "794px"; // 標準 A4 寬度 (96DPI: 210mm = 794px)
       printable.style.backgroundColor = "#ffffff";
-      printable.style.zIndex = "-999";
-      printable.style.opacity = "1";
-      printable.style.pointerEvents = "none";
-      printable.style.overflow = "visible";
+      printable.style.color = "#0f172a";
+      printable.style.boxSizing = "border-box";
       printable.innerHTML = warRoomHtml;
 
-      document.body.appendChild(printable);
+      renderWrapper.appendChild(printable);
+      document.body.appendChild(renderWrapper);
 
       const dateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '');
       const fileName = `人因小管家PRO_A4戰情室評估報告_${dateStr}.pdf`;
 
-      // 設定 html2pdf 選項 (高解析 scale: 2，固定從 (0,0) 渲染，防止移動視窗偏移)
+      // 設定 html2pdf 選項 (高解析 scale: 2，完整捕捉雙欄人體圖與所有指標)
       const opt = {
         margin: [6, 6, 6, 6],
         filename: fileName,
@@ -1317,10 +1321,7 @@ document.addEventListener("DOMContentLoaded", () => {
         html2canvas: {
           scale: 2,
           useCORS: true,
-          logging: false,
-          scrollX: 0,
-          scrollY: 0,
-          windowWidth: 800
+          logging: false
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
@@ -1347,7 +1348,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // 清理 DOM
       setTimeout(() => {
-        printable.remove();
+        renderWrapper.remove();
         toast.remove();
         window._forceDirectPdfDownload = false;
       }, 500);

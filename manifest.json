@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "人因小管家 PRO・人因工程檢測系統",
   "short_name": "人因小管家",
   "description": "工作站人體工學與北歐肌肉骨骼問卷 (NMQ) 臨床人因工程評估體系",
@@ -10,13 +10,13 @@
   "theme_color": "#0284c7",
   "icons": [
     {
-      "src": "assets/logo.png",
+      "src": "assets/app-icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "assets/logo.png",
+      "src": "assets/app-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

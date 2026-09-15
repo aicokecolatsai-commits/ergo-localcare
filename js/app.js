@@ -393,12 +393,20 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("res-score-badge").className = `inline-block px-3 py-1 rounded-full text-xs font-bold border ${tierInfo.badgeColor} mb-2`;
     document.getElementById("res-score-badge").innerText = tierInfo.title;
 
-    // 渲染連續光譜指針 (0~100 光譜橫桿)
+    // 儲存至本地記憶，防學員演講中途跳出或重新整理遺失
+    try {
+      localStorage.setItem("ergo_last_report_" + sessionId, JSON.stringify({
+        score, tierInfo, nmqData, customGuides, detailsData, bodymapData: userBodymapData
+      }));
+    } catch (e) {}
+
+    // 渲染連續光譜指針 (0~100 光譜橫桿，安全邊距防手機邊緣裁切)
     const marker = document.getElementById("spectrum-marker");
     const markerLabel = document.getElementById("spectrum-marker-label");
     if (marker && markerLabel) {
       const clampedScore = Math.max(0, Math.min(100, score));
-      marker.style.left = `${clampedScore}%`;
+      const markerPos = Math.max(7, Math.min(93, clampedScore));
+      marker.style.left = `${markerPos}%`;
       markerLabel.innerText = `${clampedScore} 分 · ${tierInfo.title}`;
 
       // 依區間設定指針標籤顏色
@@ -495,6 +503,7 @@ document.addEventListener("DOMContentLoaded", () => {
       elStepResult.classList.add("hidden");
       elStepRole.classList.remove("hidden");
       resetFlexibilityModule();
+      checkRestoreBanner();
       renderRoles();
     });
   }
@@ -596,7 +605,74 @@ document.addEventListener("DOMContentLoaded", () => {
     if (lowerRes) lowerRes.classList.add("hidden");
   }
 
+  // 10. 檢測報告歷史還原與課堂快速通道
+  function checkRestoreBanner() {
+    const banner = document.getElementById("banner-restore-result");
+    const btnRestore = document.getElementById("btn-restore-result");
+    const bannerText = document.getElementById("restore-banner-text");
+    const btnQuickFlex = document.getElementById("btn-quick-flexibility");
+
+    let cached = null;
+    try {
+      const raw = localStorage.getItem("ergo_last_report_" + sessionId);
+      if (raw) cached = JSON.parse(raw);
+    } catch (e) {}
+
+    if (cached && banner && btnRestore) {
+      banner.classList.remove("hidden");
+      if (bannerText) {
+        bannerText.innerText = `您已完成檢測 (得分：${cached.score}分 · ${cached.tierInfo.title})`;
+      }
+      btnRestore.onclick = () => {
+        userBodymapData = cached.bodymapData || {};
+        userBodymapDetails = cached.detailsData || {};
+        elStepRole.classList.add("hidden");
+        elStepBodymap.classList.add("hidden");
+        elStepQuiz.classList.add("hidden");
+        showResult(cached.score, cached.tierInfo, cached.nmqData, cached.customGuides, cached.detailsData);
+      };
+    }
+
+    if (btnQuickFlex) {
+      btnQuickFlex.addEventListener("click", () => {
+        elStepRole.classList.add("hidden");
+        elStepBodymap.classList.add("hidden");
+        elStepQuiz.classList.add("hidden");
+
+        if (cached) {
+          userBodymapData = cached.bodymapData || {};
+          userBodymapDetails = cached.detailsData || {};
+          showResult(cached.score, cached.tierInfo, cached.nmqData, cached.customGuides, cached.detailsData);
+        } else {
+          const defaultTier = ERGO_CONFIG.scoreTiers[1]; // 良好
+          showResult(85, defaultTier, {}, defaultTier.actionGuides, {});
+        }
+
+        // 展開體適能模組並平滑滾動至該處
+        const flexContent = document.getElementById("flexibility-content");
+        const btnToggle = document.getElementById("btn-toggle-flexibility");
+        const chevron = document.getElementById("flexibility-chevron");
+        if (flexContent) flexContent.classList.remove("hidden");
+        if (btnToggle) {
+          const span = btnToggle.querySelector("span:first-child");
+          if (span) span.innerText = "收合課堂檢測";
+        }
+        if (chevron) chevron.innerText = "▴";
+
+        setTimeout(() => {
+          const card = document.getElementById("flexibility-test-card");
+          if (card) {
+            card.scrollIntoView({ behavior: "smooth", block: "center" });
+            card.classList.add("ring-4", "ring-emerald-300");
+            setTimeout(() => card.classList.remove("ring-4", "ring-emerald-300"), 2000);
+          }
+        }, 200);
+      });
+    }
+  }
+
   // 初始渲染
   initFlexibilityModule();
+  checkRestoreBanner();
   renderRoles();
 });

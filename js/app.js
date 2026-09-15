@@ -470,11 +470,15 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // 綁定 PDF 下載與分享按鈕
+    // 綁定 PDF 下載、全頁預覽與分享按鈕
     const btnExportPdf = document.getElementById("btn-export-pdf");
+    const btnPreviewPdf = document.getElementById("btn-preview-direct-pdf");
     const btnSharePdf = document.getElementById("btn-share-pdf");
     if (btnExportPdf) {
       btnExportPdf.onclick = () => exportPdfReport(false);
+    }
+    if (btnPreviewPdf) {
+      btnPreviewPdf.onclick = () => showWarRoomPreviewModal();
     }
     if (btnSharePdf) {
       btnSharePdf.onclick = () => exportPdfReport(true);
@@ -1326,11 +1330,11 @@ document.addEventListener("DOMContentLoaded", () => {
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
+      const pdfBlob = await html2pdf().set(opt).from(printable).output('blob');
+      const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
       if (isShare) {
         // 分享模式
-        const pdfBlob = await html2pdf().set(opt).from(printable).output('blob');
-        const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
-        
         if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
           await navigator.share({
             title: '人因小管家 PRO 個人 A4 人因戰情室報告',
@@ -1338,12 +1342,12 @@ document.addEventListener("DOMContentLoaded", () => {
             files: [pdfFile]
           });
         } else {
-          // 若不支援檔案分享，自動轉為下載檔案
-          await html2pdf().set(opt).from(printable).save();
+          // 若不支援原生分享，自動轉為直接下載
+          downloadPdfBlob(pdfBlob, fileName);
         }
       } else {
-        // 直接下載
-        await html2pdf().set(opt).from(printable).save();
+        // 直接下載 (使用原生 Blob 連結觸發，全平台 Android / iOS / Desktop 通用)
+        downloadPdfBlob(pdfBlob, fileName);
       }
 
       // 清理 DOM
@@ -1357,8 +1361,23 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("PDF 產生失敗:", err);
       toast.remove();
       window._forceDirectPdfDownload = false;
-      alert("PDF 報告產生失敗，請確認瀏覽器支援度或點選「在 LINE 中預覽」進行截圖保存。");
+      // 若瀏覽器攔截下載，自動為學員展開全頁螢幕預覽，確保 100% 能看見報告與人體圖！
+      showWarRoomPreviewModal();
     }
+  }
+
+  function downloadPdfBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.target = "_blank";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      a.remove();
+      URL.revokeObjectURL(url);
+    }, 1500);
   }
 
   // 10. 檢測報告歷史還原與課堂快速通道

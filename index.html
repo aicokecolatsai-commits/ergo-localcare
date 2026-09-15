@@ -411,12 +411,15 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-sky-100">
-          <button id="btn-export-pdf" type="button" class="py-2.5 px-4 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 touch-press">
-            <span>📥 下載 A4 戰情室 PDF 報告</span>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 border-t border-sky-100">
+          <button id="btn-export-pdf" type="button" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 touch-press">
+            <span>📥 下載 A4 戰情室 PDF</span>
           </button>
-          <button id="btn-share-pdf" type="button" class="py-2.5 px-4 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-300 font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 touch-press">
-            <span>🔗 分享至 LINE / 儲存檔案</span>
+          <button id="btn-preview-direct-pdf" type="button" class="py-2.5 px-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 border-2 border-sky-300 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 touch-press">
+            <span>👁️ 螢幕全頁預覽 / 截圖</span>
+          </button>
+          <button id="btn-share-pdf" type="button" class="py-2.5 px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-300 font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 touch-press">
+            <span>🔗 分享至 LINE / 社群</span>
           </button>
         </div>
       </div>
@@ -491,10 +494,10 @@
     <span>人因工學智慧財產權保護・未經授權禁止商用翻印</span>
   </footer>
 
-  <!-- 腳本引入 (加入 bodymap.js) -->
-  <script src="js/config.js"></script>
-  <script src="js/bodymap.js"></script>
-  <script src="js/questions.js"></script>
-  <script src="js/app.js"></script>
+  <!-- 腳本引入 (加入強制版本號防快取) -->
+  <script src="js/config.js?v=20260915_v5"></script>
+  <script src="js/bodymap.js?v=20260915_v5"></script>
+  <script src="js/questions.js?v=20260915_v5"></script>
+  <script src="js/app.js?v=20260915_v5"></script>
 </body>
 </html>

@@ -411,10 +411,6 @@ document.addEventListener("DOMContentLoaded", () => {
     showResult(totalScore, tierInfo, nmqData, personalizedGuides, userBodymapDetails);
   }
 
-  // 前後測狀態變數
-  let baselineAssessment = null;
-  let isRetestMode = false;
-
   // 8. 渲染個人評估結果報告
   function showResult(score, tierInfo, nmqData, customGuides, detailsData = {}) {
     elStepQuiz.classList.add("hidden");

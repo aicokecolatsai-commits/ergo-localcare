@@ -9,6 +9,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- html2pdf CDN for PDF generation (比照 KIM 2019 官方規格) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <link rel="stylesheet" href="css/custom.css">
   <script>
     tailwind.config = {
@@ -208,40 +210,95 @@
         <h3 id="res-title" class="text-lg font-black text-slate-900 mt-1">健康度狀態</h3>
         <p id="res-subtitle" class="text-xs font-medium text-slate-500 mt-0.5">狀態說明</p>
 
-        <!-- 連續 0~100 橫桿光譜條 (動態指標錨點) -->
-        <div class="my-4 px-1 text-left">
-          <div class="relative pt-6 pb-1">
-            <!-- 指標與數值浮動標記 (由 app.js 動態設定 left: score%) -->
-            <div id="spectrum-marker" class="absolute top-0 transition-all duration-700 ease-out -translate-x-1/2 flex flex-col items-center" style="left: 50%;">
-              <span id="spectrum-marker-label" class="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-black shadow-md whitespace-nowrap">
-                -- 分
-              </span>
-              <div class="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] border-t-slate-900"></div>
+        <!-- 連續 0~100 橫桿光譜條 (高對比動態指標落點儀) -->
+        <div class="my-5 px-1 text-left">
+          <div class="relative pt-9 pb-3">
+            
+            <!-- 核心動態指標 (由 app.js 動態設定 left: score%) -->
+            <div id="spectrum-marker" class="absolute top-0 transition-all duration-700 ease-out -translate-x-1/2 flex flex-col items-center z-20 pointer-events-none" style="left: 50%;">
+              
+              <!-- 頂部浮動標籤 (大字號 + 雙層陰影 + 鮮明對比) -->
+              <div id="spectrum-marker-label" class="px-3 py-1 rounded-xl bg-slate-900 text-white text-xs md:text-sm font-black shadow-xl whitespace-nowrap flex items-center gap-1.5 border-2 border-white">
+                <span>🎯 您的落點：</span>
+                <span id="spectrum-marker-score-text">-- 分</span>
+              </div>
+
+              <!-- 向下銳利三角指針 -->
+              <div id="spectrum-marker-arrow" class="w-0 h-0 border-l-[7px] border-l-transparent border-r-[7px] border-r-transparent border-t-[8px] border-t-slate-900 -mt-[1px]"></div>
+
+              <!-- 貫穿色條的垂直定位針 (直穿色條中央) -->
+              <div class="w-1 h-8 bg-slate-900 rounded-full shadow-md relative -mt-0.5 flex items-center justify-center">
+                <!-- 光譜色條上的高對比鎖定靶心 (Target Disc) -->
+                <div id="spectrum-target-disc" class="absolute top-1/2 -translate-y-1/2 w-6 h-6 rounded-full border-[3px] border-white shadow-2xl flex items-center justify-center bg-slate-900 ring-2 ring-slate-900/30">
+                  <div class="w-2 h-2 rounded-full bg-white animate-pulse"></div>
+                  <!-- 外擴呼吸波紋光圈 -->
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-40"></span>
+                </div>
+              </div>
+
             </div>
 
-            <!-- 漸層光譜色條 (左紅 0 -> 橙 -> 黃 -> 右綠 100) -->
-            <div class="w-full h-3.5 rounded-full shadow-inner overflow-hidden relative" style="background: linear-gradient(to right, #f43f5e 0%, #f97316 45%, #eab308 70%, #10b981 100%);">
-              <!-- 刻度參考線 -->
-              <div class="absolute inset-0 flex justify-between px-1 pointer-events-none opacity-40">
-                <div class="w-0.5 h-full bg-white/70" style="margin-left: 50%;"></div>
-                <div class="w-0.5 h-full bg-white/70" style="margin-left: 70%;"></div>
-                <div class="w-0.5 h-full bg-white/70" style="margin-left: 85%;"></div>
+            <!-- 漸層光譜色條 (高度提升至 h-5，質感內陰影 + 細緻微邊框) -->
+            <div class="w-full h-5 rounded-full shadow-inner border border-slate-300/80 overflow-hidden relative" style="background: linear-gradient(to right, #f43f5e 0%, #f97316 45%, #eab308 70%, #10b981 100%);">
+              <!-- 刻度參考線與微標記 -->
+              <div class="absolute inset-0 flex justify-between px-1 pointer-events-none opacity-50">
+                <div class="w-0.5 h-full bg-white" style="margin-left: 50%;" title="50分分界"></div>
+                <div class="w-0.5 h-full bg-white" style="margin-left: 70%;" title="70分分界"></div>
+                <div class="w-0.5 h-full bg-white" style="margin-left: 85%;" title="85分分界"></div>
               </div>
             </div>
           </div>
 
-          <!-- 光譜兩端刻度與區間標籤 -->
-          <div class="flex items-center justify-between text-[10px] font-bold mt-1 text-slate-500">
-            <span class="text-rose-700">0 (重度超載)</span>
-            <span class="text-orange-700 pl-4">50 (中度)</span>
-            <span class="text-amber-700 pl-4">70 (輕度)</span>
-            <span class="text-emerald-700">100 (健康滿分)</span>
+          <!-- 光譜四色分級速查卡片 (動態高亮當前落點區間) -->
+          <div class="grid grid-cols-4 gap-1 text-center text-[10px] md:text-[11px] font-bold mt-1">
+            <div id="tier-pill-severe" class="p-1.5 rounded-lg border transition-all duration-300 text-rose-800 bg-rose-50/60 border-rose-200">
+              <span class="block text-[9px] opacity-75 font-normal">0 ~ 49分</span>
+              <span>🔴 重度超載</span>
+            </div>
+            <div id="tier-pill-moderate" class="p-1.5 rounded-lg border transition-all duration-300 text-orange-800 bg-orange-50/60 border-orange-200">
+              <span class="block text-[9px] opacity-75 font-normal">50 ~ 69分</span>
+              <span>🟠 中度負荷</span>
+            </div>
+            <div id="tier-pill-mild" class="p-1.5 rounded-lg border transition-all duration-300 text-amber-800 bg-amber-50/60 border-amber-200">
+              <span class="block text-[9px] opacity-75 font-normal">70 ~ 84分</span>
+              <span>🟡 輕度不良</span>
+            </div>
+            <div id="tier-pill-good" class="p-1.5 rounded-lg border transition-all duration-300 text-emerald-800 bg-emerald-50/60 border-emerald-200">
+              <span class="block text-[9px] opacity-75 font-normal">85 ~ 100分</span>
+              <span>🟢 健康優良</span>
+            </div>
           </div>
         </div>
 
         <p id="res-analysis" class="text-xs md:text-sm text-slate-700 leading-relaxed mt-3.5 p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-left">
           分析載入中...
         </p>
+      </div>
+
+      <!-- PDF 報告匯出與分享功能卡 (比照 KIM 2019 官方規格，附人因小管家 LOGO) -->
+      <div class="ergo-card p-4 border border-sky-200 bg-gradient-to-r from-sky-50/80 via-indigo-50/80 to-purple-50/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white border border-sky-200 shadow-xs flex items-center justify-center text-xl flex-shrink-0">
+            📄
+          </div>
+          <div class="text-left">
+            <h4 class="text-xs md:text-sm font-black text-slate-900 flex items-center gap-1.5">
+              <span>下載 / 分享個人 PDF 人因評估報告</span>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-600 text-white shadow-xs">官方認證版</span>
+            </h4>
+            <p class="text-[11px] text-slate-600 font-medium mt-0.5">
+              含人因小管家 LOGO、0~100 光譜落點、NMQ 痛點圖與改善對策
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 w-full sm:w-auto flex-shrink-0">
+          <button id="btn-export-pdf" type="button" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 touch-press">
+            <span>📥 下載 PDF 報告</span>
+          </button>
+          <button id="btn-share-pdf" type="button" class="px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1 touch-press" title="分享至 LINE / 社群 / 儲存檔案">
+            <span>🔗 分享</span>
+          </button>
+        </div>
       </div>
 
       <!-- 個人化 NMQ 痛點人體圖展示 -->

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>身體伺服器・人因算力 60 秒檢測</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/custom.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              cyan: '#06b6d4',
+              emerald: '#10b981',
+              amber: '#f59e0b',
+              rose: '#f43f5e'
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-black">
+
+  <!-- 頂部導航列 -->
+  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-xl mx-auto px-4 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-emerald-400 flex items-center justify-center font-black text-slate-950 text-sm shadow-md shadow-cyan-500/20">
+          ⚡
+        </div>
+        <div>
+          <h1 class="text-sm font-extrabold tracking-tight text-white">身體伺服器・人因算力檢測</h1>
+          <p class="text-[10px] text-slate-400">大人學 × 密涅瓦思維架構</p>
+        </div>
+      </div>
+      <div id="session-badge" class="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-slate-800 border border-slate-700 text-cyan-400">
+        載入中...
+      </div>
+    </div>
+  </header>
+
+  <!-- 主內容容器 -->
+  <main class="max-w-xl mx-auto px-4 py-6 w-full flex-grow flex flex-col justify-center">
+    
+    <!-- 步驟 0：身分族群選擇 -->
+    <section id="step-role" class="space-y-5">
+      <div class="text-center space-y-2">
+        <span class="px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold tracking-wider">
+          STEP 01 / 選擇作戰型態
+        </span>
+        <h2 class="text-2xl font-black text-white pt-1">你平日 80% 的體能消耗在哪？</h2>
+        <p class="text-xs text-slate-400">選擇最符合你的情境，獲得精準客製化人因處方</p>
+      </div>
+
+      <div id="role-cards-container" class="space-y-3 pt-2">
+        <!-- 由 app.js 動態渲染 4 大族群卡片 -->
+      </div>
+    </section>
+
+    <!-- 步驟 1：8 題動態問卷 -->
+    <section id="step-quiz" class="hidden space-y-6">
+      <!-- 進度條 -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-400">
+          <span id="progress-text">第 1 / 8 題</span>
+          <span class="text-cyan-400">60秒極速評估</span>
+        </div>
+        <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+          <div id="progress-bar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full transition-all duration-300 w-[12.5%]"></div>
+        </div>
+      </div>
+
+      <!-- 題目與選項容器 -->
+      <div id="question-container" class="min-h-[320px] flex flex-col justify-center">
+        <!-- 由 app.js 動態渲染單題與選項 -->
+      </div>
+    </section>
+
+    <!-- 步驟 2：個人診斷報告卡片 -->
+    <section id="step-result" class="hidden space-y-6 py-2">
+      <!-- 分數主卡片 -->
+      <div class="glass-panel p-6 rounded-3xl border border-slate-700/80 text-center relative overflow-hidden shadow-2xl">
+        <div class="absolute -top-12 -right-12 w-36 h-36 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <span id="res-score-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold border mb-2">
+          等級評定中...
+        </span>
+        
+        <div class="flex items-baseline justify-center gap-1 my-1">
+          <span id="res-score" class="text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-300 to-white">
+            --
+          </span>
+          <span class="text-lg font-bold text-slate-400">/ 100 分</span>
+        </div>
+
+        <h3 id="res-title" class="text-xl font-black text-white mt-1">伺服器稱號</h3>
+        <p id="res-subtitle" class="text-xs font-semibold text-cyan-300 mt-0.5">狀態副標</p>
+
+        <p id="res-analysis" class="text-xs md:text-sm text-slate-300 leading-relaxed mt-4 p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-left">
+          分析載入中...
+        </p>
+      </div>
+
+      <!-- 身體部位損耗視覺化 -->
+      <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+        <h4 class="text-sm font-bold text-slate-200 mb-3 flex items-center gap-2">
+          <span>📊</span> 肌肉骨骼損耗指數 (NMQ 扣分分佈)
+        </h4>
+        <div class="h-44 w-full">
+          <canvas id="painChart"></canvas>
+        </div>
+      </div>
+
+      <!-- 大人學專屬物理外掛處方 -->
+      <div class="glass-panel p-5 rounded-2xl border border-cyan-500/30 shadow-lg shadow-cyan-500/5">
+        <h4 class="text-sm font-bold text-cyan-400 mb-3.5 flex items-center gap-2">
+          <span>🛠️</span> 現場立即見效：大人學「物理外掛處方」
+        </h4>
+        <ul id="res-prescriptions" class="space-y-3">
+          <!-- 由 app.js 動態渲染處方 -->
+        </ul>
+      </div>
+
+      <!-- 重新測驗按鈕 -->
+      <div class="pt-2 text-center">
+        <button id="btn-restart" class="text-xs text-slate-400 hover:text-cyan-400 transition-colors py-2 px-4 rounded-lg bg-slate-900 border border-slate-800">
+          🔄 切換身分或重新檢測
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 底部版權 -->
+  <footer class="border-t border-slate-800/60 py-3 text-center text-[10px] text-slate-500">
+    人因工程與健康促進 ｜ 大人學精力管理 × 密涅瓦思考模型
+  </footer>
+
+  <!-- 腳本引入 -->
+  <script src="js/config.js"></script>
+  <script src="js/questions.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

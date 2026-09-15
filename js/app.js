@@ -142,9 +142,24 @@ function initApp() {
   // 2. 進入人體圖標記步驟
   function startBodymapStep(roleId) {
     selectedRole = roleId;
+    isRetestMode = false;
     elStepRole.classList.add("hidden");
     elStepBodymap.classList.remove("hidden");
     window.scrollTo({ top: 0, behavior: "smooth" });
+
+    // 恢復正常按鈕與標題文字
+    const stepRetestBanner = document.getElementById("bodymap-retest-banner");
+    if (stepRetestBanner) stepRetestBanner.classList.add("hidden");
+    if (elBtnBodymapNext) {
+      elBtnBodymapNext.innerHTML = '<span>下一步：進行工作站檢核</span> <span>➔</span>';
+    }
+    if (elBtnBodymapClearAll) {
+      elBtnBodymapClearAll.innerHTML = '<span>✨ 我目前全身舒暢 (全無酸痛，一鍵進入檢核)</span>';
+    }
+    const stepTitle = document.getElementById("bodymap-step-title");
+    if (stepTitle) stepTitle.innerText = "點選近一個月常感酸痛、僵硬或麻木部位";
+    const stepSubtitle = document.getElementById("bodymap-step-subtitle");
+    if (stepSubtitle) stepSubtitle.innerText = "可直接點選人體圖或滑動上方膠囊，於下方彈出選單設定程度";
 
     // 初始化人體圖元件
     if (!studentBodyMap) {
@@ -196,8 +211,17 @@ function initApp() {
 
   // 人體圖按鈕導航
   elBtnBodymapBack.addEventListener("click", () => {
-    elStepBodymap.classList.add("hidden");
-    elStepRole.classList.remove("hidden");
+    if (isRetestMode && baselineAssessment) {
+      // 複測模式下返回結果頁
+      isRetestMode = false;
+      elStepBodymap.classList.add("hidden");
+      elStepResult.classList.remove("hidden");
+      const stepRetestBanner = document.getElementById("bodymap-retest-banner");
+      if (stepRetestBanner) stepRetestBanner.classList.add("hidden");
+    } else {
+      elStepBodymap.classList.add("hidden");
+      elStepRole.classList.remove("hidden");
+    }
   });
 
   // 一鍵無酸痛通關按鈕 (防呆：避免無酸痛者被迫亂按)
@@ -209,7 +233,11 @@ function initApp() {
         studentBodyMap.setData({}, {});
       }
       updateBodymapSummary();
-      startQuizStep();
+      if (isRetestMode && baselineAssessment) {
+        calculateRetestScore();
+      } else {
+        startQuizStep();
+      }
     });
   }
 
@@ -220,8 +248,85 @@ function initApp() {
       const confirmProceed = confirm("⚠️ 系統偵測到您標記了超過 10 個部位皆為極重度劇痛或發麻（4~5分）。\n\n請問這符合您近一個月的真實身體狀況嗎？\n\n・點擊「確定」確認此為真實狀況並繼續\n・點擊「取消」返回檢查並修正標記");
       if (!confirmProceed) return;
     }
-    startQuizStep();
+    if (isRetestMode && baselineAssessment) {
+      calculateRetestScore();
+    } else {
+      startQuizStep();
+    }
   });
+
+  // 複測專屬快速計分引擎 (直接整合前測環境檢核與最新人體圖體感，秒產出前後對照)
+  async function calculateRetestScore() {
+    let totalScore = 100;
+    
+    // 1. 計算複測 NMQ 人體圖扣分
+    let nmqPenaltySum = 0;
+    Object.keys(userBodymapData).forEach((key) => {
+      const val = userBodymapData[key] || 0;
+      if (val === 1) nmqPenaltySum += 1;
+      else if (val === 2) nmqPenaltySum += 3;
+      else if (val === 3) nmqPenaltySum += 6;
+      else if (val === 4) nmqPenaltySum += 9;
+      else if (val === 5) nmqPenaltySum += 12;
+    });
+    const nmqPenalty = Math.min(40, nmqPenaltySum);
+    totalScore -= nmqPenalty;
+
+    // 2. 扣除前測基準之工作站環境扣分 (保留環境題目作答扣分)
+    const baseTraps = (baselineAssessment && baselineAssessment.traps) || {
+      trap_screen: false,
+      trap_chair: false,
+      trap_glare: false,
+      trap_sedentary: false
+    };
+
+    if (userAnswers && userAnswers.length > 0) {
+      userAnswers.forEach((ans) => {
+        if (!ans) return;
+        totalScore -= ans.penalty;
+      });
+    }
+
+    totalScore = Math.max(0, Math.min(100, totalScore));
+
+    const tierInfo =
+      ERGO_CONFIG.scoreTiers.find((t) => totalScore >= t.min && totalScore <= t.max) ||
+      ERGO_CONFIG.scoreTiers[ERGO_CONFIG.scoreTiers.length - 1];
+
+    const nmqData = {};
+    NMQ_ZONES.forEach((z) => {
+      nmqData[z.id] = userBodymapData[z.id] || 0;
+    });
+
+    const targetRole = selectedRole || (baselineAssessment && baselineAssessment.role) || "office";
+    const personalizedGuides = ERGO_CONFIG.generatePersonalizedActionGuides(
+      targetRole,
+      userBodymapData,
+      baseTraps
+    );
+
+    const durationSeconds = Math.max(1, Math.round((Date.now() - assessmentStartTime) / 1000));
+    const submissionData = {
+      role: targetRole,
+      totalScore: totalScore,
+      tier: tierInfo.tier,
+      nmqData: nmqData,
+      nmqDetails: userBodymapDetails,
+      traps: baseTraps,
+      durationSeconds: durationSeconds,
+      qualityFlag: "Retest",
+      isRetest: true
+    };
+
+    try {
+      await dataBridge.submitAssessment(submissionData);
+    } catch (e) {}
+
+    elStepBodymap.classList.add("hidden");
+    elStepQuiz.classList.add("hidden");
+    elStepRole.classList.add("hidden");
+    showResult(totalScore, tierInfo, nmqData, personalizedGuides, userBodymapDetails);
+  }
 
   // 3. 進入工作站環境檢核 4 題
   function startQuizStep() {
@@ -513,12 +618,33 @@ function initApp() {
         elStepRole.classList.add("hidden");
         elStepBodymap.classList.remove("hidden");
 
-        // 4. 顯示複測提示橫幅
+        // 4. 顯示複測提示橫幅與專屬複測按鈕文字
         const stepRetestBanner = document.getElementById("bodymap-retest-banner");
         if (stepRetestBanner) stepRetestBanner.classList.remove("hidden");
 
-        // 5. 初始化人體圖元件
-        if (studentBodyMap) {
+        if (elBtnBodymapNext) {
+          elBtnBodymapNext.innerHTML = '<span>✨ 完成複測，產出改善前後對照報告</span> <span>➔</span>';
+        }
+        if (elBtnBodymapClearAll) {
+          elBtnBodymapClearAll.innerHTML = '<span>✨ 伸展後全身舒緩 (全無酸痛，一鍵產出對照)</span>';
+        }
+        const stepTitle = document.getElementById("bodymap-step-title");
+        if (stepTitle) stepTitle.innerText = "【現場改善後複測】請點選您當前體感";
+        const stepSubtitle = document.getElementById("bodymap-step-subtitle");
+        if (stepSubtitle) stepSubtitle.innerText = "依據課堂伸展與坐姿微調後的感受重新點選（若已舒緩可直接點全無酸痛）";
+
+        // 5. 初始化人體圖元件 (確保即便重新整理也能 100% 渲染)
+        if (!studentBodyMap) {
+          studentBodyMap = new BodyMapComponent({
+            containerId: "student-bodymap-container",
+            interactive: true,
+            onChange: (selectedData, detailsData) => {
+              userBodymapData = { ...selectedData };
+              userBodymapDetails = detailsData ? { ...detailsData } : {};
+              updateBodymapSummary();
+            }
+          });
+        } else {
           studentBodyMap.setData({}, {});
         }
         updateBodymapSummary();
@@ -643,19 +769,19 @@ function initApp() {
       if (bodymapCardTitle) bodymapCardTitle.innerHTML = "🧍 前後測肌肉骨骼痛點舒緩對照圖 (Before vs After)";
       
       const dualWrapper = document.createElement("div");
-      dualWrapper.className = "grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg mx-auto";
+      dualWrapper.className = "grid grid-cols-2 gap-2 sm:gap-3.5 w-full max-w-lg mx-auto";
       dualWrapper.innerHTML = `
-        <div class="p-3 rounded-2xl bg-slate-50 border-2 border-indigo-200 text-center flex flex-col items-center shadow-xs">
-          <div class="text-xs font-black text-slate-800 mb-1 flex items-center justify-center gap-1.5">
-            <span>⏮️ 改善前 (前測基準)</span>
-            <span class="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200">${baselineAssessment.score}分</span>
+        <div class="p-2 sm:p-3 rounded-2xl bg-slate-50 border-2 border-indigo-200 text-center flex flex-col items-center shadow-xs">
+          <div class="text-[11px] sm:text-xs font-black text-slate-800 mb-1 flex items-center justify-center gap-1">
+            <span>⏮️ 改善前 (前測)</span>
+            <span class="text-[9.5px] sm:text-[10px] font-bold text-indigo-700 bg-indigo-50 px-1 py-0.2 rounded border border-indigo-200">${baselineAssessment.score}分</span>
           </div>
           <div id="sub-map-baseline" class="w-full flex justify-center py-1"></div>
         </div>
-        <div class="p-3 rounded-2xl bg-emerald-50/80 border-2 border-emerald-400 text-center flex flex-col items-center shadow-xs">
-          <div class="text-xs font-black text-emerald-950 mb-1 flex items-center justify-center gap-1.5">
-            <span>✨ 改善後 (現場複測)</span>
-            <span class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">${score}分</span>
+        <div class="p-2 sm:p-3 rounded-2xl bg-emerald-50/80 border-2 border-emerald-400 text-center flex flex-col items-center shadow-xs">
+          <div class="text-[11px] sm:text-xs font-black text-emerald-950 mb-1 flex items-center justify-center gap-1">
+            <span>✨ 改善後 (複測)</span>
+            <span class="text-[9.5px] sm:text-[10px] font-bold text-emerald-800 bg-emerald-100 px-1 py-0.2 rounded border border-emerald-300">${score}分</span>
           </div>
           <div id="sub-map-current" class="w-full flex justify-center py-1"></div>
         </div>

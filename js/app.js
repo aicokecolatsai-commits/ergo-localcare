@@ -8,6 +8,15 @@
  */
 
 document.addEventListener("DOMContentLoaded", () => {
+  // 品牌過場畫面 (Splash Screen) 自動平滑淡出 (約 900ms 後淡出，確保專業品牌體驗)
+  const elSplash = document.getElementById("brand-splash-screen");
+  if (elSplash) {
+    setTimeout(() => {
+      elSplash.classList.add("opacity-0", "pointer-events-none");
+      setTimeout(() => elSplash.remove(), 550);
+    }, 900);
+  }
+
   const sessionId = APP_CONFIG.getSessionId();
   const dataBridge = new DataBridge(sessionId);
 
@@ -384,6 +393,25 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("res-score-badge").className = `inline-block px-3 py-1 rounded-full text-xs font-bold border ${tierInfo.badgeColor} mb-2`;
     document.getElementById("res-score-badge").innerText = tierInfo.title;
 
+    // 渲染連續光譜指針 (0~100 光譜橫桿)
+    const marker = document.getElementById("spectrum-marker");
+    const markerLabel = document.getElementById("spectrum-marker-label");
+    if (marker && markerLabel) {
+      const clampedScore = Math.max(0, Math.min(100, score));
+      marker.style.left = `${clampedScore}%`;
+      markerLabel.innerText = `${clampedScore} 分 · ${tierInfo.title}`;
+
+      // 依區間設定指針標籤顏色
+      let markerBg = "#10b981"; // 85~100 綠 (健康低風險)
+      if (clampedScore < 50) markerBg = "#f43f5e"; // 0~49 紅 (重度危害)
+      else if (clampedScore < 70) markerBg = "#f97316"; // 50~69 橙 (中度負荷)
+      else if (clampedScore < 85) markerBg = "#eab308"; // 70~84 黃 (輕度不良)
+
+      markerLabel.style.backgroundColor = markerBg;
+      const markerArrow = marker.querySelector("div:last-child");
+      if (markerArrow) markerArrow.style.borderTopColor = markerBg;
+    }
+
     // 渲染個人結果人體圖 (唯讀)
     const resMapContainer = document.getElementById("result-bodymap-container");
     resMapContainer.innerHTML = "";
@@ -466,10 +494,109 @@ document.addEventListener("DOMContentLoaded", () => {
       userBodymapDetails = {};
       elStepResult.classList.add("hidden");
       elStepRole.classList.remove("hidden");
+      resetFlexibilityModule();
       renderRoles();
     });
   }
 
+  // 9. 課堂體適能柔軟度自我檢測模組互動邏輯
+  function initFlexibilityModule() {
+    const btnToggle = document.getElementById("btn-toggle-flexibility");
+    const content = document.getElementById("flexibility-content");
+    const chevron = document.getElementById("flexibility-chevron");
+
+    if (btnToggle && content && chevron) {
+      btnToggle.addEventListener("click", () => {
+        const isHidden = content.classList.contains("hidden");
+        if (isHidden) {
+          content.classList.remove("hidden");
+          const textSpan = btnToggle.querySelector("span:first-child");
+          if (textSpan) textSpan.innerText = "收合課堂檢測";
+          chevron.innerText = "▴";
+        } else {
+          content.classList.add("hidden");
+          const textSpan = btnToggle.querySelector("span:first-child");
+          if (textSpan) textSpan.innerText = "展開課堂檢測";
+          chevron.innerText = "▾";
+        }
+      });
+    }
+
+    const upperFeedbacks = {
+      good: "🟢 <strong>優良（肩關節活動良好）：</strong>雙側肩胛下肌與棘下肌活動度極佳，能維持良好胸廓開展！請持續保持工間伸展。",
+      normal: "🟡 <strong>及格（標準活動範圍）：</strong>肩關節活動度尚可，但若平日使用電腦滑鼠時間長，容易逐漸前傾緊繃，建議定期做擴胸後夾伸展。",
+      tight: "🔴 <strong>緊繃警示（肩旋轉肌群受限）：</strong>肩胛下肌、胸大肌過度攣縮短縮，易誘發圓肩駝背與滑鼠手夾擠症候群！建議每工作 50 分鐘施作「門框胸肌伸展」或「雙手背後互扣牽拉」。"
+    };
+
+    const lowerFeedbacks = {
+      good: "🟢 <strong>優良（膕旁肌彈性極佳）：</strong>大腿後側膕旁肌與腰椎屈曲延展性優良，能有效分散長時間就座時的骨盆壓力！",
+      normal: "🟡 <strong>及格（基本標準範圍）：</strong>下背與腿後肌柔軟度正常，建議久坐辦公時維持人體工學腰靠支撐，避免坐骨結節代償受壓。",
+      tight: "🔴 <strong>緊繃警示（骨盆後傾高風險）：</strong>膕旁肌過度短縮攣縮會強烈牽引骨盆向後傾斜，迫使腰椎生理前凸消失、椎間盤承受倍增剪力！強烈建議每日進行「坐姿伸腿毛巾拉伸」與「臀大肌坐姿抱膝伸展」。"
+    };
+
+    // 上肢按鈕互動
+    const upperBtns = document.querySelectorAll(".flex-btn-upper");
+    const upperRes = document.getElementById("flex-result-upper");
+    upperBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        upperBtns.forEach((b) => {
+          b.classList.remove("border-emerald-500", "bg-emerald-50", "text-emerald-900");
+          b.classList.add("border-slate-200", "bg-white", "text-slate-800");
+        });
+        btn.classList.remove("border-slate-200", "bg-white", "text-slate-800");
+        btn.classList.add("border-emerald-500", "bg-emerald-50", "text-emerald-900");
+
+        const val = btn.getAttribute("data-val");
+        if (upperRes && upperFeedbacks[val]) {
+          upperRes.innerHTML = upperFeedbacks[val];
+          upperRes.classList.remove("hidden");
+        }
+      });
+    });
+
+    // 下肢按鈕互動
+    const lowerBtns = document.querySelectorAll(".flex-btn-lower");
+    const lowerRes = document.getElementById("flex-result-lower");
+    lowerBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        lowerBtns.forEach((b) => {
+          b.classList.remove("border-emerald-500", "bg-emerald-50", "text-emerald-900");
+          b.classList.add("border-slate-200", "bg-white", "text-slate-800");
+        });
+        btn.classList.remove("border-slate-200", "bg-white", "text-slate-800");
+        btn.classList.add("border-emerald-500", "bg-emerald-50", "text-emerald-900");
+
+        const val = btn.getAttribute("data-val");
+        if (lowerRes && lowerFeedbacks[val]) {
+          lowerRes.innerHTML = lowerFeedbacks[val];
+          lowerRes.classList.remove("hidden");
+        }
+      });
+    });
+  }
+
+  function resetFlexibilityModule() {
+    const content = document.getElementById("flexibility-content");
+    const btnToggle = document.getElementById("btn-toggle-flexibility");
+    const chevron = document.getElementById("flexibility-chevron");
+    if (content) content.classList.add("hidden");
+    if (btnToggle) {
+      const textSpan = btnToggle.querySelector("span:first-child");
+      if (textSpan) textSpan.innerText = "展開課堂檢測";
+    }
+    if (chevron) chevron.innerText = "▾";
+
+    document.querySelectorAll(".flex-btn-upper, .flex-btn-lower").forEach((b) => {
+      b.classList.remove("border-emerald-500", "bg-emerald-50", "text-emerald-900");
+      b.classList.add("border-slate-200", "bg-white", "text-slate-800");
+    });
+    const upperRes = document.getElementById("flex-result-upper");
+    const lowerRes = document.getElementById("flex-result-lower");
+    if (upperRes) upperRes.classList.add("hidden");
+    if (lowerRes) lowerRes.classList.add("hidden");
+  }
+
   // 初始渲染
+  initFlexibilityModule();
   renderRoles();
 });

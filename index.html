@@ -29,17 +29,39 @@
 </head>
 <body class="bg-[#f8fafc] text-slate-800 min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
 
-  <!-- 頂部導航列 (白底柔和高質感) -->
+  <!-- 開場品牌過場畫面 (Splash Screen) -->
+  <div id="brand-splash-screen" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center p-6 transition-opacity duration-500 ease-out select-none">
+    <div class="flex flex-col items-center text-center space-y-3.5 max-w-xs">
+      <div class="relative">
+        <div class="absolute -inset-2 rounded-full bg-sky-100/80 filter blur-md animate-pulse"></div>
+        <img src="assets/logo.png" alt="人因小管家" class="w-24 h-24 md:w-28 md:h-28 object-contain drop-shadow-md relative">
+      </div>
+      <div>
+        <h1 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight flex items-center justify-center gap-1.5">
+          <span>人因小管家</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 font-bold border border-sky-200">PRO</span>
+        </h1>
+        <p class="text-xs font-bold text-sky-700 mt-0.5">工作站與肌肉骨骼人因檢測系統</p>
+      </div>
+      <p class="text-[11px] text-slate-500 font-medium">蔡健儀 人因工程專家 研發建置</p>
+      <div class="w-40 bg-slate-100 h-1.5 rounded-full overflow-hidden mt-2">
+        <div class="bg-gradient-to-r from-sky-500 to-indigo-600 h-full rounded-full w-full animate-pulse"></div>
+      </div>
+      <span class="text-[10px] text-slate-400">正在進入專屬檢測環境...</span>
+    </div>
+  </div>
+
+  <!-- 頂部導航列 (白底柔和高質感 + 加大清晰LOGO) -->
   <header class="border-b border-slate-200 bg-white/95 backdrop-blur sticky top-0 z-40 shadow-sm">
     <div class="max-w-xl mx-auto px-3.5 py-2 flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <img src="assets/logo.png" alt="人因小管家" class="w-8 h-8 md:w-9 md:h-9 object-contain drop-shadow-sm flex-shrink-0">
+      <div class="flex items-center gap-2.5">
+        <img src="assets/logo.png" alt="人因小管家" class="w-9 h-9 md:w-11 md:h-11 object-contain drop-shadow-sm flex-shrink-0">
         <div>
-          <h1 class="text-xs md:text-sm font-bold tracking-tight text-slate-900 flex items-center gap-1">
+          <h1 class="text-xs md:text-sm font-black tracking-tight text-slate-900 flex items-center gap-1">
             <span>人因小管家</span>
             <span class="text-[9px] px-1.5 py-0.2 rounded bg-sky-50 text-sky-800 border border-sky-200 font-semibold">NMQ人因檢測</span>
           </h1>
-          <p class="text-[9px] md:text-[10px] text-slate-500">北歐肌肉骨骼問卷實證架構</p>
+          <p class="text-[9px] md:text-[10px] text-slate-500 font-medium">北歐肌肉骨骼問卷實證架構</p>
         </div>
       </div>
       <div id="session-badge" class="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200 transition-colors">
@@ -164,12 +186,35 @@
         <h3 id="res-title" class="text-lg font-black text-slate-900 mt-1">健康度狀態</h3>
         <p id="res-subtitle" class="text-xs font-medium text-slate-500 mt-0.5">狀態說明</p>
 
-        <!-- 四階分級指引條 (讓使用者秒懂高低分區間) -->
-        <div class="grid grid-cols-4 gap-1 text-[10px] font-bold text-center mt-3 p-1 rounded-lg bg-slate-100 border border-slate-200">
-          <span class="py-1 rounded text-emerald-800 bg-emerald-100/90">85~100 優良</span>
-          <span class="py-1 rounded text-amber-800 bg-amber-100/90">70~84 輕度</span>
-          <span class="py-1 rounded text-orange-800 bg-orange-100/90">50~69 中度</span>
-          <span class="py-1 rounded text-rose-800 bg-rose-100/90">0~49 重度</span>
+        <!-- 連續 0~100 橫桿光譜條 (動態指標錨點) -->
+        <div class="my-4 px-1 text-left">
+          <div class="relative pt-6 pb-1">
+            <!-- 指標與數值浮動標記 (由 app.js 動態設定 left: score%) -->
+            <div id="spectrum-marker" class="absolute top-0 transition-all duration-700 ease-out -translate-x-1/2 flex flex-col items-center" style="left: 50%;">
+              <span id="spectrum-marker-label" class="px-2 py-0.5 rounded-md bg-slate-900 text-white text-[11px] font-black shadow-md whitespace-nowrap">
+                -- 分
+              </span>
+              <div class="w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] border-t-slate-900"></div>
+            </div>
+
+            <!-- 漸層光譜色條 (左紅 0 -> 橙 -> 黃 -> 右綠 100) -->
+            <div class="w-full h-3.5 rounded-full shadow-inner overflow-hidden relative" style="background: linear-gradient(to right, #f43f5e 0%, #f97316 45%, #eab308 70%, #10b981 100%);">
+              <!-- 刻度參考線 -->
+              <div class="absolute inset-0 flex justify-between px-1 pointer-events-none opacity-40">
+                <div class="w-0.5 h-full bg-white/70" style="margin-left: 50%;"></div>
+                <div class="w-0.5 h-full bg-white/70" style="margin-left: 70%;"></div>
+                <div class="w-0.5 h-full bg-white/70" style="margin-left: 85%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 光譜兩端刻度與區間標籤 -->
+          <div class="flex items-center justify-between text-[10px] font-bold mt-1 text-slate-500">
+            <span class="text-rose-700">0 (重度超載)</span>
+            <span class="text-orange-700 pl-4">50 (中度)</span>
+            <span class="text-amber-700 pl-4">70 (輕度)</span>
+            <span class="text-emerald-700">100 (健康滿分)</span>
+          </div>
         </div>
 
         <p id="res-analysis" class="text-xs md:text-sm text-slate-700 leading-relaxed mt-3.5 p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-left">
@@ -197,6 +242,74 @@
         </ul>
       </div>
 
+      <!-- 課堂實作延伸：體適能上下肢柔軟度自我檢測模組 (演講中後半段講授時展開實作) -->
+      <div id="flexibility-test-card" class="ergo-card p-4 md:p-5 border-2 border-emerald-200 bg-white shadow-sm space-y-3">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl md:text-2xl">🏃‍♂️</span>
+            <div>
+              <h4 class="text-xs md:text-sm font-black text-slate-900 flex items-center gap-1.5">
+                <span>課堂實作：體適能上下肢柔軟度自我檢測</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">實體互動</span>
+              </h4>
+              <p class="text-[10.5px] text-slate-500 font-medium">評估肩關節內外旋活動度與下背久坐膕旁肌緊繃度</p>
+            </div>
+          </div>
+          <button id="btn-toggle-flexibility" type="button" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 transition-all flex items-center gap-1 touch-press shadow-xs">
+            <span>展開課堂檢測</span>
+            <span id="flexibility-chevron">▾</span>
+          </button>
+        </div>
+
+        <div id="flexibility-content" class="hidden space-y-3 pt-2 border-t border-slate-100">
+          <!-- 上肢：抓背測驗 -->
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+            <div class="flex items-center justify-between flex-wrap gap-1">
+              <span class="font-black text-slate-900">1. 上肢柔軟度：抓背測驗 (Back Scratch Test)</span>
+              <span class="text-[10px] text-sky-800 font-bold bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">肩關節與滑鼠手</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              <strong>動作說明：</strong>一手上舉過肩向後摸背，另一手由背後下方向上延伸，嘗試雙手指尖相碰或重疊。
+            </p>
+            <div class="grid grid-cols-3 gap-1.5 pt-1">
+              <button type="button" class="flex-btn-upper p-2 rounded-lg border-2 border-slate-200 bg-white hover:border-emerald-400 text-slate-800 text-[11px] font-bold text-center touch-press shadow-xs" data-val="good">
+                🟢 指尖重疊 &gt; 2cm<br><span class="text-[9px] text-slate-500 font-normal">肩關節活動優良</span>
+              </button>
+              <button type="button" class="flex-btn-upper p-2 rounded-lg border-2 border-slate-200 bg-white hover:border-emerald-400 text-slate-800 text-[11px] font-bold text-center touch-press shadow-xs" data-val="normal">
+                🟡 指尖勉強碰觸<br><span class="text-[9px] text-slate-500 font-normal">及格標準範圍</span>
+              </button>
+              <button type="button" class="flex-btn-upper p-2 rounded-lg border-2 border-slate-200 bg-white hover:border-emerald-400 text-slate-800 text-[11px] font-bold text-center touch-press shadow-xs" data-val="tight">
+                🔴 碰不到 (差5cm+)<br><span class="text-[9px] text-slate-500 font-normal">肩旋轉肌過度緊繃</span>
+              </button>
+            </div>
+            <div id="flex-result-upper" class="hidden p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-[11px] font-medium mt-1"></div>
+          </div>
+
+          <!-- 下肢：坐姿體前彎 -->
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+            <div class="flex items-center justify-between flex-wrap gap-1">
+              <span class="font-black text-slate-900">2. 下肢柔軟度：椅上體前彎 (Chair Sit & Reach)</span>
+              <span class="text-[10px] text-sky-800 font-bold bg-sky-50 px-1.5 py-0.5 rounded border border-sky-200">久坐骨盆與下背</span>
+            </div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              <strong>動作說明：</strong>坐在椅子前三分之一，單腿向前伸直腳跟著地，腳尖朝天花板，雙手重疊緩慢向前伸摸腳趾。
+            </p>
+            <div class="grid grid-cols-3 gap-1.5 pt-1">
+              <button type="button" class="flex-btn-lower p-2 rounded-lg border-2 border-slate-200 bg-white hover:border-emerald-400 text-slate-800 text-[11px] font-bold text-center touch-press shadow-xs" data-val="good">
+                🟢 超過腳尖 5cm+<br><span class="text-[9px] text-slate-500 font-normal">膕旁肌彈性極佳</span>
+              </button>
+              <button type="button" class="flex-btn-lower p-2 rounded-lg border-2 border-slate-200 bg-white hover:border-emerald-400 text-slate-800 text-[11px] font-bold text-center touch-press shadow-xs" data-val="normal">
+                🟡 剛好觸及腳趾<br><span class="text-[9px] text-slate-500 font-normal">正常基本水準</span>
+              </button>
+              <button type="button" class="flex-btn-lower p-2 rounded-lg border-2 border-slate-200 bg-white hover:border-emerald-400 text-slate-800 text-[11px] font-bold text-center touch-press shadow-xs" data-val="tight">
+                🔴 摸不到腳趾<br><span class="text-[9px] text-slate-500 font-normal">骨盆後傾高風險</span>
+              </button>
+            </div>
+            <div id="flex-result-lower" class="hidden p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-[11px] font-medium mt-1"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- 德國主要關鍵指標法 KIM 2019 進階危害評估專區 (蔡健儀 專屬研發工具連結) -->
       <div id="kim-recommendation-card" class="ergo-card p-4 md:p-5 border-2 border-indigo-200 bg-gradient-to-r from-indigo-50/80 to-sky-50/80 shadow-sm space-y-2.5">
         <div class="flex items-center justify-between flex-wrap gap-2">
@@ -217,6 +330,29 @@
         </div>
         <p class="text-[11px] text-slate-700 leading-relaxed pt-2 border-t border-indigo-100">
           💡 <strong>何時需要進一步評估 KIM？</strong> 當您的作業現場涉及「<strong>物料人工抬舉搬運 (LHC)</strong>」、「<strong>大型台車拉推 (PP)</strong>」或「<strong>手部高頻重複施力 (MHO)</strong>」且已出現下背/肩肘酸痛時，需以 KIM 精確計算重量、時間頻率與身體姿勢評點，判定法定人因危害等級並進行工程改善。
+        </p>
+      </div>
+
+      <!-- 蔡健儀 人因工程官方部落格推薦專區 -->
+      <div class="ergo-card p-4 md:p-5 border-2 border-emerald-200 bg-gradient-to-r from-emerald-50/80 to-teal-50/80 shadow-sm space-y-2.5">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl">📚</span>
+            <div>
+              <h4 class="text-xs md:text-sm font-black text-emerald-950 flex items-center gap-1.5">
+                <span>蔡健儀 人因工程與健康促進專欄</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-700 text-white shadow-xs">官方部落格</span>
+              </h4>
+              <p class="text-[11px] text-emerald-900/80 font-medium">深入解析工作站人因配置、姿勢生物力學與職場健康促進</p>
+            </div>
+          </div>
+          <a href="https://ergopt.blogspot.com/" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1 touch-press flex-shrink-0">
+            <span>閱讀專家部落格</span>
+            <span>➔</span>
+          </a>
+        </div>
+        <p class="text-[11px] text-slate-700 leading-relaxed pt-2 border-t border-emerald-100">
+          想了解更多關於「身體折舊論」、「電腦工作站人因微調」與「骨骼肌肉疲勞消除」之實戰圖文解析，歡迎訂閱與造訪蔡健儀專家之官方部落格！
         </p>
       </div>
 

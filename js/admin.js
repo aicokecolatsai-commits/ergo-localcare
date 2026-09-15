@@ -213,10 +213,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     recents.forEach((sess) => {
       const wrapper = document.createElement("div");
-      wrapper.className = "inline-flex items-center rounded-lg bg-slate-800/80 border border-slate-700 overflow-hidden text-xs";
+      wrapper.className = "inline-flex items-center rounded-lg bg-slate-100 border border-slate-200 overflow-hidden text-xs shadow-xs";
       
       const btnSelect = document.createElement("button");
-      btnSelect.className = "px-3 py-1.5 font-semibold text-slate-200 hover:text-sky-300 hover:bg-slate-700/60 transition-colors";
+      btnSelect.className = "px-3 py-1.5 font-semibold text-slate-700 hover:text-sky-800 hover:bg-slate-200/60 transition-colors";
       btnSelect.innerText = sess;
       btnSelect.title = "切換至此場次";
       btnSelect.addEventListener("click", () => {
@@ -226,7 +226,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const btnDash = document.createElement("a");
-      btnDash.className = "px-2 py-1.5 text-sky-400 hover:bg-sky-950/60 border-l border-slate-700 transition-colors font-bold";
+      btnDash.className = "px-2 py-1.5 text-sky-700 hover:bg-sky-50 border-l border-slate-200 transition-colors font-bold";
       btnDash.title = "直開此場次大螢幕看板";
       btnDash.target = "_blank";
       btnDash.href = `dashboard.html?session=${encodeURIComponent(sess)}`;

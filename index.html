@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-TW" class="dark">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -27,22 +27,22 @@
     }
   </script>
 </head>
-<body class="bg-[#0d1117] text-slate-100 min-h-screen flex flex-col justify-between selection:bg-sky-600 selection:text-white">
+<body class="bg-[#f8fafc] text-slate-800 min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
 
-  <!-- 頂部導航列 (緊湊手機優先高度) -->
-  <header class="border-b border-[#30363d] bg-[#161b22]/95 backdrop-blur sticky top-0 z-40">
+  <!-- 頂部導航列 (白底柔和高質感) -->
+  <header class="border-b border-slate-200 bg-white/95 backdrop-blur sticky top-0 z-40 shadow-sm">
     <div class="max-w-xl mx-auto px-3.5 py-2 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <img src="assets/logo.png" alt="人因小管家" class="w-8 h-8 md:w-9 md:h-9 object-contain drop-shadow-sm flex-shrink-0">
         <div>
-          <h1 class="text-xs md:text-sm font-bold tracking-tight text-white flex items-center gap-1">
+          <h1 class="text-xs md:text-sm font-bold tracking-tight text-slate-900 flex items-center gap-1">
             <span>人因小管家</span>
-            <span class="text-[9px] px-1.5 py-0.2 rounded bg-sky-950 text-[#8ec5e8] border border-sky-800/80 font-medium">NMQ人因檢測</span>
+            <span class="text-[9px] px-1.5 py-0.2 rounded bg-sky-50 text-sky-800 border border-sky-200 font-semibold">NMQ人因檢測</span>
           </h1>
-          <p class="text-[9px] md:text-[10px] text-slate-400">北歐肌肉骨骼問卷實證架構</p>
+          <p class="text-[9px] md:text-[10px] text-slate-500">北歐肌肉骨骼問卷實證架構</p>
         </div>
       </div>
-      <div id="session-badge" class="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-800 border border-slate-700 text-slate-300">
+      <div id="session-badge" class="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 border border-slate-300 text-slate-700 hover:bg-slate-200 transition-colors">
         載入中...
       </div>
     </div>
@@ -54,14 +54,14 @@
     <!-- 步驟 0：身分族群選擇 (莫蘭迪色卡與清楚層級) -->
     <section id="step-role" class="space-y-3">
       <div class="space-y-0.5 text-center pb-0.5">
-        <span class="text-[11px] font-bold text-[#7daecb] uppercase tracking-wider">
+        <span class="text-[11px] font-bold text-[#2e6284] uppercase tracking-wider">
           步驟 1 / 4 ｜ 選擇平日主要作業型態
         </span>
-        <h2 class="text-base md:text-xl font-bold text-white">請選擇最符合您平日 80% 的工作型態</h2>
-        <p class="text-[11px] text-slate-400 max-w-sm mx-auto">不同的作業型態關節受力與力矩不同，系統將為您切換專屬題庫</p>
+        <h2 class="text-base md:text-xl font-bold text-slate-900">請選擇最符合您平日 80% 的工作型態</h2>
+        <p class="text-[11px] text-slate-500 max-w-sm mx-auto">不同的作業型態關節受力與力矩不同，系統將為您切換專屬題庫</p>
       </div>
 
-      <div id="role-cards-container" class="space-y-2 pt-1">
+      <div id="role-cards-container" class="space-y-2.5 pt-1">
         <!-- 由 app.js 動態渲染 01~04 莫蘭迪卡片 -->
       </div>
     </section>
@@ -69,21 +69,21 @@
     <!-- 步驟 1：NMQ 互動式向量人體圖 (手機優先排版 + 底部滑出抽屜) -->
     <section id="step-bodymap" class="hidden space-y-3">
       <div class="space-y-0.5 text-center pb-0.5">
-        <span class="text-[11px] font-bold text-[#7daecb] uppercase tracking-wider">
+        <span class="text-[11px] font-bold text-[#2e6284] uppercase tracking-wider">
           步驟 2 / 4 ｜ 肌肉骨骼不適標記 (NMQ)
         </span>
-        <h2 class="text-base md:text-lg font-bold text-white">點選近一個月常感酸痛、僵硬或麻木部位</h2>
-        <p class="text-[11px] text-slate-400 max-w-sm mx-auto">
+        <h2 class="text-base md:text-lg font-bold text-slate-900">點選近一個月常感酸痛、僵硬或麻木部位</h2>
+        <p class="text-[11px] text-slate-500 max-w-sm mx-auto">
           可直接點選人體圖或滑動上方膠囊，於下方彈出選單設定程度
         </p>
       </div>
 
-      <!-- 人體圖渲染容器 (緊湊外框，手機一屏全覽) -->
-      <div class="ergo-card p-3 md:p-4 border border-[#30363d] bg-[#161b22] flex flex-col items-center">
+      <!-- 人體圖渲染容器 (緊湊白底外框，手機一屏全覽) -->
+      <div class="ergo-card p-3 md:p-4 border border-slate-200 bg-white flex flex-col items-center shadow-sm">
         <!-- 快速無不適選擇按鈕 (防呆：避免無症狀者被迫亂按) -->
-        <div class="w-full flex items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-800/80">
-          <span class="text-[10px] md:text-[11px] text-slate-400">💡 提示：點擊部位或上方橫滑膠囊</span>
-          <button id="btn-bodymap-clear-all" type="button" class="px-2.5 py-1 rounded-full bg-emerald-950/70 hover:bg-emerald-900 text-emerald-300 border border-emerald-700/80 text-[11px] font-bold transition-all flex items-center gap-1 touch-press shadow-sm">
+        <div class="w-full flex items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-100">
+          <span class="text-[10px] md:text-[11px] text-slate-500">💡 提示：點擊部位或上方橫滑膠囊</span>
+          <button id="btn-bodymap-clear-all" type="button" class="px-2.5 py-1 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-[11px] font-bold transition-all flex items-center gap-1 touch-press shadow-sm">
             <span>✨ 我目前全身舒暢 (全無酸痛)</span>
           </button>
         </div>
@@ -91,14 +91,14 @@
         <div id="student-bodymap-container" class="w-full flex justify-center"></div>
         
         <!-- 選取部位即時狀態摘要 -->
-        <div id="bodymap-summary" class="w-full mt-2.5 pt-2 border-t border-slate-800 text-center text-xs text-slate-400">
+        <div id="bodymap-summary" class="w-full mt-2.5 pt-2 border-t border-slate-100 text-center text-xs text-slate-600">
           目前尚未選取任何部位（若完全無症狀，可直接點擊下一步）
         </div>
       </div>
 
       <!-- 導航按鈕 (符合拇指操作熱區，大點擊尺寸) -->
       <div class="flex items-center justify-between gap-2.5 pt-1">
-        <button id="btn-bodymap-back" type="button" class="px-3.5 py-2.5 rounded-xl border border-[#30363d] text-xs font-semibold text-slate-300 hover:bg-slate-800 transition-colors touch-press flex items-center gap-1 min-h-[44px]">
+        <button id="btn-bodymap-back" type="button" class="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors touch-press flex items-center gap-1 min-h-[44px] shadow-sm">
           <span>⬅️</span>
           <span>重選型態</span>
         </button>
@@ -113,14 +113,14 @@
     <section id="step-quiz" class="hidden space-y-4">
       <!-- 頂部進度條與導航 -->
       <div class="space-y-1.5">
-        <div class="flex items-center justify-between text-xs font-medium text-slate-400">
+        <div class="flex items-center justify-between text-xs font-medium text-slate-500">
           <span id="progress-text">環境檢核 1 / 4</span>
-          <button id="btn-prev-question" type="button" class="text-xs text-slate-400 hover:text-sky-300 px-2 py-1 rounded hover:bg-slate-800 transition-colors flex items-center gap-1">
+          <button id="btn-prev-question" type="button" class="text-xs text-slate-600 hover:text-sky-700 px-2 py-1 rounded hover:bg-slate-100 transition-colors flex items-center gap-1 font-medium">
             ⬅️ 返回上一題
           </button>
         </div>
-        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-          <div id="progress-bar" class="bg-sky-500 h-full rounded-full transition-all duration-200 w-[25%]"></div>
+        <div class="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+          <div id="progress-bar" class="bg-sky-600 h-full rounded-full transition-all duration-200 w-[25%]"></div>
         </div>
       </div>
 
@@ -134,11 +134,11 @@
     <section id="step-result" class="hidden space-y-5 py-2">
       
       <!-- 總分與評級主卡片 -->
-      <div class="ergo-card p-6 text-center border border-[#30363d] bg-[#161b22] relative overflow-hidden">
+      <div class="ergo-card p-6 text-center border border-slate-200 bg-white shadow-sm relative overflow-hidden">
         <!-- 品牌浮水印標籤 -->
-        <div class="flex items-center justify-center gap-2 mb-3 pb-2.5 border-b border-slate-800/80">
+        <div class="flex items-center justify-center gap-2 mb-3 pb-2.5 border-b border-slate-100">
           <img src="assets/logo.png" alt="人因小管家" class="w-7 h-7 object-contain">
-          <span class="text-xs font-bold text-sky-300 tracking-wide">人因小管家 (Noah) 專屬個人評估報告</span>
+          <span class="text-xs font-bold text-sky-800 tracking-wide">人因小管家 (Noah) 專屬個人評估報告</span>
         </div>
 
         <span id="res-score-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold border mb-2">
@@ -146,33 +146,33 @@
         </span>
         
         <div class="flex items-baseline justify-center gap-1 my-1">
-          <span id="res-score" class="text-5xl md:text-6xl font-black text-white">
+          <span id="res-score" class="text-5xl md:text-6xl font-black text-slate-900">
             --
           </span>
-          <span class="text-sm font-semibold text-slate-400">/ 100 分</span>
+          <span class="text-sm font-semibold text-slate-500">/ 100 分</span>
         </div>
 
-        <h3 id="res-title" class="text-lg font-bold text-white mt-1">健康度狀態</h3>
-        <p id="res-subtitle" class="text-xs text-slate-400 mt-0.5">狀態說明</p>
+        <h3 id="res-title" class="text-lg font-bold text-slate-900 mt-1">健康度狀態</h3>
+        <p id="res-subtitle" class="text-xs text-slate-500 mt-0.5">狀態說明</p>
 
-        <p id="res-analysis" class="text-xs md:text-sm text-slate-300 leading-relaxed mt-4 p-3.5 rounded-lg bg-[#0d1117] border border-[#30363d] text-left">
+        <p id="res-analysis" class="text-xs md:text-sm text-slate-700 leading-relaxed mt-4 p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-left">
           分析載入中...
         </p>
       </div>
 
       <!-- 個人化 NMQ 痛點人體圖展示 -->
-      <div class="ergo-card p-5 border border-[#30363d] bg-[#161b22]">
-        <h4 class="text-xs md:text-sm font-bold text-slate-200 mb-2 flex items-center justify-between">
+      <div class="ergo-card p-5 border border-slate-200 bg-white shadow-sm">
+        <h4 class="text-xs md:text-sm font-bold text-slate-900 mb-2 flex items-center justify-between">
           <span>🧍 您的個人肌肉骨骼不適分佈圖</span>
-          <span class="text-[11px] text-slate-400 font-normal">黃色:中度 / 紅色:重度</span>
+          <span class="text-[11px] text-slate-500 font-medium">黃色:中度 / 紅色:重度</span>
         </h4>
         <div id="result-bodymap-container" class="w-full flex justify-center py-2"></div>
-        <div id="result-bodymap-list" class="mt-2 text-xs text-slate-300 space-y-1"></div>
+        <div id="result-bodymap-list" class="mt-2 text-xs text-slate-700 space-y-1.5"></div>
       </div>
 
       <!-- 個人化作業環境改善指引 -->
-      <div class="ergo-card p-5 border border-sky-900/60 bg-[#161b22]">
-        <h4 class="text-sm font-bold text-sky-300 mb-3 flex items-center gap-2">
+      <div class="ergo-card p-5 border border-sky-200 bg-white shadow-sm">
+        <h4 class="text-sm font-bold text-sky-900 mb-3 flex items-center gap-2">
           <span>🛠️</span> 個人化作業環境與人因改善指引
         </h4>
         <ul id="res-action-guides" class="space-y-3">
@@ -181,7 +181,7 @@
       </div>
 
       <!-- 合規醫療與健康免責警語 -->
-      <div class="p-3.5 rounded-lg bg-amber-950/30 border border-amber-800/50 text-[11px] text-amber-300/90 leading-relaxed">
+      <div class="p-3.5 rounded-lg bg-amber-50 border border-amber-200 text-[11px] text-amber-900 leading-relaxed">
         <p id="res-disclaimer">
           ⚠️ 免責聲明：本線上評估工具係依據北歐肌肉骨骼問卷 (NMQ) 原理及人因工程人體測量學設計之自我檢核指標，僅供個人化作業環境改善與健康促進之參考，非屬醫療診斷行為。若您已有持續性疼痛、神經壓迫麻木或骨骼關節病症，請務必尋求專業復健科醫師或物理治療師之診斷與治療。
         </p>
@@ -189,7 +189,7 @@
 
       <!-- 重新測驗按鈕 -->
       <div class="pt-2 text-center">
-        <button id="btn-restart" class="text-xs text-slate-400 hover:text-white transition-colors py-2.5 px-4 rounded-lg bg-[#161b22] border border-[#30363d]">
+        <button id="btn-restart" class="text-xs text-slate-700 hover:text-slate-900 transition-colors py-2.5 px-4 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 shadow-sm font-medium">
           🔄 切換作業型態或重新檢測
         </button>
       </div>
@@ -198,7 +198,7 @@
   </main>
 
   <!-- 底部版權 -->
-  <footer class="border-t border-[#30363d] py-3 text-center text-[11px] text-slate-400 flex flex-col sm:flex-row items-center justify-center gap-1">
+  <footer class="border-t border-slate-200 py-3 text-center text-[11px] text-slate-500 bg-white flex flex-col sm:flex-row items-center justify-center gap-1">
     <span>© 人因小管家 (Noah) 蔡健儀 專屬研發</span>
     <span class="hidden sm:inline">｜</span>
     <span>人因工學智慧財產權保護・未經授權禁止商用翻印</span>

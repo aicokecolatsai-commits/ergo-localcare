@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const card = document.createElement("button");
       card.type = "button";
       card.className =
-        "w-full text-left p-3.5 md:p-4 rounded-xl border transition-all duration-200 flex flex-col justify-between group touch-press relative overflow-hidden shadow-sm";
+        "w-full text-left p-3.5 md:p-4 rounded-xl border transition-all duration-200 flex flex-col justify-between group touch-press relative overflow-hidden shadow-sm hover:shadow-md";
       card.style.background = role.morandi.bg;
       card.style.borderColor = role.morandi.border;
       card.innerHTML = `
@@ -70,22 +70,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 ${role.seq}
               </span>
               <div>
-                <h3 class="text-sm md:text-base font-bold text-white flex items-center gap-1.5">
+                <h3 class="text-sm md:text-base font-bold flex items-center gap-1.5" style="color: ${role.morandi.titleColor}">
                   <span>${role.icon}</span>
                   <span>${role.name}</span>
                 </h3>
-                <p class="text-[11px] text-slate-300/80 font-medium">${role.subtitle}</p>
+                <p class="text-[11px] font-medium" style="color: ${role.morandi.descColor}">${role.subtitle}</p>
               </div>
             </div>
             <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold border flex-shrink-0" style="background: ${role.morandi.badgeBg}; color: ${role.morandi.badgeText}; border-color: ${role.morandi.border};">
               ${role.badge}
             </span>
           </div>
-          <p class="text-xs text-slate-300 leading-relaxed mt-1 pl-1">${role.desc}</p>
+          <p class="text-xs leading-relaxed mt-1 pl-1" style="color: ${role.morandi.descColor}">${role.desc}</p>
         </div>
-        <div class="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-between text-xs font-semibold" style="color: ${role.morandi.color}">
-          <span class="text-[10px] md:text-[11px] text-slate-400 font-normal">專屬作業型態檢核題目</span>
-          <span class="group-hover:translate-x-1 transition-transform flex items-center gap-0.5">點擊開始檢測 ➔</span>
+        <div class="mt-2.5 pt-2 border-t flex items-center justify-between text-xs font-semibold" style="border-color: ${role.morandi.border}; color: ${role.morandi.color}">
+          <span class="text-[10px] md:text-[11px] opacity-80 font-normal">專屬作業型態檢核題目</span>
+          <span class="group-hover:translate-x-1 transition-transform flex items-center gap-0.5 font-bold">點擊開始檢測 ➔</span>
         </div>
       `;
       card.addEventListener("click", () => startBodymapStep(role.id));
@@ -206,11 +206,11 @@ document.addEventListener("DOMContentLoaded", () => {
     elQuestionContainer.innerHTML = `
       <div class="fade-in">
         <div class="flex items-center gap-2 mb-2">
-          <span class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-800 text-sky-300 border border-slate-700">
+          <span class="text-xs font-semibold px-2 py-0.5 rounded bg-sky-50 text-sky-800 border border-sky-200">
             ${q.dimensionName}
           </span>
         </div>
-        <h2 class="text-lg md:text-xl font-bold text-slate-100 mb-5 leading-snug">
+        <h2 class="text-lg md:text-xl font-bold text-slate-900 mb-5 leading-snug">
           ${q.question}
         </h2>
         <div class="space-y-3" id="options-container">
@@ -218,11 +218,11 @@ document.addEventListener("DOMContentLoaded", () => {
             .map((opt, idx) => {
               const isSelected = prevSelectedIdx === idx;
               const activeClass = isSelected
-                ? "border-sky-500 bg-sky-950/40 text-sky-200"
-                : "border-slate-700/80 bg-slate-850 hover:border-slate-600 hover:bg-slate-800 text-slate-200";
+                ? "border-sky-500 bg-sky-50/80 text-sky-950 ring-1 ring-sky-400 font-semibold shadow-sm"
+                : "border-slate-200 bg-white hover:border-sky-300 hover:bg-slate-50 text-slate-800 shadow-sm";
               const letterActiveClass = isSelected
-                ? "border-sky-400 bg-sky-500 text-slate-950"
-                : "border-slate-600 text-slate-400 group-hover:border-slate-500 group-hover:text-slate-300";
+                ? "border-sky-600 bg-sky-600 text-white"
+                : "border-slate-300 text-slate-500 group-hover:border-sky-400 group-hover:text-sky-700 bg-slate-50";
 
               return `
                 <button 
@@ -395,12 +395,12 @@ document.addEventListener("DOMContentLoaded", () => {
           const levelConf = NMQ_SEVERITY_LEVELS.find(l => l.level === level) || NMQ_SEVERITY_LEVELS[0];
           
           return `
-          <div class="flex items-center justify-between p-2 rounded bg-slate-850 border border-[#30363d] text-xs">
-            <span class="flex items-center gap-2 font-bold text-slate-200">
-              <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${levelConf.color}"></span>
+          <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs shadow-sm">
+            <span class="flex items-center gap-2 font-bold text-slate-800">
+              <span class="w-2.5 h-2.5 rounded-full shadow-sm" style="background-color: ${levelConf.color}"></span>
               <span>${name}</span>
             </span>
-            <span class="text-slate-300 font-medium">${level}分 · ${levelConf.label} <span class="text-[10px] text-slate-400">(${levelConf.desc.slice(0, 16)}...)</span></span>
+            <span class="text-slate-700 font-semibold">${level}分 · ${levelConf.label} <span class="text-[10px] text-slate-500 font-normal">(${levelConf.desc.slice(0, 16)}...)</span></span>
           </div>
         `;
         })
@@ -414,8 +414,8 @@ document.addEventListener("DOMContentLoaded", () => {
       elGuides.innerHTML = guidesToRender
         .map(
           (guide, i) => `
-          <li class="flex items-start gap-3 text-slate-300 text-sm leading-relaxed p-2.5 rounded-lg bg-slate-850/60 border border-[#30363d]">
-            <span class="w-5 h-5 rounded-md bg-sky-950 text-sky-300 border border-sky-800 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+          <li class="flex items-start gap-3 text-slate-700 text-sm leading-relaxed p-3 rounded-xl bg-sky-50/50 border border-sky-100 shadow-sm">
+            <span class="w-5 h-5 rounded-md bg-sky-100 text-sky-800 border border-sky-300 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5 shadow-xs">
               ${i + 1}
             </span>
             <span>${guide}</span>

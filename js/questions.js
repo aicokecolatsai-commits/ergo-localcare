@@ -15,13 +15,15 @@ const ERGO_CONFIG = {
       desc: "每日電腦作業超過 6 小時，常見前傾伸頸（烏龜頸）、滑鼠手腕壓迫與久坐腰臀酸麻。",
       badge: "久坐 / 螢幕作業",
       morandi: {
-        color: "#5b8eab",
-        border: "rgba(91, 142, 171, 0.4)",
-        hoverBorder: "#5b8eab",
-        bg: "linear-gradient(135deg, rgba(39, 59, 77, 0.55) 0%, rgba(18, 28, 38, 0.85) 100%)",
-        badgeBg: "rgba(91, 142, 171, 0.2)",
-        badgeText: "#b2d5eb",
-        seqColor: "#7daecb"
+        color: "#2f5c7a",
+        border: "#cbdff2",
+        hoverBorder: "#4a7c9d",
+        bg: "linear-gradient(135deg, #f0f6fa 0%, #ffffff 100%)",
+        badgeBg: "#dbe8f5",
+        badgeText: "#1e4663",
+        seqColor: "#2f5c7a",
+        titleColor: "#0f2942",
+        descColor: "#334e68"
       }
     },
     {
@@ -33,13 +35,15 @@ const ERGO_CONFIG = {
       desc: "長時間低頭視角過低、伏案書寫與背負重物，肩胛骨縫膏肓緊繃與下背支撐不足。",
       badge: "課堂 / 考生自習",
       morandi: {
-        color: "#66997a",
-        border: "rgba(102, 153, 122, 0.4)",
-        hoverBorder: "#66997a",
-        bg: "linear-gradient(135deg, rgba(42, 61, 49, 0.55) 0%, rgba(20, 31, 24, 0.85) 100%)",
-        badgeBg: "rgba(102, 153, 122, 0.2)",
-        badgeText: "#b8dec5",
-        seqColor: "#85b396"
+        color: "#2e573d",
+        border: "#cae8d5",
+        hoverBorder: "#508264",
+        bg: "linear-gradient(135deg, #f0f7f3 0%, #ffffff 100%)",
+        badgeBg: "#d5ede0",
+        badgeText: "#184527",
+        seqColor: "#2e573d",
+        titleColor: "#0d2b17",
+        descColor: "#2b4c37"
       }
     },
     {
@@ -51,13 +55,15 @@ const ERGO_CONFIG = {
       desc: "每日站立走動逾 4 小時，腰椎持續承受重力剪力，下肢循環受阻、膝關節微彎與足底疲累。",
       badge: "久站 / 走動作業",
       morandi: {
-        color: "#c69242",
-        border: "rgba(198, 146, 66, 0.4)",
-        hoverBorder: "#c69242",
-        bg: "linear-gradient(135deg, rgba(77, 56, 28, 0.55) 0%, rgba(36, 26, 14, 0.85) 100%)",
-        badgeBg: "rgba(198, 146, 66, 0.2)",
-        badgeText: "#eed4ae",
-        seqColor: "#d8a964"
+        color: "#7c5113",
+        border: "#eedbc2",
+        hoverBorder: "#b57e2a",
+        bg: "linear-gradient(135deg, #fdf7ee 0%, #ffffff 100%)",
+        badgeBg: "#faebd7",
+        badgeText: "#633e08",
+        seqColor: "#7c5113",
+        titleColor: "#3d2303",
+        descColor: "#5c421b"
       }
     },
     {
@@ -69,13 +75,15 @@ const ERGO_CONFIG = {
       desc: "頻繁重複性手部動作、特定手腕扭力或重物搬運，上肢前臂肌肉高張力與下背力矩過大。",
       badge: "重複操作 / 搬運",
       morandi: {
-        color: "#bd5d38",
-        border: "rgba(189, 93, 56, 0.4)",
-        hoverBorder: "#bd5d38",
-        bg: "linear-gradient(135deg, rgba(74, 38, 25, 0.55) 0%, rgba(35, 18, 12, 0.85) 100%)",
-        badgeBg: "rgba(189, 93, 56, 0.2)",
-        badgeText: "#f0b59f",
-        seqColor: "#d37b58"
+        color: "#7a2c3a",
+        border: "#f4ccd1",
+        hoverBorder: "#ad4e29",
+        bg: "linear-gradient(135deg, #fcf2f2 0%, #ffffff 100%)",
+        badgeBg: "#fadadd",
+        badgeText: "#631724",
+        seqColor: "#7a2c3a",
+        titleColor: "#3d0a13",
+        descColor: "#5c2a33"
       }
     }
   ],

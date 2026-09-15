@@ -1,26 +1,27 @@
-/* 人因工程與防疲勞專業介面設計規範 (Ergo UI - Morandi Palette Edition) */
+/* 人因工程與防疲勞專業介面設計規範 (Ergo UI - White Morandi Edition) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
 
 :root {
   --font-sans: 'Inter', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
-  --bg-primary: #0d1117;
-  --bg-surface: #161b22;
-  --bg-card-dark: #1b212c;
-  --border-default: #30363d;
-  --text-primary: #f0f6fc;
-  --text-secondary: #94a3b8;
+  --bg-primary: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-card-dark: #ffffff;
+  --border-default: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
   
-  /* 莫蘭迪核心色系 (Morandi Aesthetic Palette) */
-  --morandi-blue: #5b8eab;       /* 莫蘭迪霧霾藍 */
-  --morandi-blue-dark: #273b4d;
-  --morandi-green: #66997a;      /* 莫蘭迪鼠尾草綠 */
-  --morandi-green-dark: #2a3d31;
-  --morandi-oat: #c69242;        /* 莫蘭迪秋香杏黃 */
-  --morandi-oat-dark: #4d381c;
-  --morandi-rose: #a63a50;       /* 莫蘭迪煙燻莓紅 */
-  --morandi-rose-dark: #4a1d27;
-  --morandi-terracotta: #bd5d38; /* 莫蘭迪陶土焦糖 */
-  --morandi-stone: #546274;      /* 莫蘭迪灰石 */
+  /* 莫蘭迪核心色系 (White Morandi Aesthetic Palette) */
+  --morandi-blue: #4a7c9d;       /* 莫蘭迪霧霾藍 */
+  --morandi-blue-light: #f0f6fa;
+  --morandi-green: #508264;      /* 莫蘭迪鼠尾草綠 */
+  --morandi-green-light: #f0f7f3;
+  --morandi-oat: #b57e2a;        /* 莫蘭迪秋香杏黃 */
+  --morandi-oat-light: #fdf7ee;
+  --morandi-rose: #992c43;       /* 莫蘭迪煙燻莓紅 */
+  --morandi-rose-light: #fcf2f4;
+  --morandi-terracotta: #ad4e29; /* 莫蘭迪陶土焦糖 */
+  --morandi-stone: #64748b;      /* 莫蘭迪灰石 */
 }
 
 body {
@@ -31,11 +32,12 @@ body {
   line-height: 1.5;
 }
 
-/* 專業莫蘭迪卡片基底 */
+/* 專業白底卡片基底 (精緻微陰影、乾淨柔和邊框) */
 .ergo-card {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-default);
-  border-radius: 14px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04), 0 1px 3px -1px rgba(15, 23, 42, 0.02);
 }
 
 /* 輕微淡入動畫 */
@@ -59,7 +61,7 @@ body {
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 .touch-press:active {
-  transform: scale(0.97);
+  transform: scale(0.975);
 }
 
 /* 隱藏原生滾動條但保持滾動 */
@@ -91,9 +93,9 @@ body {
   background: var(--bg-primary);
 }
 ::-webkit-scrollbar-thumb {
-  background: #252d38;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #384454;
+  background: #94a3b8;
 }

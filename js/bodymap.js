@@ -52,22 +52,22 @@ class BodyMapComponent {
     this.container.innerHTML = `
       <div class="w-full max-w-sm mx-auto flex flex-col items-center select-none">
         
-        <!-- 手機友善：人體部位快捷橫向滑動膠囊列 (可滑動點選，手粗不誤觸) -->
+        <!-- 手機友善：人體部位快捷橫向滑動膠囊列 (白底淡色膠囊) -->
         ${this.interactive ? `
           <div class="w-full mb-2.5">
-            <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1.5 px-0.5">
-              <span class="font-medium flex items-center gap-1">
+            <div class="flex items-center justify-between text-[11px] text-slate-500 mb-1.5 px-0.5 font-medium">
+              <span class="flex items-center gap-1">
                 <span>📍</span> 快捷切換部位：
               </span>
-              <span class="text-[10px] text-slate-500">可點選人體圖或橫向滑動</span>
+              <span class="text-[10px] text-slate-400">可點選人體圖或橫向滑動</span>
             </div>
             <div class="zone-pills-bar flex gap-1.5 overflow-x-auto pb-1.5 no-scrollbar w-full">
               ${NMQ_ZONES.map(z => `
                 <button 
                   type="button" 
                   data-id="${z.id}" 
-                  class="zone-pill-btn flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-medium bg-[#1e2533] text-slate-300 border border-slate-700/80 hover:border-[#5b8eab] transition-all flex items-center gap-1.5 touch-press">
-                  <span class="w-2 h-2 rounded-full bg-slate-500 pill-dot transition-colors"></span>
+                  class="zone-pill-btn flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100/90 text-slate-700 border border-slate-200/90 hover:border-[#4a7c9d] transition-all flex items-center gap-1.5 touch-press shadow-xs">
+                  <span class="w-2 h-2 rounded-full bg-slate-400 pill-dot transition-colors"></span>
                   <span class="pill-name">${z.name}</span>
                   <span class="pill-score text-[10px] font-bold hidden"></span>
                 </button>
@@ -76,16 +76,16 @@ class BodyMapComponent {
           </div>
         ` : ""}
 
-        <!-- SVG 向量人體剪影 (緊湊自適應尺寸，垂直不占版面) -->
+        <!-- SVG 向量人體剪影 (白底淺色溫潤人體輪廓) -->
         <div class="relative w-full max-w-[210px] flex flex-col items-center">
-          <svg viewBox="0 0 200 330" class="w-full h-auto drop-shadow" xmlns="http://www.w3.org/2000/svg">
+          <svg viewBox="0 0 200 330" class="w-full h-auto drop-shadow-xs" xmlns="http://www.w3.org/2000/svg">
             <!-- 身體輪廓 -->
-            <g fill="#18202c" stroke="#2e3848" stroke-width="1.5" stroke-linejoin="round">
+            <g fill="#e9eef5" stroke="#cbd5e1" stroke-width="1.5" stroke-linejoin="round">
               <ellipse cx="100" cy="30" rx="18" ry="22" />
               <path d="M 88 50 C 70 65, 55 70, 50 85 C 45 100, 42 120, 35 160 C 32 175, 42 180, 48 165 L 58 135 L 62 165 C 64 185, 75 190, 100 190 C 125 190, 136 185, 138 165 L 142 135 L 152 165 C 158 180, 168 175, 165 160 C 158 120, 155 100, 150 85 C 145 70, 130 65, 112 50 Z" />
               <path d="M 68 185 C 72 210, 75 250, 75 295 C 75 305, 68 312, 75 315 C 85 315, 92 308, 92 295 L 94 220 L 98 190 L 102 190 L 106 220 L 108 295 C 108 308, 115 315, 125 315 C 132 312, 125 305, 125 295 C 125 250, 128 210, 132 185 Z" />
             </g>
-            <line x1="100" y1="52" x2="100" y2="185" stroke="#3d4a5d" stroke-width="1" stroke-dasharray="3,3" />
+            <line x1="100" y1="52" x2="100" y2="185" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="3,3" />
 
             <!-- 15 個解剖區域互動靶點 -->
             <g id="heatmap-targets">
@@ -93,8 +93,8 @@ class BodyMapComponent {
                 <g class="zone-target ${this.interactive ? 'cursor-pointer' : ''}" data-id="${z.id}" id="target-${z.id}">
                   <!-- 放大點擊熱區，手機更易擊中 -->
                   <circle cx="${z.cx}" cy="${z.cy}" r="${z.r + 7}" fill="transparent" />
-                  <circle cx="${z.cx}" cy="${z.cy}" r="${z.r}" class="zone-circle transition-all duration-200" fill="#2d3748" fill-opacity="0.5" stroke="#546274" stroke-width="1.5" />
-                  <text x="${z.cx}" y="${z.cy + 3.5}" text-anchor="middle" class="zone-text text-[9px] font-bold fill-slate-200 pointer-events-none select-none">
+                  <circle cx="${z.cx}" cy="${z.cy}" r="${z.r}" class="zone-circle transition-all duration-200" fill="#f8fafc" fill-opacity="0.95" stroke="#94a3b8" stroke-width="1.5" />
+                  <text x="${z.cx}" y="${z.cy + 3.5}" text-anchor="middle" class="zone-text text-[9px] font-bold fill-slate-700 pointer-events-none select-none">
                     ${z.name.replace("左", "L").replace("右", "R")}
                   </text>
                 </g>
@@ -102,49 +102,49 @@ class BodyMapComponent {
             </g>
           </svg>
 
-          <div class="w-full flex items-center justify-between text-[10px] font-semibold text-slate-400 px-3 mt-1">
+          <div class="w-full flex items-center justify-between text-[10px] font-semibold text-slate-500 px-3 mt-1">
             <span>左側 (Left)</span>
-            <span class="text-[9px] text-slate-500 font-mono">解剖左右視角</span>
+            <span class="text-[9px] text-slate-400 font-mono">解剖左右視角</span>
             <span>右側 (Right)</span>
           </div>
         </div>
 
-        <!-- 手機原生級底部滑出抽屜 (Mobile Bottom Sheet Modal) -->
+        <!-- 手機原生級底部滑出抽屜 (白底莫蘭迪 Bottom Sheet Modal) -->
         ${this.interactive ? `
           <!-- 半透明 Backdrop 遮罩 -->
-          <div id="bodymap-sheet-backdrop" class="fixed inset-0 bg-black/65 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-200"></div>
+          <div id="bodymap-sheet-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 hidden opacity-0 transition-opacity duration-200"></div>
 
           <!-- 底部彈出抽屜 (拇指最佳操作熱區) -->
-          <div id="zone-scale-drawer" class="fixed inset-x-0 bottom-0 z-50 p-4 pb-7 bg-[#171d27] border-t border-slate-700/80 rounded-t-2xl shadow-2xl transition-all duration-200 transform translate-y-full opacity-0 pointer-events-none max-w-lg mx-auto">
-            <!-- 頂部防呆手柄條 -->
-            <div class="w-10 h-1.5 bg-slate-600/70 rounded-full mx-auto mb-3.5"></div>
+          <div id="zone-scale-drawer" class="fixed inset-x-0 bottom-0 z-50 p-4 pb-7 bg-white/98 border-t border-slate-200 rounded-t-2xl shadow-2xl transition-all duration-200 transform translate-y-full opacity-0 pointer-events-none max-w-lg mx-auto">
+            <!-- 頂部手柄條 -->
+            <div class="w-10 h-1.5 bg-slate-300 rounded-full mx-auto mb-3.5"></div>
             
             <div class="flex items-center justify-between mb-3 px-1">
               <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-[#5b8eab] animate-pulse"></span>
-                <span id="active-zone-title" class="text-sm md:text-base font-bold text-white tracking-wide">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#4a7c9d]"></span>
+                <span id="active-zone-title" class="text-sm md:text-base font-bold text-slate-900 tracking-wide">
                   設定部位酸痛狀況
                 </span>
               </div>
-              <button id="btn-close-drawer" type="button" class="w-7 h-7 flex items-center justify-center rounded-full bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-colors text-sm font-bold">
+              <button id="btn-close-drawer" type="button" class="w-7 h-7 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition-colors text-sm font-bold">
                 ✕
               </button>
             </div>
             
-            <!-- 6段莫蘭迪情境按鈕 (2欄緊湊網格，大觸控區，拇指一碰即選) -->
+            <!-- 6段莫蘭迪情境按鈕 (白底卡片 + 圓形色標) -->
             <div class="grid grid-cols-2 gap-2" id="scale-options-container">
               ${NMQ_SEVERITY_LEVELS.map(l => `
                 <button 
                   type="button" 
                   data-level="${l.level}" 
-                  class="scale-btn text-left p-3 rounded-xl border border-slate-700/80 bg-[#1f2735] hover:border-slate-500 transition-all flex flex-col justify-between touch-press group min-h-[64px]">
+                  class="scale-btn text-left p-3 rounded-xl border border-slate-200/90 bg-slate-50/80 hover:bg-slate-100/90 hover:border-slate-300 transition-all flex flex-col justify-between touch-press group min-h-[64px] shadow-xs">
                   <div class="flex items-center justify-between w-full mb-1">
-                    <span class="text-xs font-bold text-slate-100 flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                       <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: ${l.color}"></span>
                       <span>${l.level}分 · ${l.label}</span>
                     </span>
                   </div>
-                  <span class="text-[10px] text-slate-400 leading-tight">
+                  <span class="text-[10px] text-slate-500 leading-tight">
                     ${l.desc}
                   </span>
                 </button>
@@ -152,9 +152,9 @@ class BodyMapComponent {
             </div>
 
             <!-- 底部動作 -->
-            <div class="mt-3 pt-2.5 border-t border-slate-800 flex items-center justify-between px-1 text-xs">
+            <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between px-1 text-xs">
               <span class="text-[11px] text-slate-400">💡 點選任一程度即刻儲存</span>
-              <button id="btn-clear-zone" type="button" class="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 hover:text-rose-300 hover:border-rose-800 text-xs font-medium transition-colors">
+              <button id="btn-clear-zone" type="button" class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:text-rose-600 hover:border-rose-300 hover:bg-rose-50 text-xs font-medium transition-colors">
                 設為無不適 (0分)
               </button>
             </div>

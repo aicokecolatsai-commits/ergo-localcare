@@ -162,15 +162,18 @@
     </div>
 
     <!-- Google Sheet 狀態指示條 (當已設定時顯示) -->
-    <div id="gsheet-status-bar" class="hidden ergo-card p-3 border border-teal-200 bg-teal-50/70 text-xs text-teal-900 flex items-center justify-between flex-wrap gap-2">
+    <div id="gsheet-status-bar" class="hidden ergo-card p-3.5 border border-teal-200 bg-teal-50/80 text-xs text-teal-900 flex items-center justify-between flex-wrap gap-2 shadow-xs">
       <div class="flex items-center gap-2">
-        <span class="inline-block w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
         <span class="font-bold">Google 試算表已連線：</span>
         <span id="gsheet-url-preview" class="text-teal-700 font-mono text-[11px] truncate max-w-xs md:max-w-md"></span>
       </div>
       <div class="flex items-center gap-2">
-        <button id="btn-quick-sync" class="text-xs font-bold text-teal-800 underline hover:text-teal-950">
-          立即發送當前場次 ↗
+        <button id="btn-test-connection-bar" class="px-2.5 py-1 bg-white hover:bg-teal-100 text-teal-800 font-bold rounded border border-teal-300 text-xs transition-colors flex items-center gap-1 shadow-xs">
+          <span>⚡</span> 測試連線
+        </button>
+        <button id="btn-quick-sync" class="px-3 py-1 bg-teal-700 hover:bg-teal-800 text-white font-bold rounded text-xs transition-colors flex items-center gap-1 shadow-xs">
+          <span>📤</span> 同步本場至試算表
         </button>
       </div>
     </div>
@@ -202,17 +205,21 @@
           <label class="font-bold text-slate-900 block flex items-center gap-1.5">
             <span>🔗</span> 貼上您的 Google Apps Script 網頁應用程式網址 (Webhook URL)：
           </label>
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2">
             <input 
               id="input-gsheet-webhook" 
               type="url" 
               placeholder="https://script.google.com/macros/s/.../exec" 
-              class="flex-grow px-3 py-2 rounded-lg bg-white border border-slate-300 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-xs font-mono outline-none"
+              class="flex-grow min-w-[240px] px-3 py-2 rounded-lg bg-white border border-slate-300 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-xs font-mono outline-none"
             />
             <button id="btn-save-gsheet-webhook" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg transition-colors flex-shrink-0">
               儲存設定
             </button>
+            <button id="btn-test-gsheet-webhook" class="px-3.5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-lg transition-colors flex-shrink-0 flex items-center gap-1">
+              <span>⚡</span> 測試連線
+            </button>
           </div>
+          <div id="gsheet-test-result" class="hidden text-[11px] p-2 rounded-lg"></div>
           <p class="text-[11px] text-slate-500">網址將安全保存在您的瀏覽器中，日後點擊「同步至 Google 試算表」即可一鍵直送！</p>
         </div>
 
@@ -283,8 +290,8 @@
     <span>人因工學智慧財產權保護・未經授權禁止商用翻拷</span>
   </footer>
 
-  <!-- 腳本引入 -->
-  <script src="js/config.js?v=20260916_v22"></script>
-  <script src="js/admin.js?v=20260916_v22"></script>
+  <!-- 腳本引入 (加入強制版本號防快取) -->
+  <script src="js/config.js?v=20260916_v25"></script>
+  <script src="js/admin.js?v=20260916_v25"></script>
 </body>
 </html>

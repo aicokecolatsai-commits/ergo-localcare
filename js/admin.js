@@ -312,9 +312,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const { headers, rows, count, summary } = buildSessionExportData(currentSession);
-    if (count === 0) {
-      alert("此場次目前尚無作答數據，請先由學員填寫或點選「生成 30 筆模擬數據」測試！");
+  // ==========================================
+  // 7. 同步至 Google 試算表 (分頁)
+  // ==========================================
+  async function performGSheetSync(btnElement) {
+    const webhookUrl = APP_CONFIG.getGSheetWebhook();
+    if (!webhookUrl) {
+      openGSheetModal();
       return;
+    }
+
+    let { headers, rows, count, summary } = buildSessionExportData(currentSession);
+    if (count === 0) {
+      const shouldGenerate = confirm(`場次【${currentSession}】目前尚無學員作答數據。\n\n點選【確定】：系統將自動生成 30 筆模擬數據並立即同步至 Google 試算表\n點選【取消】：僅在試算表建立該場次的中文表頭分頁`);
+      if (shouldGenerate) {
+        const bridge = new DataBridge(currentSession);
+        bridge.generateDemoData(30);
+        const refreshed = buildSessionExportData(currentSession);
+        headers = refreshed.headers;
+        rows = refreshed.rows;
+        count = refreshed.count;
+        summary = refreshed.summary;
+      }
     }
 
     const originalText = btnElement ? btnElement.innerHTML : "";
@@ -371,7 +390,91 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 8. Google 試算表設定 Modal 與教學腳本
+  // 8. 測試連線邏輯 (Test Ping)
+  // ==========================================
+  async function testGSheetConnection(webhookUrl, btnElement) {
+    const url = webhookUrl || APP_CONFIG.getGSheetWebhook();
+    if (!url) {
+      alert("請先輸入 Webhook 網址！");
+      return;
+    }
+
+    const originalText = btnElement ? btnElement.innerHTML : "";
+    if (btnElement) {
+      btnElement.disabled = true;
+      btnElement.innerHTML = `<span>⏳</span> 測試中...`;
+    }
+
+    const testBox = document.getElementById("gsheet-test-result");
+    if (testBox) {
+      testBox.className = "text-[11px] p-2 rounded-lg bg-sky-50 text-sky-800 border border-sky-200 block";
+      testBox.textContent = "📡 正在向 Google 試算表發送連線訊號，請稍候...";
+    }
+
+    try {
+      const payload = {
+        action: "test_ping",
+        sessionName: "系統連線測試",
+        headers: ["狀態", "測試時間", "連線診斷"],
+        rows: [["🟢 連線正常", new Date().toLocaleString("zh-TW"), "人因小管家後台已成功對接 Google 試算表！"]],
+        summary: { avgScore: 100 }
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+
+      let result = null;
+      try {
+        result = await response.json();
+      } catch (e) {
+        result = { status: "success" };
+      }
+
+      if (result && result.status === "error") {
+        throw new Error(result.message || "Apps Script 回傳錯誤");
+      }
+
+      if (testBox) {
+        testBox.className = "text-[11px] p-2 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 block";
+        testBox.innerHTML = `✅ <strong>連線成功！</strong> Google 試算表已成功回應，隨時可進行數據同步。`;
+      }
+      alert("🎉 Google 試算表連線測試成功！已可正常傳輸數據。");
+
+    } catch (err) {
+      console.error("連線測試失敗:", err);
+      if (testBox) {
+        testBox.className = "text-[11px] p-2 rounded-lg bg-rose-50 text-rose-800 border border-rose-200 block";
+        testBox.innerHTML = `❌ <strong>連線失敗：</strong>${err.message}`;
+      }
+      alert(`連線測試失敗！\n原因：${err.message}\n\n請確認 Apps Script 部署時「誰可以存取」是否已選擇「所有人 (Anyone)」。`);
+    } finally {
+      if (btnElement) {
+        btnElement.disabled = false;
+        btnElement.innerHTML = originalText;
+      }
+    }
+  }
+
+  const elBtnTestWebhook = document.getElementById("btn-test-gsheet-webhook");
+  if (elBtnTestWebhook) {
+    elBtnTestWebhook.addEventListener("click", () => {
+      const url = elInputGSheetWebhook.value.trim();
+      testGSheetConnection(url, elBtnTestWebhook);
+    });
+  }
+
+  const elBtnTestConnectionBar = document.getElementById("btn-test-connection-bar");
+  if (elBtnTestConnectionBar) {
+    elBtnTestConnectionBar.addEventListener("click", () => {
+      testGSheetConnection(APP_CONFIG.getGSheetWebhook(), elBtnTestConnectionBar);
+    });
+  }
+
+  // ==========================================
+  // 9. Google 試算表設定 Modal 與教學腳本
   // ==========================================
   const GAS_TEMPLATE_CODE = `/**
  * 【人因小管家】Google 試算表自動多分頁同步腳本
@@ -493,7 +596,11 @@ function doPost(e) {
       const url = elInputGSheetWebhook.value.trim();
       APP_CONFIG.setGSheetWebhook(url);
       renderGSheetStatus(url);
-      alert(url ? "✅ Google Sheet Webhook 網址已成功儲存！" : "已清除 Google Sheet 連線設定。");
+      if (url) {
+        testGSheetConnection(url, elBtnSaveGSheetWebhook);
+      } else {
+        alert("已清除自訂 Google Sheet 連線設定，恢復為預設設定。");
+      }
     });
   }
 

@@ -834,11 +834,23 @@ function initApp() {
 
     // 渲染動態個人化改善指引清單 (分區呈現：人體圖痛點處方 + 環境配置方針 + 前後測成效指引)
     const elGuides = document.getElementById("res-action-guides");
-    if (elGuides) {
       const isRetest = !!(baselineAssessment && isRetestMode);
-      const bGuides = (customGuides && customGuides.bodyGuides) || [];
-      const eGuides = (customGuides && customGuides.envGuides) || [];
-      const rGuides = (customGuides && customGuides.retestGuides) || [];
+      const activeGuideObj = ERGO_CONFIG.generatePersonalizedActionGuides(
+        selectedRole,
+        nmqData,
+        currentReportState ? currentReportState.traps : {},
+        isRetest,
+        baselineAssessment ? (baselineAssessment.bodymapData || baselineAssessment.nmqData || {}) : null
+      );
+      const bGuides = (customGuides && customGuides.bodyGuides && customGuides.bodyGuides.length > 0)
+        ? customGuides.bodyGuides
+        : (activeGuideObj.bodyGuides || []);
+      const eGuides = (customGuides && customGuides.envGuides && customGuides.envGuides.length > 0)
+        ? customGuides.envGuides
+        : (activeGuideObj.envGuides || []);
+      const rGuides = (customGuides && customGuides.retestGuides && customGuides.retestGuides.length > 0)
+        ? customGuides.retestGuides
+        : (activeGuideObj.retestGuides || []);
       
       let html = "";
 
@@ -1417,33 +1429,42 @@ function initApp() {
     else if (score < 70) scoreColor = "#f97316";
     else if (score < 85) scoreColor = "#eab308";
 
-    // 個人化環境與痛點調整指引 HTML (確保部位處方、環境方針與改善維持並存清晰)
-    const rawGuides = currentReportState.customGuides || tierInfo.actionGuides;
-    const bGuides = (rawGuides && rawGuides.bodyGuides) || [];
-    const eGuides = (rawGuides && rawGuides.envGuides) || [];
-    const rGuides = (rawGuides && rawGuides.retestGuides) || [];
+    // 個人化環境與痛點調整指引 HTML (直接以當前痛點部位與環境地雷動態生成，確保 100% 準確且不遺漏)
+    const activeGuideObj = ERGO_CONFIG.generatePersonalizedActionGuides(
+      currentReportState.role || selectedRole,
+      bodymapData,
+      currentReportState.traps || {},
+      isRetestActive,
+      baselineBodymap
+    );
+
+    const bGuides = (activeGuideObj && activeGuideObj.bodyGuides) || [];
+    const eGuides = (activeGuideObj && activeGuideObj.envGuides) || [];
+    const rGuides = (activeGuideObj && activeGuideObj.retestGuides) || [];
 
     let guideSectionTitle = isRetestActive ? "🛠️ 痛點部位處方・工作站環境方針與維持指引" : "🛠️ 人體圖痛點處方與環境調整方針";
     const displayItems = [];
 
-    // 1. 痛點部位處方 (依嚴重度優先呈現學員所有點選部位之專屬處方)
+    // 1. 痛點部位處方 (依嚴重度呈現學員所有點選部位之專屬處方，完整收納所有痛點)
     bGuides.forEach(bg => {
-      if (!bg.includes("維持優質人因基準") && displayItems.length < 3) {
+      if (!bg.includes("維持優質人因基準")) {
         displayItems.push({ label: "部位處方", color: "#e11d48", bg: "#ffe4e6", border: "#fecdd3", text: bg });
       }
     });
 
-    // 2. 工作站環境配置調整方針
-    if (eGuides.length > 0 && displayItems.length < 4) {
-      displayItems.push({ label: "環境方針", color: "#0284c7", bg: "#e0f2fe", border: "#bae6fd", text: eGuides[0] });
-    }
+    // 2. 工作站環境配置調整方針 (呈現對應之環境方針)
+    eGuides.forEach(eg => {
+      displayItems.push({ label: "環境方針", color: "#0284c7", bg: "#e0f2fe", border: "#bae6fd", text: eg });
+    });
 
     // 3. 前後測改善成效與維持指引
-    if (isRetestActive && rGuides.length > 0 && displayItems.length < 4) {
-      displayItems.push({ label: "改善維持", color: "#15803d", bg: "#dcfce7", border: "#86efac", text: rGuides[0] });
+    if (isRetestActive && rGuides.length > 0) {
+      rGuides.forEach(rg => {
+        displayItems.push({ label: "改善維持", color: "#15803d", bg: "#dcfce7", border: "#86efac", text: rg });
+      });
     }
 
-    // 備援充實至 2~3 項
+    // 備援充實
     if (displayItems.length === 0) {
       if (bGuides.length > 0) {
         displayItems.push({ label: "人因基準", color: "#059669", bg: "#ecfdf5", border: "#a7f3d0", text: bGuides[0] });
@@ -1451,13 +1472,11 @@ function initApp() {
       if (eGuides.length > 0) {
         displayItems.push({ label: "環境方針", color: "#0284c7", bg: "#e0f2fe", border: "#bae6fd", text: eGuides[0] });
       }
-    } else if (displayItems.length === 1 && eGuides.length > 0) {
-      displayItems.push({ label: "環境方針", color: "#0284c7", bg: "#e0f2fe", border: "#bae6fd", text: eGuides[0] });
     }
 
-    const guidesHtml = displayItems.slice(0, 3).map((item) => `
-      <div style="margin-bottom: 3.5px; font-size: 9.5px; line-height: 1.32; color: #1e293b;">
-        <span style="background: ${item.bg}; color: ${item.color}; font-weight: bold; padding: 0.5px 4px; border-radius: 3px; font-size: 8.5px; border: 1px solid ${item.border}; margin-right: 4px;">
+    const guidesHtml = displayItems.map((item) => `
+      <div style="margin-bottom: 2.5px; font-size: 8.5px; line-height: 1.25; color: #1e293b;">
+        <span style="background: ${item.bg}; color: ${item.color}; font-weight: bold; padding: 0.5px 3.5px; border-radius: 3px; font-size: 7.5px; border: 1px solid ${item.border}; margin-right: 3px; white-space: nowrap;">
           ${item.label}
         </span>
         <span>${item.text}</span>
@@ -1574,8 +1593,8 @@ function initApp() {
                     <tr style="font-size: 8.5px; color: #64748b; border-bottom: 1px solid #cbd5e1; background: #f8fafc;">
                       <th style="padding: 2.5px 3px; width: 70px;">部位</th>
                       <th style="padding: 2.5px 3px; width: 110px;">嚴重度</th>
-                      <th style="padding: 2.5px 3px; width: 75px;">職安署標記</th>
-                      <th style="padding: 2.5px 3px; width: 75px;">年天數</th>
+                      <th style="padding: 2.5px 3px; width: 75px;">備註</th>
+                      <th style="padding: 2.5px 3px; width: 75px;">天數</th>
                       <th style="padding: 2.5px 3px;">就醫</th>
                     </tr>
                   </thead>
@@ -1628,70 +1647,47 @@ function initApp() {
         <!-- 戰情報告基本屬性列 -->
         <table style="width: 100%; border-collapse: collapse; table-layout: fixed; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; margin-bottom: 6px;">
           <tr>
-            <td style="padding: 4px 6px; font-size: 9.5px; vertical-align: middle;">
-              <strong>受檢作業型態：</strong><span style="color: #0369a1; font-weight: bold;">${roleObj.name}</span> (${roleObj.subtitle})
+            <td style="padding: 4px 8px; font-size: 9.5px; color: #334155;">
+              <strong>受檢作業型態：</strong><span style="color: #0369a1; font-weight: bold;">${roleName}</span>
             </td>
-            <td style="padding: 4px 6px; font-size: 9px; color: #475569; text-align: right; vertical-align: middle; width: 235px;">
-              <span style="background: #e2e8f0; padding: 1.5px 6px; border-radius: 8px; font-weight: 600;">
-                人因工程作業危害預防計畫合規檢測
-              </span>
+            <td style="padding: 4px 8px; font-size: 9.5px; color: #334155; text-align: right;">
+              <span style="background: #e2e8f0; color: #334155; padding: 1.5px 6px; border-radius: 3px; font-size: 8.5px; font-weight: bold;">人因工程作業危害預防計畫合規檢測</span>
             </td>
           </tr>
         </table>
 
-        <!-- 第一層戰情儀表：3 大核心 KPI 卡片與連續光譜儀 (字體放大) -->
-        <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 8px; margin-bottom: 6px; box-sizing: border-box;">
+        <!-- 第一層戰情指標：得分、風險等級與落點光譜 (高雅莫蘭迪藍底背景) -->
+        <div style="background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 6px; padding: 7px 10px; margin-bottom: 6px; box-sizing: border-box;">
           <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
             <tr>
-              <!-- KPI 1: 健康綜合評分 (支援前後測對照與單次評估) -->
-              ${isRetestActive && baselineData ? `
-                <td style="width: 145px; text-align: center; border-right: 1px solid #e2e8f0; padding-right: 6px; vertical-align: middle;">
-                  <div style="font-size: 9px; font-weight: bold; color: #4338ca;">前後測對照評分</div>
-                  <table style="width: 100%; border-collapse: collapse; margin: 1px 0;">
-                    <tr>
-                      <td style="text-align: center; width: 48%;">
-                        <div style="font-size: 8px; color: #64748b; font-weight: bold;">前測</div>
-                        <div style="font-size: 20px; font-weight: 900; color: #64748b; line-height: 1;">${baselineData.score}</div>
-                      </td>
-                      <td style="text-align: center; font-size: 12px; color: #94a3b8; width: 4%;">➔</td>
-                      <td style="text-align: center; width: 48%;">
-                        <div style="font-size: 8px; color: #15803d; font-weight: bold;">改善後</div>
-                        <div style="font-size: 22px; font-weight: 900; color: ${scoreColor}; line-height: 1;">${score}</div>
-                      </td>
-                    </tr>
-                  </table>
-                  <div style="font-size: 8.5px; font-weight: 900; color: ${delta >= 0 ? '#15803d' : '#b91c1c'}; background: ${delta >= 0 ? '#dcfce7' : '#fee2e2'}; border-radius: 3px; padding: 1px 5px; display: inline-block;">
-                    ${delta >= 0 ? '📈 減壓提升 +' : '📉 變動 '}${delta} 分
-                  </div>
-                </td>
-              ` : `
-                <td style="width: 125px; text-align: center; border-right: 1px solid #e2e8f0; padding-right: 6px; vertical-align: middle;">
-                  <div style="font-size: 9px; font-weight: bold; color: #64748b;">人因健康綜合評分</div>
-                  <div style="font-size: 28px; font-weight: 900; color: ${scoreColor}; line-height: 1.05; margin: 1px 0;">
-                    ${score} <span style="font-size: 11px; color: #64748b; font-weight: normal;">/ 100</span>
-                  </div>
-                  <div style="font-size: 8.5px; color: #64748b; font-weight: 600;">分數越高越健康</div>
-                </td>
-              `}
-
-              <!-- KPI 2: 負荷狀態評級與臨床解讀 -->
-              <td style="padding: 0 8px; vertical-align: middle;">
-                <div style="display: inline-block; padding: 1.5px 7px; border-radius: 8px; font-size: 10px; font-weight: bold; background: ${scoreColor}15; color: ${scoreColor}; border: 1px solid ${scoreColor}40; margin-bottom: 2px;">
-                  ${tierInfo.title}
+              <!-- 分數柱 -->
+              <td style="width: 110px; text-align: center; vertical-align: middle; border-right: 1px solid #e2e8f0; padding-right: 8px;">
+                <div style="font-size: 8.5px; color: #64748b; font-weight: bold;">人因健康綜合評分</div>
+                <div style="font-size: 26px; font-weight: 900; line-height: 1; margin: 3px 0; color: ${scoreColor}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                  ${score} <span style="font-size: 11px; color: #64748b; font-weight: normal;">/ 100</span>
                 </div>
-                <div style="font-size: 9.5px; color: #334155; line-height: 1.35;">
+                <div style="font-size: 7.5px; color: #94a3b8;">分數越高越健康</div>
+              </td>
+
+              <!-- 等級核心判定 (莫蘭迪高雅淡藍底) -->
+              <td style="vertical-align: middle; padding: 0 10px;">
+                <div style="font-size: 10.5px; font-weight: 900; color: #0f172a; display: flex; align-items: center; gap: 4px; margin-bottom: 2px;">
+                  <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ${scoreColor};"></span>
+                  <span>${tierInfo.title}</span>
+                </div>
+                <div style="font-size: 8.5px; color: #334155; line-height: 1.35;">
                   ${tierInfo.analysis}
                 </div>
               </td>
 
-              <!-- KPI 3: 肌肉骨骼有感部位統計 -->
-              <td style="width: 120px; text-align: center; border-left: 1px solid #e2e8f0; padding-left: 6px; vertical-align: middle;">
-                <div style="font-size: 9px; font-weight: bold; color: #64748b;">肌肉骨骼酸痛標記</div>
-                <div style="font-size: 22px; font-weight: 900; color: ${activeKeys.length > 0 ? '#bd5d38' : '#10b981'}; margin: 1px 0;">
-                  ${activeKeys.length} <span style="font-size: 10px; font-weight: normal; color: #64748b;">處部位</span>
+              <!-- 痛點總數 -->
+              <td style="width: 105px; text-align: center; vertical-align: middle; border-left: 1px solid #e2e8f0; padding-left: 8px;">
+                <div style="font-size: 8.5px; color: #64748b; font-weight: bold;">肌肉骨骼酸痛標記</div>
+                <div style="font-size: 20px; font-weight: 900; color: #0f172a; margin: 2px 0;">
+                  ${activeKeys.length} <span style="font-size: 9.5px; font-weight: normal; color: #64748b;">處部位</span>
                 </div>
                 <div style="font-size: 8px; color: ${severeCount > 0 ? '#b91c1c' : '#059669'}; font-weight: bold;">
-                  ${severeCount > 0 ? `⚠️ 高風險：${severeCount} 處` : '全區皆在輕度以下'}
+                  ${severeCount > 0 ? `⚠️ 高風險：${severeCount} 處` : '✓ 無中重度痛點'}
                 </div>
               </td>
             </tr>
@@ -1792,7 +1788,7 @@ function initApp() {
               <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
                 <tr>
                   <td style="width: 38px; text-align: center; vertical-align: middle; padding-right: 3px;">
-                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQMAAACXljzdAAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABgUlEQVRYhdWYMbKDMAxExVC45Ag+CjeLOZqP4iO4TMGgrFbmz5D5qREqPMSvYeWVLCLyM4paiKS+bjLjcZu4cwQgL77gtKeOVd98tq3gBBpased1I5FpX6DqCQSZ76tibeCPITJb/rFm1UcQ946+8VP3pPXbVTcSr0bz9bodeOtarnUak4xAxqu4kq8ISUxPw2KncEhqyP/coSo2Qf61wSk4BWW/tjAemrxYhyToHtADbZ2nEJkU+kV3WargLNi1x/ncTuyts/Xj7mYRu1eybrGJO8ST+593YhLcJT2rTxvKe1tQja40MBHq4UynO1XJwrMITYYeOB6/0sVVoYlPzucUTe+sYw65m1g1WpbH1FmO2YjEJixEnzY4xfntXYKT+b3Yve2+Ts3736pHaOJh82hl5zN322gam7gUzzwclM8JX0ITn/1tQebhHUxKfz3xdjK+9Hzv6p3whD1Ezsj6EJL4VW2qPCQ2oXe4h5tFxjdgLbHJWY3JZfg/GLxlIpOf8QFqSm3PFia3zAAAAABJRU5ErkJggg==" style="width: 34px; height: 34px; display: block; border-radius: 2px; border: 1px solid #cbd5e1; margin: 0 auto;">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQMAAACXljzdAAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABgUlEQVRYhdWYMbKDMAxExVC45Ag+CjeLOZqP4iO4TMGgrFbmz5D5qREqPMSvYeWVLCLyM4paiKS+bjLjcZip4cwQgL77gtKeOVd98tq3gBBpased1I5FpX6DqCQSZ76tibeCPITJb/rFm1UcQ946+8VP3pPXbVTcSr0bz9bodeOtarnUak4xAxqu4kq8ISUxPw2KncEhqyP/coSo2Qf61wSk4BWW/tjAemrxYhyToHtADbZ2nEJkU+kV3WargLNi1x/ncTuyts/Xj7mYRu1eybrGJO8ST+593YhLcJT2rTxvKe1tQja40MBHq4UynO1XJwrMITYYeOB6/0sVVoYlPzucUTe+sYw65m1g1WpbH1FmO2YjEJixEnzY4xfntXYKT+b3Yve2+Ts3736pHaOJh82hl5zN322gam7gUzzwclM8JX0ITn/1tQebhHUxKfz3xdjK+9Hzv6p3whD1Ezsj6EJL4VW2qPCQ2oXe4h5tFxjdgLbHJWY3JZfg/GLxlIpOf8QFqSm3PFia3zAAAAABJRU5ErkJggg==" style="width: 34px; height: 34px; display: block; border-radius: 2px; border: 1px solid #cbd5e1; margin: 0 auto;">
                   </td>
                   <td style="vertical-align: middle; font-size: 8px; line-height: 1.25;">
                     <div style="font-weight: bold; color: #0f172a;">📐 KIM 2019 德國法</div>
@@ -1808,7 +1804,7 @@ function initApp() {
               <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
                 <tr>
                   <td style="width: 38px; text-align: center; vertical-align: middle; padding-right: 3px;">
-                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQMAAACXljzdAAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABjklEQVRYhdWYPbLCMAyElaFI6SPkKLkZztFyFB8hZQqPxa5kw+PNUEdREcAfBZJWP0bkp2WliczHqvI4F9XJTloA8rQfONX54JdOfJgqj4KTh2rJfL9uzZ5TTarbHQgijyxonQv9uQuBapALPle9BXHt6Jl0G/58qepC4tVIXUMhqMY9f9dpTNINEd+lWaz/tbmQhP4Udo9k/a/QqwNexSZPmbWIZYGeLFRQKq6q0ASdWuRPv4aDzEJkkquk0muTZN1MRzkG4e9tj09X9ojHJhZrepJYjer2UUhUYlNEq3HmIrfhT2CCOlS+koj1a2inUOmhiYUdZ+h8XTvofOZPYIIsoE5xhikjb+2stodcThDlRb2HTOr70MFOEpzQms1t6HrhveQgj02YBc4S5V4EhdggX7WFJm7IQtrF74AiSTU4ySZx3zbwLGPDl9DEd3+7kWxQvPtT3qq6lvhNj73Zts6hkLuQvuEjypyA7R7k4P8YgnuJm8Qmph2vxtGvfR+NTEY1snH03b5Pmcjk70AkrEyS7fQKhkAAAAASUVORK5CYII=" style="width: 34px; height: 34px; display: block; border-radius: 2px; border: 1px solid #cbd5e1; margin: 0 auto;">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQMAAACXljzdAAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABjklEQVRYhdWYPbLCMAyElaFI6SPkKLkZztFyFB8hZQqPxa5kw+PNUEdREcAfBZJWP0bkp2WliczHqvI4F9XJTloA8rQfOnX54JdOfJgqj4KTh2rJfL9uzZ5TTarbHQgijyxonQv9uQuBapALPle9BXHt6Jl0G/58qepC4tVIXUMhqMY9f9dpTNINEd+lWaz/tbmQhP4Udo9k/a/QqwNexSZPmbWIZYGeLFRQKq6q0ASdWuRPv4aDzEJkkquk0muTZN1MRzkG4e9tj09X9ojHJhZrepJYjer2UUhUYlNEq3HmIrfhT2CCOlS+koj1a2inUOmhiYUdZ+h8XTvofOZPYIIsoE5xhikjb+2stodcThDlRb2HTOr70MFOEpzQms1t6HrhveQgj02YBc4S5V4HhdggX7WFJm7IQtrF74AiSTU4ySZx3zbwLGPDl9DEd3+7kWxQvPtT3qq6lvhNj73Zts6hkLuQvuEjypyA7R7k4P8YgnuJm8Qmph2vxtGvfR+NTEY1snH03b5Pmcjk70AkrEyS7fQKhkAAAAASUVORK5CYII=" style="width: 34px; height: 34px; display: block; border-radius: 2px; border: 1px solid #cbd5e1; margin: 0 auto;">
                   </td>
                   <td style="vertical-align: middle; font-size: 8px; line-height: 1.25;">
                     <div style="font-weight: bold; color: #0f172a;">📱 動齡健康 App</div>

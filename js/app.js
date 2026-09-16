@@ -1395,42 +1395,48 @@ function initApp() {
     else if (score < 70) scoreColor = "#f97316";
     else if (score < 85) scoreColor = "#eab308";
 
-    // 個人化環境與痛點調整指引 HTML (字體放大至 9.5px，確保痛點處方與環境方針清晰並存)
+    // 個人化環境與痛點調整指引 HTML (確保部位處方、環境方針與改善維持並存清晰)
     const rawGuides = currentReportState.customGuides || tierInfo.actionGuides;
     const bGuides = (rawGuides && rawGuides.bodyGuides) || [];
     const eGuides = (rawGuides && rawGuides.envGuides) || [];
     const rGuides = (rawGuides && rawGuides.retestGuides) || [];
 
-    let guidesList = [];
-    let guideSectionTitle = "🛠️ 人體圖痛點處方與環境調整方針";
+    let guideSectionTitle = isRetestActive ? "🛠️ 痛點部位處方・工作站環境方針與維持指引" : "🛠️ 人體圖痛點處方與環境調整方針";
+    const displayItems = [];
 
-    if (isRetestActive && baselineData) {
-      guideSectionTitle = "🔄 課堂前後測改善成效與專屬指引";
-      // 組合：1~2 個前後測改善指引 + 1 個部位痛點處方 + 1 個工作站環境方針
-      guidesList = [
-        ...rGuides.slice(0, 1),
-        ...bGuides.slice(0, 1),
-        ...eGuides.slice(0, 1)
-      ];
-      if (guidesList.length < 3 && rGuides.length > 1) {
-        guidesList.splice(1, 0, rGuides[1]);
+    // 1. 痛點部位處方 (優先提取 1~2 個點選部位之專屬處方)
+    bGuides.forEach(bg => {
+      if (!bg.includes("維持優質人因基準") && displayItems.length < 2) {
+        displayItems.push({ label: "部位處方", color: "#e11d48", bg: "#ffe4e6", border: "#fecdd3", text: bg });
       }
-    } else {
-      guidesList = [
-        ...bGuides.slice(0, 2),
-        ...eGuides.slice(0, 1)
-      ];
-      if (guidesList.length === 0) {
-        guidesList = Array.isArray(rawGuides) ? rawGuides.slice(0, 3) : tierInfo.actionGuides.slice(0, 3);
+    });
+
+    // 2. 工作站環境配置調整方針
+    if (eGuides.length > 0 && displayItems.length < 3) {
+      displayItems.push({ label: "環境方針", color: "#0284c7", bg: "#e0f2fe", border: "#bae6fd", text: eGuides[0] });
+    }
+
+    // 3. 前後測改善成效與維持指引
+    if (isRetestActive && rGuides.length > 0 && displayItems.length < 3) {
+      displayItems.push({ label: "改善維持", color: "#15803d", bg: "#dcfce7", border: "#86efac", text: rGuides[0] });
+    }
+
+    // 備援充實至 3 項
+    if (displayItems.length < 3) {
+      if (bGuides.length > 0 && displayItems.length === 0) {
+        displayItems.push({ label: "人因基準", color: "#059669", bg: "#ecfdf5", border: "#a7f3d0", text: bGuides[0] });
+      }
+      if (eGuides.length > 1 && displayItems.length < 3) {
+        displayItems.push({ label: "動態保養", color: "#0284c7", bg: "#e0f2fe", border: "#bae6fd", text: eGuides[1] });
       }
     }
 
-    const guidesHtml = guidesList.slice(0, 3).map((g, idx) => `
+    const guidesHtml = displayItems.slice(0, 3).map((item) => `
       <div style="margin-bottom: 3.5px; font-size: 9.5px; line-height: 1.32; color: #1e293b;">
-        <span style="background: #e0f2fe; color: #0284c7; font-weight: bold; padding: 0.5px 4px; border-radius: 3px; font-size: 8.5px; border: 1px solid #bae6fd; margin-right: 4px;">
-          ${idx + 1}
+        <span style="background: ${item.bg}; color: ${item.color}; font-weight: bold; padding: 0.5px 4px; border-radius: 3px; font-size: 8.5px; border: 1px solid ${item.border}; margin-right: 4px;">
+          ${item.label}
         </span>
-        <span>${g}</span>
+        <span>${item.text}</span>
       </div>
     `).join("");
 
@@ -1568,13 +1574,13 @@ function initApp() {
     return `
       <div style="width: 740px; margin: 0 auto; padding: 10px 12px; background: #ffffff; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans TC', sans-serif; box-sizing: border-box;">
         
-        <!-- 頂部官方 Header (戰情室首部：LOGO 放大防變形、標題更新為人體老化指標戰情室) -->
+        <!-- 頂部官方 Header (戰情室首部：LOGO 3:2 原生比例 75x50 絕不擠壓變形) -->
         <table style="width: 100%; border-collapse: collapse; table-layout: fixed; border-bottom: 2.5px solid #0284c7; padding-bottom: 4px; margin-bottom: 6px;">
           <tr>
-            <td style="vertical-align: middle; width: 56px; text-align: center;">
-              <img src="assets/logo.png" style="width: 50px; height: 50px; max-width: 50px; max-height: 50px; object-fit: contain; display: block; margin: 0 auto;">
+            <td style="vertical-align: middle; width: 84px; text-align: center;">
+              <img src="assets/logo.png" style="width: 75px; height: 50px; aspect-ratio: 3/2; object-fit: contain; display: block; margin: 0 auto;">
             </td>
-            <td style="vertical-align: middle; padding-left: 8px;">
+            <td style="vertical-align: middle; padding-left: 6px;">
               <div style="font-size: 15px; font-weight: 900; color: #0f172a; letter-spacing: -0.2px;">
                 人因小管家 - 人體老化指標戰情室
                 <span style="font-size: 8.5px; font-weight: bold; padding: 1.5px 6px; border-radius: 4px; background: #0284c7; color: #ffffff; vertical-align: middle; margin-left: 5px;">
@@ -1585,7 +1591,7 @@ function initApp() {
                 受檢學員：<span style="color: #0f172a; text-decoration: underline;">${studentName ? studentName : '專案受檢人員'}</span> (${studentUid}) ｜ 勞動部職安署 NMQ 肌肉骨骼臨床評估
               </div>
             </td>
-            <td style="vertical-align: middle; text-align: right; font-size: 9px; color: #475569; line-height: 1.35; width: 175px;">
+            <td style="vertical-align: middle; text-align: right; font-size: 9px; color: #475569; line-height: 1.35; width: 165px;">
               <div><strong>主講講師：</strong>蔡健儀</div>
               <div><strong>場次編號：</strong>${sessionId}</div>
               <div><strong>報告時間：</strong>${dateStr} ${timeStr}</div>
@@ -1667,24 +1673,24 @@ function initApp() {
             </tr>
           </table>
 
-          <!-- 0~100 連續橫桿光譜落點儀 (支援前後測雙落點對照) -->
+          <!-- 0~100 連續橫桿光譜落點儀 (擴大高度距離，徹底解決方框重疊遮蓋光譜問題) -->
           <div style="margin-top: 5px; padding-top: 4px; border-top: 1px dashed #e2e8f0;">
-            <div style="position: relative; padding-top: 16px; padding-bottom: 2px;">
+            <div style="position: relative; padding-top: 26px; padding-bottom: 2px;">
               ${isRetestActive && baselineData ? `
-                <div style="position: absolute; top: 0; left: ${Math.max(6, Math.min(94, baselineData.score))}%; transform: translateX(-50%); font-size: 8px; font-weight: 900; background: #475569; color: #ffffff; padding: 1px 5px; border-radius: 3px; white-space: nowrap; z-index: 2;">
+                <div style="position: absolute; top: 0; left: ${Math.max(8, Math.min(92, baselineData.score))}%; transform: translateX(-50%); font-size: 8px; font-weight: 900; background: #475569; color: #ffffff; padding: 1.5px 5px; border-radius: 3px; white-space: nowrap; z-index: 2;">
                   ⏮️ 前測：${baselineData.score}分
                 </div>
-                <div style="position: absolute; top: 0; left: ${Math.max(6, Math.min(94, score))}%; transform: translateX(-50%); font-size: 8.5px; font-weight: 900; background: #0f172a; color: #34d399; border: 1px solid #10b981; padding: 1px 6px; border-radius: 3px; white-space: nowrap; z-index: 3;">
+                <div style="position: absolute; top: 0; left: ${Math.max(8, Math.min(92, score))}%; transform: translateX(-50%); font-size: 8.5px; font-weight: 900; background: #0f172a; color: #34d399; border: 1.5px solid #10b981; padding: 1.5px 6px; border-radius: 3px; white-space: nowrap; z-index: 3;">
                   🎯 改善後：${score}分 (${tierInfo.title.split(' ')[0]})
                 </div>
               ` : `
-                <div style="position: absolute; top: 0; left: ${Math.max(6, Math.min(94, score))}%; transform: translateX(-50%); font-size: 8.5px; font-weight: 900; background: #0f172a; color: #ffffff; padding: 1px 6px; border-radius: 3px; white-space: nowrap;">
+                <div style="position: absolute; top: 0; left: ${Math.max(8, Math.min(92, score))}%; transform: translateX(-50%); font-size: 8.5px; font-weight: 900; background: #0f172a; color: #ffffff; padding: 1.5px 6px; border-radius: 3px; white-space: nowrap;">
                   🎯 您的落點：${score}分 (${tierInfo.title.split(' ')[0]})
                 </div>
               `}
-              <div style="height: 7px; border-radius: 3.5px; background: linear-gradient(to right, #f43f5e 0%, #f97316 45%, #eab308 70%, #10b981 100%); width: 100%;"></div>
+              <div style="height: 8px; border-radius: 4px; background: linear-gradient(to right, #f43f5e 0%, #f97316 45%, #eab308 70%, #10b981 100%); width: 100%; margin-top: 5px;"></div>
             </div>
-            <table style="width: 100%; font-size: 8px; font-weight: bold; color: #64748b; table-layout: fixed; margin-top: 1px;">
+            <table style="width: 100%; font-size: 8px; font-weight: bold; color: #64748b; table-layout: fixed; margin-top: 2px;">
               <tr>
                 <td style="color: #e11d48; text-align: left; width: 25%;">0~49 (重度超載)</td>
                 <td style="color: #ea580c; text-align: left; width: 25%;">50~69 (中度負荷)</td>
@@ -1754,17 +1760,55 @@ function initApp() {
           </table>
         </div>
 
-        <!-- 第五層：官方延伸工具與知識庫連結 -->
-        <table style="width: 100%; border-collapse: collapse; table-layout: fixed; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; padding: 3px 4px; margin-bottom: 6px; font-size: 8px;">
+        <!-- 第五層：官方延伸工具、動齡 App 與知識庫連結 (含清晰 QR Code) -->
+        <table style="width: 100%; border-collapse: collapse; table-layout: fixed; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 6px;">
           <tr>
-            <td style="padding: 2px 4px; text-align: left; width: 33.3%;">
-              <strong>📐 KIM 2019：</strong>https://aicokecolatsai-commits.github.io/KIM2019/
+            <!-- 1. KIM 2019 德國人因 -->
+            <td style="width: 33.3%; padding: 4px 6px; border-right: 1px solid #e2e8f0; vertical-align: middle;">
+              <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+                <tr>
+                  <td style="width: 44px; text-align: center; vertical-align: middle; padding-right: 4px;">
+                    <img src="assets/qr-kim.png" style="width: 40px; height: 40px; display: block; border-radius: 3px; border: 1px solid #cbd5e1; margin: 0 auto;">
+                  </td>
+                  <td style="vertical-align: middle; font-size: 8.5px; line-height: 1.25;">
+                    <div style="font-weight: bold; color: #0f172a;">📐 KIM 2019 德國法</div>
+                    <div style="color: #0284c7; font-size: 7.5px; word-break: break-all;">aicokecolatsai.../KIM2019/</div>
+                    <div style="color: #64748b; font-size: 7.5px;">掃描評估抬舉搬運負荷</div>
+                  </td>
+                </tr>
+              </table>
             </td>
-            <td style="padding: 2px 4px; text-align: center; width: 33.3%;">
-              <strong>📱 動齡健康管理 App：</strong>https://move-age-web.bewellfutlife.com/tab2/home
+
+            <!-- 2. 動齡健康管理 App -->
+            <td style="width: 33.3%; padding: 4px 6px; border-right: 1px solid #e2e8f0; vertical-align: middle;">
+              <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+                <tr>
+                  <td style="width: 44px; text-align: center; vertical-align: middle; padding-right: 4px;">
+                    <img src="assets/qr-moveage.png" style="width: 40px; height: 40px; display: block; border-radius: 3px; border: 1px solid #cbd5e1; margin: 0 auto;">
+                  </td>
+                  <td style="vertical-align: middle; font-size: 8.5px; line-height: 1.25;">
+                    <div style="font-weight: bold; color: #0f172a;">📱 動齡健康 App</div>
+                    <div style="color: #0284c7; font-size: 7.5px; word-break: break-all;">move-age-web...</div>
+                    <div style="color: #64748b; font-size: 7.5px;">血壓量測與微習慣任務</div>
+                  </td>
+                </tr>
+              </table>
             </td>
-            <td style="padding: 2px 4px; text-align: right; width: 33.3%;">
-              <strong>📚 人因工程部落格：</strong>https://ergopt.blogspot.com/
+
+            <!-- 3. 人因工程部落格 -->
+            <td style="width: 33.3%; padding: 4px 6px; vertical-align: middle;">
+              <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+                <tr>
+                  <td style="width: 44px; text-align: center; vertical-align: middle; padding-right: 4px;">
+                    <img src="assets/qr-blog.png" style="width: 40px; height: 40px; display: block; border-radius: 3px; border: 1px solid #cbd5e1; margin: 0 auto;">
+                  </td>
+                  <td style="vertical-align: middle; font-size: 8.5px; line-height: 1.25;">
+                    <div style="font-weight: bold; color: #0f172a;">📚 人因工程部落格</div>
+                    <div style="color: #0284c7; font-size: 7.5px; word-break: break-all;">ergopt.blogspot.com</div>
+                    <div style="color: #64748b; font-size: 7.5px;">人因改善與健康專欄</div>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
         </table>

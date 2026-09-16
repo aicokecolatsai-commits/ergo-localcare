@@ -405,7 +405,7 @@ function doPost(e) {
     sheet.appendRow(["📊 場次名稱", sessionName, "⏱️ 同步時間", timestamp, "👥 總填答人數", (data.rows ? data.rows.length : 0), "🎯 平均健康分", (summary.avgScore || "-")]);
     var summaryRange = sheet.getRange(1, 1, 1, 8);
     summaryRange.setBackground("#f0fdf4").setFontColor("#166534").setFontWeight("bold");
-    sheet.appendRow([]); // 空行
+    sheet.appendRow([""]); // 空行
     
     // 3. 寫入繁體中文表頭
     var headers = data.headers || [];

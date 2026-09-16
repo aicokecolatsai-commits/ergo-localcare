@@ -61,6 +61,20 @@ const APP_CONFIG = {
       this.firebaseConfig.projectId &&
       this.firebaseConfig.projectId !== ""
     );
+  },
+
+  // Google 試算表 Webhook 網址管理 (支援獨立分頁同步)
+  getGSheetWebhook: function() {
+    try {
+      return localStorage.getItem("ergo_gsheet_webhook") || "";
+    } catch (e) {
+      return "";
+    }
+  },
+  setGSheetWebhook: function(url) {
+    try {
+      localStorage.setItem("ergo_gsheet_webhook", (url || "").trim());
+    } catch (e) {}
   }
 };
 

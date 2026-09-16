@@ -141,8 +141,14 @@
 
         <!-- 數據管理動作 -->
         <div class="pt-4 border-t border-slate-100 flex flex-wrap items-center gap-2.5">
+          <button id="btn-sync-gsheet" class="px-3.5 py-2 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm">
+            <span>📊</span> 同步至 Google 試算表 (分頁)
+          </button>
           <button id="btn-export-csv" class="px-3.5 py-2 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
-            <span>📥</span> 匯出本場數據 (CSV)
+            <span>📥</span> 匯出中文 CSV (Excel/試算表通用)
+          </button>
+          <button id="btn-open-gsheet-modal" class="px-3 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs font-semibold transition-all flex items-center gap-1 shadow-sm">
+            <span>⚙️</span> Google Sheet 連線設定
           </button>
           <button id="btn-generate-demo" class="px-3.5 py-2 rounded-lg bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-300 text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
             <span>🎲</span> 生成 30 筆模擬數據
@@ -155,7 +161,120 @@
       </div>
     </div>
 
+    <!-- Google Sheet 狀態指示條 (當已設定時顯示) -->
+    <div id="gsheet-status-bar" class="hidden ergo-card p-3 border border-teal-200 bg-teal-50/70 text-xs text-teal-900 flex items-center justify-between flex-wrap gap-2">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+        <span class="font-bold">Google 試算表已連線：</span>
+        <span id="gsheet-url-preview" class="text-teal-700 font-mono text-[11px] truncate max-w-xs md:max-w-md"></span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="btn-quick-sync" class="text-xs font-bold text-teal-800 underline hover:text-teal-950">
+          立即發送當前場次 ↗
+        </button>
+      </div>
+    </div>
+
   </main>
+
+  <!-- Google Sheet 連線設定與 Apps Script 代碼教學 Modal -->
+  <div id="modal-gsheet" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 flex flex-col">
+      <!-- Modal Header -->
+      <div class="p-5 border-b border-slate-100 flex items-center justify-between sticky top-0 bg-white z-10">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-lg">
+            📊
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900">Google 試算表自動多分頁 (Multi-Tab) 整合</h3>
+            <p class="text-xs text-slate-500">每場次研習自動在同一份試算表中建立獨立工作表分頁，歷史場次永久留存</p>
+          </div>
+        </div>
+        <button id="btn-close-gsheet-modal" class="text-slate-400 hover:text-slate-600 text-lg p-1">✕</button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 space-y-5 text-xs text-slate-700 leading-relaxed">
+        
+        <!-- 步驟 1: Webhook 網址設定區 -->
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2.5">
+          <label class="font-bold text-slate-900 block flex items-center gap-1.5">
+            <span>🔗</span> 貼上您的 Google Apps Script 網頁應用程式網址 (Webhook URL)：
+          </label>
+          <div class="flex gap-2">
+            <input 
+              id="input-gsheet-webhook" 
+              type="url" 
+              placeholder="https://script.google.com/macros/s/.../exec" 
+              class="flex-grow px-3 py-2 rounded-lg bg-white border border-slate-300 focus:border-teal-600 focus:ring-1 focus:ring-teal-600 text-xs font-mono outline-none"
+            />
+            <button id="btn-save-gsheet-webhook" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg transition-colors flex-shrink-0">
+              儲存設定
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500">網址將安全保存在您的瀏覽器中，日後點擊「同步至 Google 試算表」即可一鍵直送！</p>
+        </div>
+
+        <!-- 30 秒安裝教學 -->
+        <div class="space-y-3">
+          <h4 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+            <span>🚀</span> 3 步驟超快速建置說明（只需設定一次，永久全場次適用）：
+          </h4>
+          <ol class="list-decimal list-inside space-y-2 text-slate-600 bg-teal-50/40 p-4 rounded-xl border border-teal-100">
+            <li>打開或新建一份 Google 試算表（例如命名為<strong>「人因小管家_全場次研習總資料庫」</strong>）。</li>
+            <li>點擊頂部選單<strong>「擴充功能」->「Apps Script」</strong>，將預設內容清空，並貼上下方<strong>「專屬 Apps Script 程式碼」</strong>。</li>
+            <li>點擊右上角<strong>「部署」->「新增部署作業」</strong>，左側齒輪選<strong>「網頁應用程式」</strong>，並將<strong>「誰可以存取」</strong>改為<strong>「所有人 (Anyone)」</strong>，點擊部署並複製產生的網址貼至上方！</li>
+          </ol>
+        </div>
+
+        <!-- Apps Script 程式碼區塊 -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-800">📋 Google Apps Script (GAS) 專屬後端程式碼：</span>
+            <button id="btn-copy-gas-code" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded border border-slate-200 text-[11px] transition-colors flex items-center gap-1">
+              <span>📄</span> 複製全部程式碼
+            </button>
+          </div>
+          <pre id="gas-code-block" class="bg-slate-900 text-teal-300 p-3.5 rounded-xl font-mono text-[11px] overflow-x-auto max-h-52 border border-slate-800 select-all"></pre>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-end gap-2 rounded-b-2xl">
+        <button id="btn-modal-done" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-lg transition-colors text-xs">
+          完成 / 關閉
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Google Sheet 同步成功通知 Modal -->
+  <div id="modal-sync-success" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 text-center space-y-4">
+      <div class="w-14 h-14 bg-teal-100 text-teal-700 rounded-2xl flex items-center justify-center text-3xl mx-auto">
+        🎉
+      </div>
+      <div>
+        <h3 class="text-base font-bold text-slate-900">Google 試算表同步成功！</h3>
+        <p id="sync-success-desc" class="text-xs text-slate-600 mt-1"></p>
+      </div>
+      <div class="p-3 bg-teal-50 rounded-xl border border-teal-200 text-xs text-teal-900 text-left space-y-1">
+        <div>✅ <strong>場次分頁：</strong><span id="sync-success-tab"></span></div>
+        <div>✅ <strong>寫入筆數：</strong><span id="sync-success-count"></span> 筆學員評估數據</div>
+        <div>✅ <strong>格式排版：</strong>深色中文表頭、首列凍結、欄寬自動最適化</div>
+      </div>
+      <div class="flex gap-2 justify-center pt-2">
+        <a id="sync-success-link" href="#" target="_blank" class="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-xs transition-all shadow-sm flex items-center gap-1.5">
+          <span>📊</span> 開啟 Google 試算表分頁 ↗
+        </a>
+        <button id="btn-close-sync-modal" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-colors">
+          關閉
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- 底部版權 -->
   <footer class="border-t border-slate-200 py-3 text-center text-[11px] text-slate-500 bg-white flex flex-col sm:flex-row items-center justify-center gap-1">
@@ -165,7 +284,7 @@
   </footer>
 
   <!-- 腳本引入 -->
-  <script src="js/config.js"></script>
-  <script src="js/admin.js"></script>
+  <script src="js/config.js?v=20260916_v22"></script>
+  <script src="js/admin.js?v=20260916_v22"></script>
 </body>
 </html>

@@ -448,20 +448,17 @@
       </div>
 
       <!-- 課堂實作：體適能上下肢柔軟度自我檢測模組 (可收合/展開) -->
-      <div id="flexibility-test-card" class="ergo-card p-4 md:p-5 border-2 border-emerald-300 bg-gradient-to-r from-emerald-50/70 via-teal-50/50 to-sky-50/60 shadow-sm space-y-3">
+      <div id="flexibility-test-card" class="ergo-card p-4 sm:p-5 border border-emerald-200 bg-white shadow-xs space-y-3">
         <div class="flex items-center justify-between flex-wrap gap-2">
           <div class="flex items-center gap-2.5">
-            <div class="w-10 h-10 rounded-2xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-xl flex-shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-xl flex-shrink-0">
               🏃‍♂️
             </div>
             <div>
-              <div class="flex items-center gap-2">
-                <h4 class="text-xs md:text-sm font-black text-emerald-950">
-                  課堂實作：體適能上下肢柔軟度自我檢測
-                </h4>
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-600 text-white shadow-xs">實作互動</span>
-              </div>
-              <p class="text-[11px] text-emerald-800/80 font-medium mt-0.5">
+              <h4 class="text-xs sm:text-sm font-black text-slate-900">
+                課堂實作：體適能上下肢柔軟度自我檢測
+              </h4>
+              <p class="text-[11px] text-slate-500 font-medium mt-0.5">
                 評估肩旋轉肌袖與膕旁肌緊繃度（肌肉緊繃將大幅加劇關節磨損與椎間盤剪力）
               </p>
             </div>
@@ -473,7 +470,7 @@
         </div>
 
         <!-- 檢測內容區域 (預設隱藏，點擊按鈕或快速通道展開) -->
-        <div id="flexibility-content" class="hidden space-y-3 pt-2 border-t border-emerald-200/80 animate-in fade-in duration-200">
+        <div id="flexibility-content" class="hidden space-y-3 pt-2 border-t border-emerald-100 animate-in fade-in duration-200">
           
           <!-- 上肢：抓背測驗 -->
           <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-2">
@@ -523,98 +520,115 @@
         </div>
       </div>
 
-      <!-- 個人 A4 人因戰情室 PDF 報告下載與分享專區 (依需求放置於課堂實作卡片之後) -->
-      <div id="pdf-export-card" class="ergo-card p-4 md:p-5 border-2 border-sky-300 bg-gradient-to-r from-sky-50 via-indigo-50/70 to-emerald-50/60 shadow-md space-y-3">
+      <!-- 個人 A4 人因戰情室 PDF 報告下載與分享專區 -->
+      <div id="pdf-export-card" class="ergo-card p-4 sm:p-5 border border-sky-200 bg-white shadow-xs space-y-3">
         <div class="flex items-center justify-between flex-wrap gap-2">
           <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-2xl bg-white border border-sky-300 shadow-sm flex items-center justify-center text-2xl flex-shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-xl flex-shrink-0">
               📊
             </div>
             <div class="text-left">
-              <div class="flex items-center gap-2">
-                <h4 class="text-xs md:text-sm font-black text-slate-900">
-                  個人 A4 人因戰情室報告 (PDF 下載 / 分享)
-                </h4>
-                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-sky-600 text-white shadow-xs">官方認證版</span>
-              </div>
-              <p class="text-[11px] text-slate-600 font-medium mt-0.5">
+              <h4 class="text-xs sm:text-sm font-black text-slate-900">
+                個人 A4 人因戰情室報告 (PDF 下載 / 分享)
+              </h4>
+              <p class="text-[11px] text-slate-500 font-medium mt-0.5">
                 完整收錄：人體痛點現況圖、0~100光譜落點、體適能檢測危害與工作站調整指引
               </p>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 border-t border-sky-100">
-          <button id="btn-export-pdf" type="button" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 touch-press">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 border-t border-slate-100">
+          <button id="btn-export-pdf" type="button" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 touch-press">
             <span>📥 下載 A4 戰情室 PDF</span>
           </button>
-          <button id="btn-preview-direct-pdf" type="button" class="py-2.5 px-3 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-900 border-2 border-sky-300 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 touch-press">
-            <span>👁️ 螢幕全頁預覽 / 截圖</span>
-          </button>
-          <button id="btn-share-pdf" type="button" class="py-2.5 px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-300 font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 touch-press">
-            <span>🔗 分享至 LINE / 社群</span>
+          <button id="btn-share-pdf" type="button" class="py-2.5 px-3 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 touch-press">
+            <span>🔗 分享成果 (LINE / 圖片 / 連結)</span>
           </button>
         </div>
       </div>
 
-      <!-- 德國主要關鍵指標法 KIM 2019 進階危害評估專區 (參考職安署網站另行建置研發) -->
-      <div id="kim-recommendation-card" class="ergo-card p-4 md:p-5 border-2 border-indigo-200 bg-gradient-to-r from-indigo-50/80 to-sky-50/80 shadow-sm space-y-2.5">
+      <!-- 「動齡」職場自主健康管理 Web App 推薦專區 (蔡健儀 專屬研發) -->
+      <div id="move-age-card" class="ergo-card p-4 sm:p-5 border border-indigo-200 bg-white shadow-xs space-y-2.5">
         <div class="flex items-center justify-between flex-wrap gap-2">
           <div class="flex items-center gap-2.5">
-            <span class="text-xl md:text-2xl">📐</span>
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-xl flex-shrink-0">
+              🩺
+            </div>
             <div>
-              <h4 class="text-xs md:text-sm font-black text-indigo-950 flex items-center gap-1.5">
-                <span>德國主要關鍵指標法 KIM 2019 線上評估系統</span>
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-600 text-white shadow-xs">勞動部認可工程法</span>
+              <h4 class="text-xs sm:text-sm font-black text-slate-900">
+                「動齡」職場自主健康管理 Web App
               </h4>
-              <p class="text-[11px] text-indigo-900/80 font-medium">人因小管家 參考職安署網站另行建置研發</p>
+              <p class="text-[11px] text-slate-500 font-medium mt-0.5">蔡健儀 專屬研發 ｜ 自主記錄血壓・每日微習慣任務・伸展小動作指引</p>
             </div>
           </div>
-          <a href="https://aicokecolatsai-commits.github.io/KIM2019/" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1 touch-press flex-shrink-0">
-            <span>開啟 KIM 評估工具</span>
+          <a href="https://move-age-web.bewellfutlife.com/tab2/home" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1 touch-press flex-shrink-0">
+            <span>開啟「動齡」工具</span>
             <span>↗</span>
           </a>
         </div>
-        <p class="text-[11px] text-slate-700 leading-relaxed pt-2 border-t border-indigo-100">
-          💡 <strong>何時需要進一步評估 KIM？</strong> 當您的作業現場涉及「<strong>物料人工抬舉搬運 (LHC)</strong>」、「<strong>大型台車拉推 (PP)</strong>」或「<strong>手部高頻重複施力 (MHO)</strong>」且已出現下背/肩肘酸痛時，需以 KIM 精確計算重量、時間頻率與身體姿勢評點，判定法定人因危害等級並進行工程改善。
+        <p class="text-[11px] text-slate-600 leading-relaxed pt-2 border-t border-slate-100">
+          💡 <strong>日常落實推薦：</strong>結合今日評估建議，使用「動齡」每日量測記錄血壓波動、建立定時微習慣打卡並跟著示範做伸展小動作，打造持久抗疲勞體質！
+        </p>
+      </div>
+
+      <!-- 德國主要關鍵指標法 KIM 2019 進階危害評估專區 (參考職安署網站另行建置研發) -->
+      <div id="kim-recommendation-card" class="ergo-card p-4 sm:p-5 border border-slate-200 bg-white shadow-xs space-y-2.5">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-xl flex-shrink-0">
+              📐
+            </div>
+            <div>
+              <h4 class="text-xs sm:text-sm font-black text-slate-900">
+                德國主要關鍵指標法 KIM 2019 線上評估系統
+              </h4>
+              <p class="text-[11px] text-slate-500 font-medium mt-0.5">人因小管家 參考職安署網站另行建置研發</p>
+            </div>
+          </div>
+          <a href="https://aicokecolatsai-commits.github.io/KIM2019/" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1 touch-press flex-shrink-0">
+            <span>開啟 KIM 工具</span>
+            <span>↗</span>
+          </a>
+        </div>
+        <p class="text-[11px] text-slate-600 leading-relaxed pt-2 border-t border-slate-100">
+          💡 <strong>何時需要進一步評估 KIM？</strong> 當現場涉及「<strong>人工抬舉搬運 (LHC)</strong>」、「<strong>台車拉推 (PP)</strong>」或「<strong>手部高頻重複施力 (MHO)</strong>」時，需以 KIM 精確評點判定法定危害等級並改善。
         </p>
       </div>
 
       <!-- 蔡健儀 人因工程官方部落格推薦專區 -->
-      <div class="ergo-card p-4 md:p-5 border-2 border-emerald-200 bg-gradient-to-r from-emerald-50/80 to-teal-50/80 shadow-sm space-y-2.5">
+      <div class="ergo-card p-4 sm:p-5 border border-slate-200 bg-white shadow-xs space-y-2.5">
         <div class="flex items-center justify-between flex-wrap gap-2">
           <div class="flex items-center gap-2.5">
-            <span class="text-2xl">📚</span>
+            <div class="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-xl flex-shrink-0">
+              📚
+            </div>
             <div>
-              <h4 class="text-xs md:text-sm font-black text-emerald-950 flex items-center gap-1.5">
-                <span>蔡健儀 人因工程與健康促進專欄</span>
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-700 text-white shadow-xs">官方部落格</span>
+              <h4 class="text-xs sm:text-sm font-black text-slate-900">
+                人因工程部落格
               </h4>
-              <p class="text-[11px] text-emerald-900/80 font-medium">深入解析工作站人因配置、姿勢生物力學與職場健康促進</p>
+              <p class="text-[11px] text-slate-500 font-medium mt-0.5">深入解析工作站人因配置、姿勢生物力學與職場健康促進</p>
             </div>
           </div>
-          <a href="https://ergopt.blogspot.com/" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1 touch-press flex-shrink-0">
-            <span>閱讀專家部落格</span>
-            <span>➔</span>
+          <a href="https://ergopt.blogspot.com/" target="_blank" rel="noopener noreferrer" class="px-3.5 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1 touch-press flex-shrink-0">
+            <span>閱讀部落格</span>
+            <span>↗</span>
           </a>
         </div>
       </div>
 
       <!-- 職場健康微習慣定時助推助手 (置於最底部，寬敞大氣・勾選實用習慣直接加入行事曆) -->
-      <div id="nudge-habit-card" class="ergo-card p-4 md:p-5 border-2 border-teal-300 bg-gradient-to-r from-teal-50/90 via-emerald-50/80 to-sky-50/70 shadow-md space-y-4">
+      <div id="nudge-habit-card" class="ergo-card p-4 sm:p-5 border border-teal-200 bg-white shadow-xs space-y-3.5">
         <div class="flex items-center justify-between flex-wrap gap-2">
           <div class="flex items-center gap-3">
-            <div class="w-11 h-11 rounded-2xl bg-white border border-teal-300 shadow-sm flex items-center justify-center text-2xl flex-shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-teal-50 border border-teal-200 flex items-center justify-center text-xl flex-shrink-0">
               🌱
             </div>
             <div class="text-left">
-              <div class="flex items-center gap-2">
-                <h4 class="text-xs md:text-sm font-black text-teal-950">
-                  職場健康微習慣・一鍵排程推播助手
-                </h4>
-                <span class="text-[9px] font-bold px-2 py-0.5 rounded-full bg-teal-700 text-white shadow-xs">日常助推</span>
-              </div>
-              <p class="text-[11px] text-slate-600 font-medium mt-0.5">
+              <h4 class="text-xs sm:text-sm font-black text-slate-900">
+                職場健康微習慣・一鍵排程推播助手
+              </h4>
+              <p class="text-[11px] text-slate-500 font-medium mt-0.5">
                 勾選您想建立的職場微習慣，系統為您自動產生專屬行事曆提醒與動作指引！
               </p>
             </div>
@@ -624,7 +638,7 @@
         <!-- 4 大實用微習慣勾選清單 (寬敞卡片式佈局，防誤觸，清楚明瞭) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
           
-          <label class="p-3 rounded-xl border-2 transition-all bg-white hover:border-teal-400 cursor-pointer flex items-start gap-2.5 shadow-xs border-teal-200">
+          <label class="p-3 rounded-xl border transition-all bg-slate-50 hover:bg-teal-50/50 hover:border-teal-300 cursor-pointer flex items-start gap-2.5 shadow-xs border-slate-200">
             <input type="checkbox" id="chk-habit-water" class="mt-1 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500" checked>
             <div class="text-left">
               <div class="text-xs font-black text-slate-900 flex items-center gap-1">
@@ -634,7 +648,7 @@
             </div>
           </label>
 
-          <label class="p-3 rounded-xl border-2 transition-all bg-white hover:border-teal-400 cursor-pointer flex items-start gap-2.5 shadow-xs border-teal-200">
+          <label class="p-3 rounded-xl border transition-all bg-slate-50 hover:bg-teal-50/50 hover:border-teal-300 cursor-pointer flex items-start gap-2.5 shadow-xs border-slate-200">
             <input type="checkbox" id="chk-habit-stand" class="mt-1 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500" checked>
             <div class="text-left">
               <div class="text-xs font-black text-slate-900 flex items-center gap-1">
@@ -644,7 +658,7 @@
             </div>
           </label>
 
-          <label class="p-3 rounded-xl border-2 transition-all bg-white hover:border-teal-400 cursor-pointer flex items-start gap-2.5 shadow-xs border-teal-200">
+          <label class="p-3 rounded-xl border transition-all bg-slate-50 hover:bg-teal-50/50 hover:border-teal-300 cursor-pointer flex items-start gap-2.5 shadow-xs border-slate-200">
             <input type="checkbox" id="chk-habit-stretch" class="mt-1 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500" checked>
             <div class="text-left">
               <div class="text-xs font-black text-slate-900 flex items-center gap-1">
@@ -654,7 +668,7 @@
             </div>
           </label>
 
-          <label class="p-3 rounded-xl border-2 transition-all bg-white hover:border-teal-400 cursor-pointer flex items-start gap-2.5 shadow-xs border-teal-200">
+          <label class="p-3 rounded-xl border transition-all bg-slate-50 hover:bg-teal-50/50 hover:border-teal-300 cursor-pointer flex items-start gap-2.5 shadow-xs border-slate-200">
             <input type="checkbox" id="chk-habit-eye" class="mt-1 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500" checked>
             <div class="text-left">
               <div class="text-xs font-black text-slate-900 flex items-center gap-1">
@@ -667,23 +681,23 @@
         </div>
 
         <!-- 一鍵加入行事曆按鈕群 -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-teal-200">
-          <a id="btn-add-gcal" href="#" target="_blank" rel="noopener noreferrer" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-teal-700 to-emerald-700 hover:from-teal-800 hover:to-emerald-800 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-2 touch-press">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+          <a id="btn-add-gcal" href="#" target="_blank" rel="noopener noreferrer" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-teal-700 to-emerald-700 hover:from-teal-800 hover:to-emerald-800 text-white font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-2 touch-press">
             <span>🗓️ 一鍵加入 Google 行事曆定時提醒</span>
             <span>↗</span>
           </a>
-          <button id="btn-download-ics" type="button" class="py-2.5 px-3 rounded-xl bg-white hover:bg-slate-50 text-teal-900 border-2 border-teal-300 font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 touch-press">
+          <button id="btn-download-ics" type="button" class="py-2.5 px-3 rounded-xl bg-white hover:bg-slate-50 text-teal-900 border border-teal-300 font-bold text-xs shadow-xs transition-all flex items-center justify-center gap-1.5 touch-press">
             <span>📱 下載 Apple / Outlook 行事曆檔 (.ics)</span>
           </button>
         </div>
 
         <div class="text-[10.5px] text-slate-500 text-center">
-          💡 點擊後將自動匯入所選習慣至您的個人手機日曆，每日於辦公時段定時推播助推！
+          💡 點擊後可將習慣提醒加入行事曆；亦可搭配上方【動齡】Web App 進行每日任務管理！
         </div>
       </div>
 
       <!-- 合規醫療與健康免責警語 -->
-      <div class="p-3.5 rounded-lg bg-amber-50 border border-amber-200 text-[11px] text-amber-900 leading-relaxed">
+      <div class="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200 text-[11px] text-amber-900 leading-relaxed">
         <p id="res-disclaimer">
           ⚠️ 免責聲明：本線上評估工具係依據北歐肌肉骨骼問卷 (NMQ) 原理及人因工程人體測量學設計之自我檢核指標，僅供個人化作業環境改善與健康促進之參考，非屬醫療診斷行為。若您已有持續性疼痛、神經壓迫麻木或骨骼關節病症，請務必尋求專業復健科醫師或物理治療師之診斷與治療。
         </p>
@@ -691,7 +705,7 @@
 
       <!-- 重新測驗按鈕 -->
       <div class="pt-2 text-center">
-        <button id="btn-restart" class="text-xs text-slate-700 hover:text-slate-900 transition-colors py-2.5 px-4 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 shadow-sm font-medium">
+        <button id="btn-restart" class="text-xs text-slate-700 hover:text-slate-900 transition-colors py-2.5 px-4 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 shadow-xs font-medium">
           🔄 切換作業型態或重新檢測
         </button>
       </div>
@@ -707,9 +721,9 @@
   </footer>
 
   <!-- 腳本引入 (加入強制版本號防快取) -->
-  <script src="js/config.js?v=20260915_v8"></script>
-  <script src="js/bodymap.js?v=20260915_v8"></script>
-  <script src="js/questions.js?v=20260915_v8"></script>
-  <script src="js/app.js?v=20260915_v8"></script>
+  <script src="js/config.js?v=20260916_v1"></script>
+  <script src="js/bodymap.js?v=20260916_v1"></script>
+  <script src="js/questions.js?v=20260916_v1"></script>
+  <script src="js/app.js?v=20260916_v1"></script>
 </body>
 </html>

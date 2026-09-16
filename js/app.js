@@ -233,11 +233,7 @@ function initApp() {
         studentBodyMap.setData({}, {});
       }
       updateBodymapSummary();
-      if (isRetestMode && baselineAssessment) {
-        calculateRetestScore();
-      } else {
-        startQuizStep();
-      }
+      startQuizStep();
     });
   }
 
@@ -248,89 +244,16 @@ function initApp() {
       const confirmProceed = confirm("⚠️ 系統偵測到您標記了超過 10 個部位皆為極重度劇痛或發麻（4~5分）。\n\n請問這符合您近一個月的真實身體狀況嗎？\n\n・點擊「確定」確認此為真實狀況並繼續\n・點擊「取消」返回檢查並修正標記");
       if (!confirmProceed) return;
     }
-    if (isRetestMode && baselineAssessment) {
-      calculateRetestScore();
-    } else {
-      startQuizStep();
-    }
+    startQuizStep();
   });
-
-  // 複測專屬快速計分引擎 (直接整合前測環境檢核與最新人體圖體感，秒產出前後對照)
-  async function calculateRetestScore() {
-    let totalScore = 100;
-    
-    // 1. 計算複測 NMQ 人體圖扣分
-    let nmqPenaltySum = 0;
-    Object.keys(userBodymapData).forEach((key) => {
-      const val = userBodymapData[key] || 0;
-      if (val === 1) nmqPenaltySum += 1;
-      else if (val === 2) nmqPenaltySum += 3;
-      else if (val === 3) nmqPenaltySum += 6;
-      else if (val === 4) nmqPenaltySum += 9;
-      else if (val === 5) nmqPenaltySum += 12;
-    });
-    const nmqPenalty = Math.min(40, nmqPenaltySum);
-    totalScore -= nmqPenalty;
-
-    // 2. 扣除前測基準之工作站環境扣分 (保留環境題目作答扣分)
-    const baseTraps = (baselineAssessment && baselineAssessment.traps) || {
-      trap_screen: false,
-      trap_chair: false,
-      trap_glare: false,
-      trap_sedentary: false
-    };
-
-    if (userAnswers && userAnswers.length > 0) {
-      userAnswers.forEach((ans) => {
-        if (!ans) return;
-        totalScore -= ans.penalty;
-      });
-    }
-
-    totalScore = Math.max(0, Math.min(100, totalScore));
-
-    const tierInfo =
-      ERGO_CONFIG.scoreTiers.find((t) => totalScore >= t.min && totalScore <= t.max) ||
-      ERGO_CONFIG.scoreTiers[ERGO_CONFIG.scoreTiers.length - 1];
-
-    const nmqData = {};
-    NMQ_ZONES.forEach((z) => {
-      nmqData[z.id] = userBodymapData[z.id] || 0;
-    });
-
-    const targetRole = selectedRole || (baselineAssessment && baselineAssessment.role) || "office";
-    const personalizedGuides = ERGO_CONFIG.generatePersonalizedActionGuides(
-      targetRole,
-      userBodymapData,
-      baseTraps
-    );
-
-    const durationSeconds = Math.max(1, Math.round((Date.now() - assessmentStartTime) / 1000));
-    const submissionData = {
-      role: targetRole,
-      totalScore: totalScore,
-      tier: tierInfo.tier,
-      nmqData: nmqData,
-      nmqDetails: userBodymapDetails,
-      traps: baseTraps,
-      durationSeconds: durationSeconds,
-      qualityFlag: "Retest",
-      isRetest: true
-    };
-
-    try {
-      await dataBridge.submitAssessment(submissionData);
-    } catch (e) {}
-
-    elStepBodymap.classList.add("hidden");
-    elStepQuiz.classList.add("hidden");
-    elStepRole.classList.add("hidden");
-    showResult(totalScore, tierInfo, nmqData, personalizedGuides, userBodymapDetails);
-  }
 
   // 3. 進入工作站環境檢核 4 題
   function startQuizStep() {
-    const allQuestions = ERGO_CONFIG.questionSets[selectedRole] || ERGO_CONFIG.questionSets.office;
+    if (!selectedRole && baselineAssessment && baselineAssessment.role) {
+      selectedRole = baselineAssessment.role;
+    }
+    const targetRole = selectedRole || "office";
+    const allQuestions = ERGO_CONFIG.questionSets[targetRole] || ERGO_CONFIG.questionSets.office;
     // 取後 4 題環境題 (Q5~Q8)
     envQuestions = allQuestions.slice(4);
     currentQuestionIndex = 0;
@@ -348,9 +271,10 @@ function initApp() {
     const q = envQuestions[currentQuestionIndex];
     const totalQ = envQuestions.length;
     const progressPercent = ((currentQuestionIndex + 1) / totalQ) * 100;
+    const isRetest = isRetestMode && baselineAssessment;
 
     elProgressBar.style.width = `${progressPercent}%`;
-    elProgressText.innerText = `環境檢核 ${currentQuestionIndex + 1} / ${totalQ}`;
+    elProgressText.innerText = `${isRetest ? '【改善後複測】' : ''}環境檢核 ${currentQuestionIndex + 1} / ${totalQ}`;
 
     // 更新上一題按鈕文案
     if (elBtnPrev) {
@@ -506,6 +430,7 @@ function initApp() {
       qualityFlag = "Extreme";
     }
 
+    const isRetest = !!(isRetestMode && baselineAssessment);
     const submissionData = {
       role: selectedRole,
       totalScore: totalScore,
@@ -514,7 +439,8 @@ function initApp() {
       nmqDetails: userBodymapDetails,
       traps: traps,
       durationSeconds: durationSeconds,
-      qualityFlag: qualityFlag
+      qualityFlag: isRetest ? "Retest" : qualityFlag,
+      isRetest: isRetest
     };
 
     await dataBridge.submitAssessment(submissionData);
@@ -623,10 +549,10 @@ function initApp() {
         if (stepRetestBanner) stepRetestBanner.classList.remove("hidden");
 
         if (elBtnBodymapNext) {
-          elBtnBodymapNext.innerHTML = '<span>✨ 完成複測，產出改善前後對照報告</span> <span>➔</span>';
+          elBtnBodymapNext.innerHTML = '<span>下一步：工作站環境檢核</span> <span>➔</span>';
         }
         if (elBtnBodymapClearAll) {
-          elBtnBodymapClearAll.innerHTML = '<span>✨ 伸展後全身舒緩 (全無酸痛，一鍵產出對照)</span>';
+          elBtnBodymapClearAll.innerHTML = '<span>✨ 伸展後全身舒緩 (全無酸痛，進入環境檢核)</span>';
         }
         const stepTitle = document.getElementById("bodymap-step-title");
         if (stepTitle) stepTitle.innerText = "【現場改善後複測】請點選您當前體感";
@@ -1600,13 +1526,16 @@ function initApp() {
         </div>
 
         <!-- 第五層：官方延伸工具與知識庫連結 -->
-        <table style="width: 100%; border-collapse: collapse; table-layout: fixed; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; padding: 3px 6px; margin-bottom: 5px; font-size: 8px;">
+        <table style="width: 100%; border-collapse: collapse; table-layout: fixed; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; padding: 2.5px 4px; margin-bottom: 5px; font-size: 7.5px;">
           <tr>
-            <td style="padding: 2.5px 5px; text-align: left; width: 50%;">
-              <strong>📐 德國主要關鍵指標法 KIM 2019：</strong>https://aicokecolatsai-commits.github.io/KIM2019/
+            <td style="padding: 2px 4px; text-align: left; width: 33.3%;">
+              <strong>📐 KIM 2019：</strong>https://aicokecolatsai-commits.github.io/KIM2019/
             </td>
-            <td style="padding: 2.5px 5px; text-align: right; width: 50%;">
-              <strong>📚 蔡健儀 人因工程知識庫：</strong>https://ergopt.blogspot.com/
+            <td style="padding: 2px 4px; text-align: center; width: 33.3%;">
+              <strong>📱 動齡健康管理 App：</strong>https://move-age-web.bewellfutlife.com/tab2/home
+            </td>
+            <td style="padding: 2px 4px; text-align: right; width: 33.3%;">
+              <strong>📚 人因工程部落格：</strong>https://ergopt.blogspot.com/
             </td>
           </tr>
         </table>

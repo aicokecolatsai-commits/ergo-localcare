@@ -32,12 +32,21 @@ body {
   line-height: 1.5;
 }
 
-/* 專業白底卡片基底 (精緻微陰影、乾淨柔和邊框) */
+/* 專業白底卡片基底 (精緻微陰影、乾淨柔和邊框、明確間距) */
 .ergo-card {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-default);
   border-radius: 16px;
   box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04), 0 1px 3px -1px rgba(15, 23, 42, 0.02);
+  margin-bottom: 1.25rem;
+}
+
+/* 確保結果頁所有卡片與區塊均有獨立呼吸間距，杜絕黏合 */
+#step-result > * {
+  margin-bottom: 1.25rem !important;
+}
+#step-result > *:last-child {
+  margin-bottom: 0 !important;
 }
 
 /* 輕微淡入動畫 */

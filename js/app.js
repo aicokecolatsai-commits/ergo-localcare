@@ -1400,12 +1400,12 @@ function initApp() {
         ${beforeAfterHtml}
 
         <!-- 戰情報告基本屬性列 -->
-        <table style="width: 100%; border-collapse: collapse; table-layout: fixed; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; margin-bottom: 5px;">
+        <table style="width: 100%; border-collapse: collapse; table-layout: fixed; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; margin-bottom: 8px;">
           <tr>
-            <td style="padding: 3.5px 6px; font-size: 9px; vertical-align: middle;">
+            <td style="padding: 4px 6px; font-size: 9px; vertical-align: middle;">
               <strong>受檢作業型態：</strong><span style="color: #0369a1; font-weight: bold;">${roleObj.name}</span> (${roleObj.subtitle})
             </td>
-            <td style="padding: 3.5px 6px; font-size: 8.5px; color: #475569; text-align: right; vertical-align: middle; width: 230px;">
+            <td style="padding: 4px 6px; font-size: 8.5px; color: #475569; text-align: right; vertical-align: middle; width: 230px;">
               <span style="background: #e2e8f0; padding: 1.5px 6px; border-radius: 8px; font-weight: 600;">
                 人因工程作業危害預防計畫合規檢測
               </span>
@@ -1414,7 +1414,7 @@ function initApp() {
         </table>
 
         <!-- 第一層戰情儀表：3 大核心 KPI 卡片與連續光譜儀 -->
-        <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 8px; margin-bottom: 5px; box-sizing: border-box;">
+        <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 8px; margin-bottom: 8px; box-sizing: border-box;">
           <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
             <tr>
               <!-- KPI 1: 健康綜合評分 -->
@@ -1469,10 +1469,12 @@ function initApp() {
         </div>
 
         <!-- 第二層戰情主軸：人體現況圖與 NMQ 清單 -->
-        ${bodymapSectionHtml}
+        <div style="margin-bottom: 8px;">
+          ${bodymapSectionHtml}
+        </div>
 
         <!-- 第三層戰情整合：課堂體適能上下肢檢測 -->
-        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 5px 8px; margin-bottom: 5px; box-sizing: border-box;">
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 6px 8px; margin-bottom: 8px; box-sizing: border-box;">
           <table style="width: 100%; border-bottom: 1px solid #dcfce7; margin-bottom: 3px; padding-bottom: 2px; table-layout: fixed;">
             <tr>
               <td style="text-align: left; font-size: 9px; font-weight: bold; color: #166534;">
@@ -1511,7 +1513,7 @@ function initApp() {
         </div>
 
         <!-- 第四層：職場微習慣執行指引 (實用行動方案) -->
-        <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; padding: 5px 8px; margin-bottom: 5px; box-sizing: border-box;">
+        <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; padding: 6px 8px; margin-bottom: 8px; box-sizing: border-box;">
           <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
             <tr>
               <td style="font-size: 8.5px; font-weight: bold; color: #115e59; width: 135px; vertical-align: middle;">
@@ -1526,7 +1528,7 @@ function initApp() {
         </div>
 
         <!-- 第五層：官方延伸工具與知識庫連結 -->
-        <table style="width: 100%; border-collapse: collapse; table-layout: fixed; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; padding: 2.5px 4px; margin-bottom: 5px; font-size: 7.5px;">
+        <table style="width: 100%; border-collapse: collapse; table-layout: fixed; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; padding: 3px 4px; margin-bottom: 8px; font-size: 7.5px;">
           <tr>
             <td style="padding: 2px 4px; text-align: left; width: 33.3%;">
               <strong>📐 KIM 2019：</strong>https://aicokecolatsai-commits.github.io/KIM2019/
@@ -1541,7 +1543,7 @@ function initApp() {
         </table>
 
         <!-- 第六層：法律免責與官方認證 Footer -->
-        <div style="border-top: 1px solid #cbd5e1; padding-top: 3px; font-size: 7.5px; color: #64748b; line-height: 1.25; text-align: center;">
+        <div style="border-top: 1px solid #cbd5e1; padding-top: 4px; font-size: 7.5px; color: #64748b; line-height: 1.25; text-align: center;">
           ⚠️ 免責聲明：本報告係依據北歐肌肉骨骼問卷 (NMQ) 與人因工程人體測量學原理設計之自我檢核指標，非屬醫療診斷行為。<br>
           © 人因小管家 (Noah) 蔡健儀 人因工程專家 研發建置 ｜ 專案認證 A4 戰情室 ｜ 人因小管家 參考職安署網站另行建置研發
         </div>

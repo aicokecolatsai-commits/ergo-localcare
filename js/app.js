@@ -1225,18 +1225,37 @@ function initApp() {
     `;
   }
 
-  // 依據痛點資料獨立生成乾淨無依賴的 SVG Data URL (支援向量無損銳利度，100% 同步即時生成，零 CORS 與零 Canvas 污染問題)
-  function getBodymapDataUrl(bodymapData = {}, width = 200, height = 330) {
-    const svgStr = generateBodymapSvgString(bodymapData, width, height);
-    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgStr);
-  }
-
-  // 將 SVG 字串轉為高解析度 PNG Data URL (備援相容)
-  function svgStringToPngDataUrl(svgString, width = 400, height = 660) {
+  // 將 SVG 字串轉為高解析度 PNG Data URL (徹底解決跨平台與 html2canvas 繪製問題)
+  function svgStringToPngDataUrl(svgString, width = 800, height = 1320) {
     return new Promise((resolve) => {
       try {
         if (!svgString) return resolve("");
-        resolve("data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString));
+        const svgBlob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
+        const URLObj = window.URL || window.webkitURL || window;
+        const blobUrl = URLObj.createObjectURL(svgBlob);
+        
+        const img = new Image();
+        img.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, width, height);
+            ctx.drawImage(img, 0, 0, width, height);
+            URLObj.revokeObjectURL(blobUrl);
+            resolve(canvas.toDataURL("image/png"));
+          } catch (e) {
+            URLObj.revokeObjectURL(blobUrl);
+            resolve("");
+          }
+        };
+        img.onerror = () => {
+          URLObj.revokeObjectURL(blobUrl);
+          resolve("");
+        };
+        img.src = blobUrl;
       } catch (e) {
         resolve("");
       }
@@ -1503,18 +1522,14 @@ function initApp() {
                   <tr>
                     <td style="width: 50%; text-align: center; vertical-align: top; padding-right: 3px;">
                       <div style="font-size: 9px; font-weight: bold; color: #475569; margin-bottom: 2px;">改善前 (前測)</div>
-                      <div style="width: 125px; height: 195px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
-                        ${generateBodymapSvgString(baselineBodymap, 125, 195)}
-                      </div>
+                      ${baselineBodyMapPng ? `<img src="${baselineBodyMapPng}" style="width: 125px; height: 195px; max-height: 200px; object-fit: contain; display: block; margin: 0 auto; border-radius: 4px;">` : `<div style="width: 125px; height: 195px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">${generateBodymapSvgString(baselineBodymap, 125, 195)}</div>`}
                       <div style="font-size: 9px; font-weight: 900; color: #475569; margin-top: 2px;">
                         ${baselineData.score}分·${baselineData.tierInfo ? baselineData.tierInfo.title.split(' ')[0] : ''}
                       </div>
                     </td>
                     <td style="width: 50%; text-align: center; vertical-align: top; padding-left: 3px; border-left: 1px dashed #cbd5e1;">
                       <div style="font-size: 9px; font-weight: bold; color: #15803d; margin-bottom: 2px;">改善後 (複測)</div>
-                      <div style="width: 125px; height: 195px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
-                        ${generateBodymapSvgString(bodymapData, 125, 195)}
-                      </div>
+                      ${currentBodyMapPng ? `<img src="${currentBodyMapPng}" style="width: 125px; height: 195px; max-height: 200px; object-fit: contain; display: block; margin: 0 auto; border-radius: 4px;">` : `<div style="width: 125px; height: 195px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">${generateBodymapSvgString(bodymapData, 125, 195)}</div>`}
                       <div style="font-size: 9px; font-weight: 900; color: #15803d; margin-top: 2px;">
                         ${score}分·${tierInfo.title.split(' ')[0]}
                       </div>
@@ -1564,9 +1579,7 @@ function initApp() {
                 <div style="font-size: 10.5px; font-weight: 900; color: #0f172a; margin-bottom: 4px; border-bottom: 1px solid #f1f5f9; padding-bottom: 2px; text-align: left;">
                   🧍 肌肉骨骼痛點分佈圖
                 </div>
-                <div style="width: 170px; height: 260px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
-                  ${generateBodymapSvgString(bodymapData, 170, 260)}
-                </div>
+                ${currentBodyMapPng ? `<img src="${currentBodyMapPng}" style="width: 170px; height: 260px; max-height: 270px; object-fit: contain; display: block; margin: 0 auto; border-radius: 4px;">` : `<div style="width: 170px; height: 260px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">${generateBodymapSvgString(bodymapData, 170, 260)}</div>`}
               </div>
             </td>
             <td style="width: 486px; vertical-align: top; padding-left: 0;">
@@ -2003,11 +2016,24 @@ function initApp() {
   }
 
   // 螢幕全頁預覽戰情室 Modal (支援自動適應手機螢幕尺寸、縮放切換、永不裁切)
-  function showWarRoomPreviewModal() {
+  async function showWarRoomPreviewModal() {
     const existing = document.getElementById("warroom-preview-modal");
     if (existing) existing.remove();
 
-    const warRoomHtml = buildWarRoomHtml();
+    // 點陣化人體圖 (支援前後測雙人體圖，升級為 800x1320 高解析度)
+    const currentBodmap = (currentReportState && currentReportState.bodymapData) || userBodymapData || {};
+    const currentSvgStr = generateBodymapSvgString(currentBodmap);
+    const currentBodyMapPng = await svgStringToPngDataUrl(currentSvgStr, 800, 1320);
+
+    const baselineData = baselineAssessment || (currentReportState && currentReportState.baselineAssessment) || null;
+    const isRetestActive = !!(baselineData && (isRetestMode || (currentReportState && currentReportState.isRetest)));
+    let baselineBodyMapPng = null;
+    if (isRetestActive && baselineData) {
+      const baselineSvgStr = generateBodymapSvgString(baselineData.bodymapData || {});
+      baselineBodyMapPng = await svgStringToPngDataUrl(baselineSvgStr, 800, 1320);
+    }
+
+    const warRoomHtml = buildWarRoomHtml(currentBodyMapPng, baselineBodyMapPng);
 
     const modal = document.createElement("div");
     modal.id = "warroom-preview-modal";
@@ -2155,23 +2181,39 @@ function initApp() {
         <div class="w-12 h-12 border-4 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
         <div>
           <div class="font-black text-slate-900 text-sm md:text-base">正在產出 A4 人因戰情室報告</div>
-          <p class="text-xs text-slate-500 mt-1">向量排版計算與高畫質 PDF 生成中...</p>
+          <p class="text-xs text-slate-500 mt-1">向量人體圖 300DPI 渲染、排版計算與光譜生成中...</p>
         </div>
       </div>
     `;
     document.body.appendChild(toast);
 
     try {
-      // 1. 產出使用 Table 排版的個人戰情室 HTML
-      const warRoomHtml = buildWarRoomHtml();
+      // 1. 先將 SVG 向量人體圖轉換為 PNG Data URL (雙倍解析度 800x1320 確保印刷銳利)
+      const currentBodmap = (currentReportState && currentReportState.bodymapData) || userBodymapData || {};
+      const currentSvgStr = generateBodymapSvgString(currentBodmap);
+      const currentBodyMapPng = await svgStringToPngDataUrl(currentSvgStr, 800, 1320);
 
-      // 2. 建立標準獨立列印容器 (置於離屏可計算區域)
+      const baselineData = baselineAssessment || (currentReportState && currentReportState.baselineAssessment) || null;
+      const isRetestActive = !!(baselineData && (isRetestMode || (currentReportState && currentReportState.isRetest)));
+      let baselineBodyMapPng = null;
+      if (isRetestActive && baselineData) {
+        const baselineSvgStr = generateBodymapSvgString(baselineData.bodymapData || {});
+        baselineBodyMapPng = await svgStringToPngDataUrl(baselineSvgStr, 800, 1320);
+      }
+
+      // 2. 產出使用 Table 排版的個人戰情室 HTML
+      const warRoomHtml = buildWarRoomHtml(currentBodyMapPng, baselineBodyMapPng);
+
+      // 3. 建立標準獨立列印容器 (掛載於頂層 DOM 確保 html2canvas 具備完整 740px 物理渲染維度)
       const renderWrapper = document.createElement("div");
       renderWrapper.id = "pdf-render-wrapper";
-      renderWrapper.style.position = "absolute";
-      renderWrapper.style.left = "-9999px";
+      renderWrapper.style.position = "fixed";
+      renderWrapper.style.left = "0px";
       renderWrapper.style.top = "0px";
       renderWrapper.style.width = "740px";
+      renderWrapper.style.zIndex = "-9999";
+      renderWrapper.style.opacity = "1";
+      renderWrapper.style.pointerEvents = "none";
       renderWrapper.style.background = "#ffffff";
 
       const printable = document.createElement("div");
@@ -2191,44 +2233,46 @@ function initApp() {
       const dateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '');
       const fileName = `人因小管家PRO_A4戰情室評估報告_${dateStr}.pdf`;
 
-      // 設定 html2pdf 純淨標準選項
+      // 設定 html2pdf 純淨標準選項 (完全杜絕自訂寬度導致的 offset 裁切 bug)
       const opt = {
-        margin: [3, 3, 3, 3],
+        margin: [4, 4, 4, 4],
         filename: fileName,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
           scale: 2,
           useCORS: true,
-          allowTaint: true,
           logging: false,
-          scrollX: 0,
-          scrollY: 0
+          scrollY: 0,
+          scrollX: 0
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: 'avoid-all' }
       };
 
-      if (isShare && navigator.canShare) {
-        try {
-          const pdfBlob = await html2pdf().set(opt).from(printable).output('blob');
-          const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
-          if (navigator.canShare({ files: [pdfFile] })) {
-            await navigator.share({
-              title: '人因小管家 - 人體老化指標戰情室報告',
-              text: `受檢學員：${studentName || '專案受檢人員'}・人因健康得分：${currentReportState.score}分`,
-              files: [pdfFile]
-            });
-          } else {
-            await html2pdf().set(opt).from(printable).save();
-          }
-        } catch (shareErr) {
-          if (shareErr.name !== 'AbortError') {
-            await html2pdf().set(opt).from(printable).save();
-          }
+      const pdfBlob = await html2pdf().set(opt).from(printable).output('blob');
+      const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+      if (isShare) {
+        // 分享模式
+        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+          await navigator.share({
+            title: '人因小管家 PRO 個人 A4 人因戰情室報告',
+            text: `人因小管家(Noah) 研發・我的健康得分：${currentReportState.score}分`,
+            files: [pdfFile]
+          });
+        } else if (navigator.share) {
+          await navigator.share({
+            title: '人因小管家 PRO 個人 A4 人因戰情室報告',
+            text: `人因小管家(Noah) 研發・我的健康得分：${currentReportState.score}分\n報告網址：${window.location.href}`,
+            url: window.location.href
+          });
+        } else {
+          // 若不支援原生分享，自動轉為直接下載
+          downloadPdfBlob(pdfBlob, fileName);
         }
       } else {
-        // 直接下載 (使用 html2pdf 原生 save()，全平台最穩定)
-        await html2pdf().set(opt).from(printable).save();
+        // 直接下載 (使用原生 Blob 連結觸發，全平台 Android / iOS / Desktop 通用)
+        downloadPdfBlob(pdfBlob, fileName);
       }
 
       // 清理 DOM
@@ -2248,33 +2292,17 @@ function initApp() {
   }
 
   function downloadPdfBlob(blob, filename) {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const url = URL.createObjectURL(blob);
-    
-    if (isIOS) {
-      // iOS Mobile Safari 開啟新分頁原生預覽與下載
-      const newWin = window.open(url, '_blank');
-      if (!newWin) {
-        const a = document.createElement("a");
-        a.href = url;
-        a.target = "_blank";
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => a.remove(), 1500);
-      }
-    } else {
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      a.target = "_blank";
-      document.body.appendChild(a);
-      a.click();
-      setTimeout(() => {
-        a.remove();
-        URL.revokeObjectURL(url);
-      }, 2500);
-    }
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.target = "_blank";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      a.remove();
+      URL.revokeObjectURL(url);
+    }, 1500);
   }
 
   // 11. 首頁與全局一鍵重置 (清除初評/複評/作答紀錄)

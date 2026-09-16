@@ -1268,6 +1268,7 @@ function initApp() {
     const dateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' });
     const timeStr = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
     const roleObj = ERGO_CONFIG.roles.find(r => r.id === currentReportState.role) || ERGO_CONFIG.roles[0];
+    const roleName = roleObj ? (roleObj.name || roleObj.title) : (currentReportState.role || "一般作業");
     const score = Math.max(0, Math.min(100, currentReportState.score || 0));
     const tierInfo = currentReportState.tierInfo || ERGO_CONFIG.scoreTiers[0];
 

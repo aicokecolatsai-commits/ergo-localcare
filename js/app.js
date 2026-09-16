@@ -1240,12 +1240,14 @@ function initApp() {
     else if (score < 70) scoreColor = "#f97316";
     else if (score < 85) scoreColor = "#eab308";
 
+    const isRetestActive = !!(baselineAssessment && (isRetestMode || (currentReportState && currentReportState.isRetest)));
+    const delta = isRetestActive ? (score - baselineAssessment.score) : 0;
+
     // 前後測對照區塊 HTML (若有前測基準且在複測模式)
     let beforeAfterHtml = "";
     let bodymapSectionHtml = "";
 
-    if (baselineAssessment && isRetestMode) {
-      const delta = score - baselineAssessment.score;
+    if (isRetestActive) {
       beforeAfterHtml = `
         <div style="background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 6px; padding: 4px 10px; margin-bottom: 5px; box-sizing: border-box;">
           <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
@@ -1390,7 +1392,7 @@ function initApp() {
               </div>
             </td>
             <td style="vertical-align: middle; text-align: right; font-size: 8.5px; color: #64748b; line-height: 1.3; width: 175px;">
-              <div><strong>主講專家：</strong>蔡健儀 人因工程專家</div>
+              <div><strong>主講講師：</strong>蔡健儀</div>
               <div><strong>場次編號：</strong>${sessionId}</div>
               <div><strong>報告時間：</strong>${dateStr} ${timeStr}</div>
             </td>
@@ -1417,14 +1419,36 @@ function initApp() {
         <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 8px; margin-bottom: 8px; box-sizing: border-box;">
           <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
             <tr>
-              <!-- KPI 1: 健康綜合評分 -->
-              <td style="width: 120px; text-align: center; border-right: 1px solid #e2e8f0; padding-right: 6px; vertical-align: middle;">
-                <div style="font-size: 8.5px; font-weight: bold; color: #64748b;">人因健康綜合評分</div>
-                <div style="font-size: 26px; font-weight: 900; color: ${scoreColor}; line-height: 1.05; margin: 1px 0;">
-                  ${score} <span style="font-size: 10px; color: #64748b; font-weight: normal;">/ 100</span>
-                </div>
-                <div style="font-size: 8px; color: #64748b; font-weight: 600;">分數越高越健康</div>
-              </td>
+              <!-- KPI 1: 健康綜合評分 (支援前後測對照與單次評估) -->
+              ${isRetestActive ? `
+                <td style="width: 140px; text-align: center; border-right: 1px solid #e2e8f0; padding-right: 6px; vertical-align: middle;">
+                  <div style="font-size: 8px; font-weight: bold; color: #4338ca;">前後測對照評分</div>
+                  <table style="width: 100%; border-collapse: collapse; margin: 1px 0;">
+                    <tr>
+                      <td style="text-align: center; width: 48%;">
+                        <div style="font-size: 7.5px; color: #64748b; font-weight: bold;">前測</div>
+                        <div style="font-size: 18px; font-weight: 900; color: #64748b; line-height: 1;">${baselineAssessment.score}</div>
+                      </td>
+                      <td style="text-align: center; font-size: 11px; color: #94a3b8; width: 4%;">➔</td>
+                      <td style="text-align: center; width: 48%;">
+                        <div style="font-size: 7.5px; color: #15803d; font-weight: bold;">改善後</div>
+                        <div style="font-size: 20px; font-weight: 900; color: ${scoreColor}; line-height: 1;">${score}</div>
+                      </td>
+                    </tr>
+                  </table>
+                  <div style="font-size: 7.5px; font-weight: 900; color: ${delta >= 0 ? '#15803d' : '#b91c1c'}; background: ${delta >= 0 ? '#dcfce7' : '#fee2e2'}; border-radius: 3px; padding: 0.5px 4px; display: inline-block;">
+                    ${delta >= 0 ? '📈 減壓提升 +' : '📉 變動 '}${delta} 分
+                  </div>
+                </td>
+              ` : `
+                <td style="width: 120px; text-align: center; border-right: 1px solid #e2e8f0; padding-right: 6px; vertical-align: middle;">
+                  <div style="font-size: 8.5px; font-weight: bold; color: #64748b;">人因健康綜合評分</div>
+                  <div style="font-size: 26px; font-weight: 900; color: ${scoreColor}; line-height: 1.05; margin: 1px 0;">
+                    ${score} <span style="font-size: 10px; color: #64748b; font-weight: normal;">/ 100</span>
+                  </div>
+                  <div style="font-size: 8px; color: #64748b; font-weight: 600;">分數越高越健康</div>
+                </td>
+              `}
 
               <!-- KPI 2: 負荷狀態評級與臨床解讀 -->
               <td style="padding: 0 8px; vertical-align: middle;">
@@ -1449,12 +1473,21 @@ function initApp() {
             </tr>
           </table>
 
-          <!-- 0~100 連續橫桿光譜落點儀 -->
+          <!-- 0~100 連續橫桿光譜落點儀 (支援前後測雙落點對照) -->
           <div style="margin-top: 4px; padding-top: 4px; border-top: 1px dashed #e2e8f0;">
-            <div style="position: relative; padding-top: 14px; padding-bottom: 2px;">
-              <div style="position: absolute; top: 0; left: ${Math.max(6, Math.min(94, score))}%; transform: translateX(-50%); font-size: 8px; font-weight: 900; background: #0f172a; color: #ffffff; padding: 1px 5px; border-radius: 3px; white-space: nowrap;">
-                🎯 您的落點：${score}分 (${tierInfo.title.split(' ')[0]})
-              </div>
+            <div style="position: relative; padding-top: 15px; padding-bottom: 2px;">
+              ${isRetestActive ? `
+                <div style="position: absolute; top: 0; left: ${Math.max(6, Math.min(94, baselineAssessment.score))}%; transform: translateX(-50%); font-size: 7.5px; font-weight: 900; background: #475569; color: #ffffff; padding: 1px 4px; border-radius: 3px; white-space: nowrap; z-index: 2;">
+                  ⏮️ 前測：${baselineAssessment.score}分
+                </div>
+                <div style="position: absolute; top: 0; left: ${Math.max(6, Math.min(94, score))}%; transform: translateX(-50%); font-size: 8px; font-weight: 900; background: #0f172a; color: #34d399; border: 1px solid #10b981; padding: 1px 5px; border-radius: 3px; white-space: nowrap; z-index: 3;">
+                  🎯 改善後：${score}分 (${tierInfo.title.split(' ')[0]})
+                </div>
+              ` : `
+                <div style="position: absolute; top: 0; left: ${Math.max(6, Math.min(94, score))}%; transform: translateX(-50%); font-size: 8px; font-weight: 900; background: #0f172a; color: #ffffff; padding: 1px 5px; border-radius: 3px; white-space: nowrap;">
+                  🎯 您的落點：${score}分 (${tierInfo.title.split(' ')[0]})
+                </div>
+              `}
               <div style="height: 6px; border-radius: 3px; background: linear-gradient(to right, #f43f5e 0%, #f97316 45%, #eab308 70%, #10b981 100%); width: 100%;"></div>
             </div>
             <table style="width: 100%; font-size: 7.5px; font-weight: bold; color: #64748b; table-layout: fixed;">
@@ -1520,7 +1553,7 @@ function initApp() {
                 🌱 課後職場微習慣執行指引：
               </td>
               <td style="font-size: 8px; color: #134e4a; line-height: 1.35; vertical-align: middle;">
-                💧 <strong>每小時補水起身</strong>（放鬆下肢水腫） ｜ 🚶 <strong>50分鐘站立走動</strong>（重啟脊椎循環）<br>
+                💧 <strong>每小時補水起身</strong>（促進下肢血液循環與肌肉收縮回流） ｜ 🚶 <strong>50分鐘站立走動</strong>（重啟脊椎循環）<br>
                 🧘 <strong>每日 15:00 辦公室微伸展</strong>（椅前彎30秒+擴胸） ｜ 👀 <strong>20-20-20 護眼法則</strong>（放鬆睫狀肌）
               </td>
             </tr>
@@ -1545,7 +1578,7 @@ function initApp() {
         <!-- 第六層：法律免責與官方認證 Footer -->
         <div style="border-top: 1px solid #cbd5e1; padding-top: 4px; font-size: 7.5px; color: #64748b; line-height: 1.25; text-align: center;">
           ⚠️ 免責聲明：本報告係依據北歐肌肉骨骼問卷 (NMQ) 與人因工程人體測量學原理設計之自我檢核指標，非屬醫療診斷行為。<br>
-          © 人因小管家 (Noah) 蔡健儀 人因工程專家 研發建置 ｜ 專案認證 A4 戰情室 ｜ 人因小管家 參考職安署網站另行建置研發
+          人因小管家(Noah) 研發
         </div>
 
       </div>
@@ -1592,7 +1625,7 @@ function initApp() {
     }
 
     const title = "⏰ 人因小管家・職場健康微習慣與疲勞消除微伸展";
-    const details = `蔡健儀 人因工程專家 為您量身定制的每日職場微習慣：\n\n` +
+    const details = `人因小管家(Noah) 為您量身定制的每日職場微習慣：\n\n` +
       (habits.length > 0 ? habits.join("\n\n") : "維持良好坐姿與視線平視螢幕！\n") +
       `\n\n您的個人健康戰情室與知識庫：https://ergopt.blogspot.com/`;
 
@@ -1729,14 +1762,15 @@ function initApp() {
     const existing = document.getElementById("warroom-preview-modal");
     if (existing) existing.remove();
 
-    // 點陣化人體圖 (支援前後測雙人體圖)
+    // 點陣化人體圖 (支援前後測雙人體圖，升級為 800x1320 高解析度)
     const currentSvgStr = generateBodymapSvgString(userBodymapData);
-    const currentBodyMapPng = await svgStringToPngDataUrl(currentSvgStr, 400, 660);
+    const currentBodyMapPng = await svgStringToPngDataUrl(currentSvgStr, 800, 1320);
 
     let baselineBodyMapPng = null;
-    if (isRetestMode && baselineAssessment) {
+    const isRetestActive = !!(baselineAssessment && (isRetestMode || (currentReportState && currentReportState.isRetest)));
+    if (isRetestActive) {
       const baselineSvgStr = generateBodymapSvgString(baselineAssessment.bodymapData || {});
-      baselineBodyMapPng = await svgStringToPngDataUrl(baselineSvgStr, 400, 660);
+      baselineBodyMapPng = await svgStringToPngDataUrl(baselineSvgStr, 800, 1320);
     }
 
     const warRoomHtml = buildWarRoomHtml(currentBodyMapPng, baselineBodyMapPng);
@@ -1865,7 +1899,7 @@ function initApp() {
     window.print();
   }
 
-  // 10. PDF 報告產出與分享功能核心執行
+  // 10. PDF 報告產出與分享功能核心執行 (可列印 300 DPI 超高清品質)
   async function exportPdfReport(isShare = false) {
     if (!currentReportState) {
       alert("請先完成檢測評估以產出報告！");
@@ -1887,21 +1921,22 @@ function initApp() {
         <div class="w-12 h-12 border-4 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
         <div>
           <div class="font-black text-slate-900 text-sm md:text-base">正在產出 A4 人因戰情室報告</div>
-          <p class="text-xs text-slate-500 mt-1">向量人體圖點陣化、排版計算與光譜生成中...</p>
+          <p class="text-xs text-slate-500 mt-1">向量人體圖 300DPI 渲染、排版計算與光譜生成中...</p>
         </div>
       </div>
     `;
     document.body.appendChild(toast);
 
     try {
-      // 1. 先將 SVG 向量人體圖轉換為 PNG Data URL (支援前後測雙人體圖獨立轉檔)
+      // 1. 先將 SVG 向量人體圖轉換為 PNG Data URL (雙倍解析度 800x1320 確保印刷銳利)
       const currentSvgStr = generateBodymapSvgString(userBodymapData);
-      const currentBodyMapPng = await svgStringToPngDataUrl(currentSvgStr, 400, 660);
+      const currentBodyMapPng = await svgStringToPngDataUrl(currentSvgStr, 800, 1320);
 
       let baselineBodyMapPng = null;
-      if (isRetestMode && baselineAssessment) {
+      const isRetestActive = !!(baselineAssessment && (isRetestMode || (currentReportState && currentReportState.isRetest)));
+      if (isRetestActive) {
         const baselineSvgStr = generateBodymapSvgString(baselineAssessment.bodymapData || {});
-        baselineBodyMapPng = await svgStringToPngDataUrl(baselineSvgStr, 400, 660);
+        baselineBodyMapPng = await svgStringToPngDataUrl(baselineSvgStr, 800, 1320);
       }
 
       // 2. 產出使用 Table 排版的個人戰情室 HTML
@@ -1933,17 +1968,18 @@ function initApp() {
       const dateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '');
       const fileName = `人因小管家PRO_A4戰情室評估報告_${dateStr}.pdf`;
 
-      // 設定 html2pdf 選項 (4mm 邊界 + avoid-all 單頁防裁切設定)
+      // 設定 html2pdf 選項 (4mm 邊界 + scale: 3 可列印高品質 + avoid-all 單頁防裁切)
       const opt = {
         margin: [4, 4, 4, 4],
         filename: fileName,
-        image: { type: 'jpeg', quality: 0.98 },
+        image: { type: 'jpeg', quality: 1.0 },
         html2canvas: {
-          scale: 2,
+          scale: 3,
           useCORS: true,
           logging: false,
           scrollY: 0,
           scrollX: 0,
+          letterRendering: true,
           windowWidth: 740
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -1958,7 +1994,7 @@ function initApp() {
         if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
           await navigator.share({
             title: '人因小管家 PRO 個人 A4 人因戰情室報告',
-            text: `蔡健儀 人因工程專家 研發建置・我的健康得分：${currentReportState.score}分`,
+            text: `人因小管家(Noah) 研發・我的健康得分：${currentReportState.score}分`,
             files: [pdfFile]
           });
         } else {

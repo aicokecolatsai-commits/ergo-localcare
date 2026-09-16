@@ -525,102 +525,134 @@ const ERGO_CONFIG = {
 
   /**
    * 動態個人化改善指引引擎
-   * 根據學員點選的具體解剖痛點 (NMQ 0~5分)、左右側單側差異與環境地雷，動態組裝專屬指引
+   * 根據學員點選的具體解剖痛點 (NMQ 15區 0~5分)、環境檢核地雷與前後測對照，動態產出高精準度專屬處方
    */
-  generatePersonalizedActionGuides: function(role, nmqData, traps) {
-    const guides = [];
+  generatePersonalizedActionGuides: function(role, nmqData, traps, isRetest = false, baselineNmqData = null) {
     nmqData = nmqData || {};
     traps = traps || {};
+    baselineNmqData = baselineNmqData || {};
 
-    // 取得所有有酸痛標記的部位 (>= 2分) 並依嚴重度降序排列
+    const bodyGuides = [];
+    const envGuides = [];
+    const retestGuides = [];
+
+    // 15 解剖部位專屬人體工學與生理力學處方庫
+    const zonePrescriptions = {
+      neck: "【頸部與後頸緊繃】：螢幕頂端務必平齊視線，嚴禁低頭操作平放筆電；每 45 分鐘施作「縮下巴運動 (Chin Tuck)」5次，啟動頸椎深層頸屈肌，消除烏龜頸與後頸過度代償。",
+      shoulder_r: "【右肩與旋轉肌袖減壓】：滑鼠置於鍵盤右側 5 公分內，操作時上手臂垂直自然下垂，手肘穩放扶手或桌面（嚴禁懸臂）；工間施作「門框擴胸」打開前側短縮的胸大肌。",
+      shoulder_l: "【左肩與斜方肌放鬆】：檢核日常是否習慣單肩背負重物或歪頭通話；打字時左手臂自然靠托，每小時施作「靠牆天使運動」活化下斜方肌與前鋸肌。",
+      upperback: "【上背與膏肓盲區舒緩】：上背緊繃源於胸椎過度駝背前曲。請將座椅靠背微後仰至 100~110 度分散脊椎剪力；作業間歇雙手在背後互扣向後向上延伸 15 秒，舒緩菱形肌與膏肓緊繃。",
+      lowerback: "【腰椎椎間盤力矩減壓】：加裝人體工學腰靠支撐第 4~5 腰椎，維持正常腰椎前凸弧度；嚴禁骨盆後傾半躺半坐；每 50 分鐘起立活動，避免椎間盤靜態剪切力累積。",
+      elbow_r: "【右手肘肌腱與外上髁減壓】：避免打字與點擊滑鼠時手肘懸空懸臂施力；工間進行前臂伸肌與屈肌拉筋（手臂伸直、手腕向下與向上輕拉各 15 秒），預防網球肘與肌腱炎。",
+      elbow_l: "【左手肘關節與肌腱放鬆】：調整左側扶手使手肘呈 90 度自然承托，避免左臂長時間懸空打字或按壓快捷鍵；定時施作前臂旋前旋後微伸展。",
+      wrist_r: "【右手腕中立位與腕隧道減壓】：鍵盤滑鼠高度需與手肘齊平，手腕保持水平平直（嚴禁背屈 > 15 度）；加裝軟質滑鼠手托承托掌根，消除腕隧道高壓與滑鼠手麻木。",
+      wrist_l: "【左手腕正中神經保護】：檢核鍵盤是否過高導致左手腕過度上翹；打字時手腕浮起或平放於手托，避免左手拇指與小指極限外展按壓快捷鍵。",
+      hip_r: "【右側骨盆中立與坐骨神經釋放】：嚴禁翹二郎腿或盤腿；落實雙側坐骨均勻承重；工間施作「椅上 4 字翹腳臀部伸展」，釋放緊繃梨狀肌與骨盆壓力。",
+      hip_l: "【左側骨盆平衡與深層肌舒緩】：避免單邊側坐或將皮夾墊在後口袋；維持骨盆水平中立，每小時起立走動重啟下肢血流。",
+      knee_r: "【右膝關節力學減壓】：座椅高度需使雙腳掌平踏地面，大腿水平，膝關節微開 90~100 度；避免右腳習慣勾回座椅下方或向內扣夾。",
+      knee_l: "【左膝關節循環重整】：調整座椅深度（椅面前緣與膝蓋後窩保留 2~3 指寬隙縫），避免大腿下緣血管與神經遭受椅面壓迫。",
+      ankle_r: "【右踝與下肢靜脈回流】：若座椅過高雙腳無法平踏請加腳踏板；每小時進行 20 次「腳踝幫浦運動（勾腳背與踩油門）」，加速靜脈回流與預防下肢沉重。",
+      ankle_l: "【左踝與足底筋膜重整】：換穿具備良好足弓支撐與避震機能的鞋款；定時轉動踝關節，促進下肢末梢循環。"
+    };
+
+    // 1. 生成人體圖痛點部位專屬處方 (按嚴重度降序排列)
     const activeZones = Object.entries(nmqData)
-      .filter(([id, level]) => level >= 2)
+      .filter(([id, level]) => level >= 1 && zonePrescriptions[id])
       .sort((a, b) => b[1] - a[1]);
 
-    const rShoulder = nmqData.shoulder_r || 0;
-    const lShoulder = nmqData.shoulder_l || 0;
-    const rWrist = nmqData.wrist_r || 0;
-    const lWrist = nmqData.wrist_l || 0;
-    const neck = nmqData.neck || 0;
-    const lowerback = nmqData.lowerback || 0;
-    const upperback = nmqData.upperback || 0;
-    const knees = Math.max(nmqData.knee_l || 0, nmqData.knee_r || 0);
-    const ankles = Math.max(nmqData.ankle_l || 0, nmqData.ankle_r || 0);
-    const hips = Math.max(nmqData.hip_l || 0, nmqData.hip_r || 0);
+    activeZones.forEach(([id, level]) => {
+      const p = zonePrescriptions[id];
+      if (p) {
+        bodyGuides.push(p);
+      }
+    });
 
-    // 規則 0：物料搬運與技術操作人因解法 (MMH 生物力學控制)
-    if (role === "technician" || (lowerback >= 3 && (role === "technician" || role === "standing"))) {
-      guides.push(
-        "【物料搬運力量區控制（MMH）】：抬舉物料時務必緊貼身體中軸（肚臍 25 公分內），腰椎椎間盤力矩可即刻降低 50% 以上；轉身搬運時嚴禁「彎腰＋腰椎扭轉」，務必以「雙腳跨步轉向」；超過 20 公斤物料務必雙人協作或善用升降台車，將垂直抬舉轉化為水平推移滾動。"
+    if (bodyGuides.length === 0) {
+      bodyGuides.push(
+        "【維持優質人因基準】：您目前全身體幹與主要關節維持良好低折舊狀態！請持續落實「手肘有支撐、螢幕平視、雙腳平踏地面」的優質人因配置。"
       );
     }
 
-    // 規則 1：右側單側失衡 (滑鼠外展與手腕前伸症候群)
-    if ((rShoulder >= 3 || rWrist >= 3) && (rShoulder - lShoulder >= 2 || rWrist - lWrist >= 2 || traps.trap_chair)) {
-      guides.push(
-        "【右側滑鼠力矩減壓】：檢測顯示您的右側肩手負載顯著高於左側，代表滑鼠位置可能過於遠離身體中軸。請將滑鼠移至鍵盤右側 5 公分內，操作時上手臂自然下垂貼近軀幹，並將手肘穩固承托於扶手或桌面，消除整隻手臂約 3.5 公斤的懸臂重力拉扯。"
+    // 2. 生成工作站環境配置調整方針
+    if (role === "technician" || (nmqData.lowerback >= 3 && (role === "technician" || role === "standing"))) {
+      envGuides.push(
+        "【物料搬運力量區控制（MMH）】：抬舉物料時緊貼身體中軸（肚臍 25 公分內），腰椎力矩可即刻降低 50% 以上；轉身搬運時嚴禁「彎腰＋腰椎扭轉」，務必以「雙腳跨步轉向」；超過 20 公斤物料務必雙人協作或善用升降台車。"
       );
     }
 
-    // 規則 2：頸椎前傾與螢幕視角
-    if (neck >= 3 || (neck >= 2 && traps.trap_screen)) {
-      guides.push(
-        "【頸椎力矩剪切校準】：您的頸部肌肉處於持續性張力狀態。請立即將螢幕或筆電架墊高 10~12 公分，讓螢幕頂端水平齊平眼睛，嚴禁直接低頭注視桌面平放筆電；每工作 45 分鐘進行 5 次「收下巴雙下巴運動」（水平後縮下巴 5 秒），重設深層頸屈肌長度。"
+    if (traps.trap_screen || nmqData.neck >= 2) {
+      envGuides.push(
+        "【螢幕視線高度校準】：將外接螢幕或筆電架墊高 10~12 公分，讓螢幕上緣落在視線水平線，避免低頭視線角 > 15 度造成頸椎 20 公斤以上代償負荷。"
       );
     }
 
-    // 規則 3：腰背部與骨盆支撐
-    if (lowerback >= 3 || (lowerback >= 2 && traps.trap_chair)) {
-      guides.push(
-        "【腰椎骨盆力學支撐】：下背部酸痛多源於骨盆後傾與腰椎懸空。請在腰椎第 4~5 節凹槽處加裝腰靠墊（或將厚外套捲成圓柱狀塞入），強制骨盆維持直立中立位；同時調整座椅高度使雙腳掌平踏地面，大腿呈水平，避免椎間盤承受異常向後剪切力。"
+    if (traps.trap_chair || nmqData.lowerback >= 2 || (nmqData.shoulder_r >= 2 && nmqData.shoulder_l >= 2)) {
+      envGuides.push(
+        "【座椅支撐與坐姿微調】：調整椅面高度使雙腳掌平踏地面，在腰部凹槽處加裝腰靠支撐，手肘自然置於扶手或桌面，消除整隻手臂懸臂重力拉扯。"
       );
     }
 
-    // 規則 4：左側肩腕負載 (鍵盤快捷鍵極限伸展 / 單側背包)
-    if ((lShoulder >= 3 || lWrist >= 3) && lShoulder - rShoulder >= 1) {
-      guides.push(
-        "【左側肢體張力舒緩】：您的左側負載高於右側，請檢核日常是否習慣單肩背包、通話時單側歪頭夾耳機，或打字時左手大拇指與小指過度極限外展按壓快捷鍵（如頻繁 Ctrl+Z/Shift）。建議更換為雙肩後背包，並使用手托減緩左腕角度。"
+    if (traps.trap_sedentary) {
+      envGuides.push(
+        "【建立物理中斷微習慣】：換用約 250ml 小水杯，強迫自己喝完就起立走動裝水；落實每 50 分鐘站立活動 1~2 分鐘，打斷持續性椎間盤靜態壓迫。"
       );
     }
 
-    // 規則 5：上背胸椎緊繃 (圓肩駝背)
-    if (upperback >= 3 && guides.length < 3) {
-      guides.push(
-        "【胸椎伸展與後仰放鬆】：上背緊繃代表胸椎過度前曲駝背。建議將辦公椅背後傾角度微調至 100~110 度（而非死板 90 度垂直），使軀幹重量部分轉移由椅背承載；作業間歇時雙手在背後交握向後拉伸，打開胸廓。"
+    if (traps.trap_glare) {
+      envGuides.push(
+        "【消除光環境刺眼眩光】：微調螢幕前後俯仰角度避開頭頂燈具反光，並落實「20-20-20 護眼原則」（每 20 分鐘遠眺 20 呎外景物 20 秒）。"
       );
     }
 
-    // 規則 6：下肢關節與足底筋膜 (久站或翹腳)
-    if ((knees >= 3 || ankles >= 3 || hips >= 3) && guides.length < 3) {
-      guides.push(
-        "【下肢靜脈回流與重心重整】：若有久站或久坐骨盆酸痛，嚴禁翹二郎腿或單腳三七步站立；建議更換具備良好足弓支撐與避震機能的鞋墊；每小時進行 20 次「腳踝幫浦運動（勾腳背與踩油門動作）」，運用小腿肌肉泵浦加速下肢靜脈血液回流。"
-      );
-    }
-
-    // 規則 7：環境眩光地雷
-    if (traps.trap_glare && guides.length < 3) {
-      guides.push(
-        "【消除光環境刺眼眩光】：螢幕表面反光會迫使頭部歪斜閃光並加劇視疲勞。請微調螢幕前後俯仰角避開頭頂燈具反光，並落實「20-20-20 原則」（每用眼 20 分鐘，望向 6 公尺遠處放鬆睫狀肌 20 秒）。"
-      );
-    }
-
-    // 規則 8：連續久坐超時地雷
-    if (traps.trap_sedentary && guides.length < 3) {
-      guides.push(
-        "【建立物理中斷微習慣】：不要依賴自制力避免久坐。建議換用約 250ml 的小水杯，強迫自己喝完就必須起立走動裝水；並將 5 分鐘以內的電話溝通改為站立進行，打斷持續性椎間盤靜態壓迫。"
-      );
-    }
-
-    // 若學員完全無酸痛標記 (全為 0~1分)，給予前瞻預防指引
-    if (guides.length === 0) {
-      guides.push(
-        "【維持優質人因基準】：您的各關節力矩與作業姿勢維持良好！請持續維持「手肘 90 度有支撐、螢幕平視、雙腳著地」的良好配置。",
+    if (envGuides.length === 0) {
+      envGuides.push(
         "【動態間歇保養】：持續落實 45~60 分鐘微起身活動與 20-20-20 護眼原則，維持身體低折舊率。",
         "【環境前瞻預防】：每季檢視工作椅氣壓棒與螢幕支架螺絲，避免家具耗損導致無自覺的姿勢代償。"
       );
     }
 
-    return guides.slice(0, 3); // 嚴選最關鍵的前 3 項精準指引
+    // 3. 生成前後測對照成效與維持指引 (若處於前後測狀態)
+    if (isRetest && baselineNmqData) {
+      const allKeys = Array.from(new Set([...Object.keys(baselineNmqData), ...Object.keys(nmqData)]));
+      
+      allKeys.forEach((key) => {
+        const prevLevel = baselineNmqData[key] || 0;
+        const currLevel = nmqData[key] || 0;
+        const zoneObj = NMQ_ZONES.find(z => z.id === key);
+        const zoneName = zoneObj ? zoneObj.name : key;
+
+        if (prevLevel > currLevel) {
+          retestGuides.push(
+            `🟢【${zoneName}舒緩改善 (前測 ${prevLevel}分 ➔ 改善後 ${currLevel}分)】：課堂現場伸展與姿勢微調效果顯著！日常請持續維持工間微伸展，建立肌肉記憶防止緊繃復發。`
+          );
+        } else if (currLevel > 0 && currLevel >= prevLevel) {
+          retestGuides.push(
+            `🟡【${zoneName}仍有殘留緊繃 (${currLevel}分)】：此部位屬於深層慢性累積張力，建議課後持續執行專屬拉筋動作，並檢查工作站該側是否仍有懸臂或歪斜代償。`
+          );
+        }
+      });
+
+      if (retestGuides.length === 0) {
+        retestGuides.push(
+          "🌟【課堂改善整體評估】：前後測各部位均維持健康優良水準！請持續落實良好工作習慣。"
+        );
+      }
+    }
+
+    // 組裝整合型清單（兼具陣列相容性與結構化屬性）
+    const allGuides = [
+      ...(isRetest && retestGuides.length > 0 ? retestGuides.slice(0, 2) : []),
+      ...bodyGuides.slice(0, 3),
+      ...envGuides.slice(0, 2)
+    ];
+
+    const result = [...allGuides];
+    result.bodyGuides = bodyGuides;
+    result.envGuides = envGuides;
+    result.retestGuides = retestGuides;
+    result.allGuides = allGuides;
+
+    return result;
   }
 };
 

@@ -413,11 +413,15 @@ function initApp() {
       nmqData[z.id] = userBodymapData[z.id] || 0;
     });
 
-    // 呼叫動態人因指引引擎，產出完全客製化建議
+    const isRetest = !!(isRetestMode && baselineAssessment);
+
+    // 呼叫動態人因指引引擎，產出完全客製化建議 (含 15 區痛點處方 + 環境配置 + 前後測成效指引)
     const personalizedGuides = ERGO_CONFIG.generatePersonalizedActionGuides(
       selectedRole,
       userBodymapData,
-      traps
+      traps,
+      isRetest,
+      baselineAssessment ? (baselineAssessment.bodymapData || {}) : null
     );
 
     // 計算作答總耗時與品質旗標 (防惡意刷題/防極速亂點)
@@ -430,7 +434,6 @@ function initApp() {
       qualityFlag = "Extreme";
     }
 
-    const isRetest = !!(isRetestMode && baselineAssessment);
     const submissionData = {
       role: selectedRole,
       totalScore: totalScore,
@@ -819,22 +822,87 @@ function initApp() {
       }
     }
 
-    // 渲染動態個人化改善指引清單
+    // 渲染動態個人化改善指引清單 (分區呈現：人體圖痛點處方 + 環境配置方針 + 前後測成效指引)
     const elGuides = document.getElementById("res-action-guides");
-    const guidesToRender = customGuides && customGuides.length > 0 ? customGuides : tierInfo.actionGuides;
     if (elGuides) {
-      elGuides.innerHTML = guidesToRender
-        .map(
-          (guide, i) => `
+      const isRetest = !!(baselineAssessment && isRetestMode);
+      const bGuides = (customGuides && customGuides.bodyGuides) || [];
+      const eGuides = (customGuides && customGuides.envGuides) || [];
+      const rGuides = (customGuides && customGuides.retestGuides) || [];
+      
+      let html = "";
+
+      // 1. 若為前後測，展示前後測改善成效與維持指引
+      if (isRetest && rGuides.length > 0) {
+        html += `
+          <div class="p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-300 space-y-2 mb-3">
+            <div class="text-xs font-black text-emerald-950 flex items-center gap-1.5">
+              <span>🔄</span> 課堂前後測改善成效與維持指引 (Before vs After)
+            </div>
+            <ul class="space-y-1.5">
+              ${rGuides.map(g => `
+                <li class="text-xs text-emerald-900 leading-relaxed flex items-start gap-2 bg-white/90 p-2.5 rounded-xl border border-emerald-200 shadow-xs">
+                  <span class="text-emerald-700 font-bold mt-0.5">・</span>
+                  <span>${g}</span>
+                </li>
+              `).join("")}
+            </ul>
+          </div>
+        `;
+      }
+
+      // 2. 人體圖痛點部位專屬處方 (依點選部位精準對應)
+      if (bGuides.length > 0) {
+        html += `
+          <div class="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200 space-y-2 mb-3">
+            <div class="text-xs font-black text-rose-950 flex items-center gap-1.5">
+              <span>🧍‍♂️</span> 人體圖酸痛部位・專屬舒緩處方 (針對點選部位)
+            </div>
+            <ul class="space-y-1.5">
+              ${bGuides.map((g, idx) => `
+                <li class="text-xs text-slate-800 leading-relaxed flex items-start gap-2 bg-white p-2.5 rounded-xl border border-rose-100 shadow-xs">
+                  <span class="w-4 h-4 rounded-md bg-rose-100 text-rose-800 border border-rose-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">${idx + 1}</span>
+                  <span>${g}</span>
+                </li>
+              `).join("")}
+            </ul>
+          </div>
+        `;
+      }
+
+      // 3. 工作站環境配置與習慣指引
+      if (eGuides.length > 0) {
+        html += `
+          <div class="p-3.5 rounded-2xl bg-sky-50/70 border border-sky-200 space-y-2">
+            <div class="text-xs font-black text-sky-950 flex items-center gap-1.5">
+              <span>🛠️</span> 工作站環境配置・個人化調整方針
+            </div>
+            <ul class="space-y-1.5">
+              ${eGuides.map((g, idx) => `
+                <li class="text-xs text-slate-800 leading-relaxed flex items-start gap-2 bg-white p-2.5 rounded-xl border border-sky-100 shadow-xs">
+                  <span class="w-4 h-4 rounded-md bg-sky-100 text-sky-800 border border-sky-300 flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">${idx + 1}</span>
+                  <span>${g}</span>
+                </li>
+              `).join("")}
+            </ul>
+          </div>
+        `;
+      }
+
+      // 備援：若無分區資料則回退到標準清單
+      if (!html) {
+        const fallbackGuides = customGuides && customGuides.length > 0 ? customGuides : tierInfo.actionGuides;
+        html = fallbackGuides.map((guide, i) => `
           <li class="flex items-start gap-3 text-slate-700 text-sm leading-relaxed p-3 rounded-xl bg-sky-50/50 border border-sky-100 shadow-sm">
             <span class="w-5 h-5 rounded-md bg-sky-100 text-sky-800 border border-sky-300 flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5 shadow-xs">
               ${i + 1}
             </span>
             <span>${guide}</span>
           </li>
-        `
-        )
-        .join("");
+        `).join("");
+      }
+
+      elGuides.innerHTML = html;
     }
 
     const elDisclaimer = document.getElementById("res-disclaimer");
@@ -1216,19 +1284,6 @@ function initApp() {
       }).join("");
     }
 
-    // 個人化環境調整指引 HTML (精簡字體與行距)
-    const guides = (currentReportState.customGuides && currentReportState.customGuides.length > 0)
-      ? currentReportState.customGuides
-      : tierInfo.actionGuides;
-    const guidesHtml = guides.slice(0, 3).map((g, idx) => `
-      <div style="margin-bottom: 2.5px; font-size: 8.5px; line-height: 1.3; color: #334155;">
-        <span style="background: #e0f2fe; color: #0284c7; font-weight: bold; padding: 0 3px; border-radius: 3px; font-size: 8px; border: 1px solid #bae6fd; margin-right: 3px;">
-          ${idx + 1}
-        </span>
-        <span>${g}</span>
-      </div>
-    `).join("");
-
     // 課堂體適能檢測與酸痛好發分析 HTML
     const upperRes = currentFlexibilityResults.upper;
     const lowerRes = currentFlexibilityResults.lower;
@@ -1244,6 +1299,42 @@ function initApp() {
     const baselineData = baselineAssessment || (currentReportState && currentReportState.baselineAssessment) || null;
     const isRetestActive = !!(baselineData && (isRetestMode || (currentReportState && currentReportState.isRetest)));
     const delta = isRetestActive ? (score - baselineData.score) : 0;
+
+    // 個人化環境與痛點調整指引 HTML (精簡字體與行距，單頁防溢出)
+    const rawGuides = currentReportState.customGuides || tierInfo.actionGuides;
+    const bGuides = (rawGuides && rawGuides.bodyGuides) || [];
+    const eGuides = (rawGuides && rawGuides.envGuides) || [];
+    const rGuides = (rawGuides && rawGuides.retestGuides) || [];
+
+    let guidesList = [];
+    let guideSectionTitle = "🛠️ 人體圖痛點處方與環境調整方針";
+
+    if (isRetestActive && baselineData) {
+      guideSectionTitle = "🔄 課堂前後測改善成效與部位專屬指引";
+      guidesList = [
+        ...rGuides.slice(0, 2),
+        ...bGuides.slice(0, 1),
+        ...eGuides.slice(0, 1)
+      ].slice(0, 3);
+    } else {
+      guidesList = [
+        ...bGuides.slice(0, 2),
+        ...eGuides.slice(0, 1)
+      ];
+      if (guidesList.length === 0) {
+        guidesList = Array.isArray(rawGuides) ? rawGuides.slice(0, 3) : tierInfo.actionGuides.slice(0, 3);
+      }
+      guidesList = guidesList.slice(0, 3);
+    }
+
+    const guidesHtml = guidesList.map((g, idx) => `
+      <div style="margin-bottom: 2px; font-size: 8px; line-height: 1.25; color: #334155;">
+        <span style="background: #e0f2fe; color: #0284c7; font-weight: bold; padding: 0 3px; border-radius: 3px; font-size: 7.5px; border: 1px solid #bae6fd; margin-right: 3px;">
+          ${idx + 1}
+        </span>
+        <span>${g}</span>
+      </div>
+    `).join("");
 
     // 前後測對照區塊 HTML (若有前測基準且在複測模式)
     let beforeAfterHtml = "";
@@ -1321,7 +1412,7 @@ function initApp() {
               </div>
               <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 5px 6px; box-sizing: border-box;">
                 <div style="font-size: 9px; font-weight: bold; color: #0369a1; margin-bottom: 2px; border-bottom: 1px solid #e0f2fe; padding-bottom: 1px;">
-                  🛠️ 個人化工作站環境調整方針
+                  ${guideSectionTitle}
                 </div>
                 ${guidesHtml}
               </div>
@@ -1362,7 +1453,7 @@ function initApp() {
               </div>
               <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 5px 6px; box-sizing: border-box;">
                 <div style="font-size: 9px; font-weight: bold; color: #0369a1; margin-bottom: 2px; border-bottom: 1px solid #e0f2fe; padding-bottom: 1px;">
-                  🛠️ 個人化工作站環境調整方針
+                  ${guideSectionTitle}
                 </div>
                 ${guidesHtml}
               </div>

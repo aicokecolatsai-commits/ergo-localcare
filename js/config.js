@@ -63,12 +63,17 @@ const APP_CONFIG = {
     );
   },
 
+  // Google 試算表 Webhook 預設網址 (蔡健儀 專屬 Google 試算表資料庫)
+  defaultGSheetWebhook: "https://script.google.com/macros/s/AKfycbwV66kxkRFBGKsEgPfyl93tDzEya8hrejP7g3cZQVTaIrM5CMoq_dS_O388O1iyW6yjzw/exec",
+
   // Google 試算表 Webhook 網址管理 (支援獨立分頁同步)
   getGSheetWebhook: function() {
     try {
-      return localStorage.getItem("ergo_gsheet_webhook") || "";
+      const saved = localStorage.getItem("ergo_gsheet_webhook");
+      if (saved && saved.trim() !== "") return saved.trim();
+      return this.defaultGSheetWebhook;
     } catch (e) {
-      return "";
+      return this.defaultGSheetWebhook;
     }
   },
   setGSheetWebhook: function(url) {

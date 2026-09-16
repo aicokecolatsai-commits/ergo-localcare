@@ -154,7 +154,7 @@ class DataBridge {
 
   // 生成模擬數據 (供演講前測試展示)
   generateDemoData(count = 35) {
-    const roles = ["office", "student", "standing", "technician"];
+    const roles = ["office", "student", "standing", "repetitive_hand", "material_handling"];
     const dummyList = [];
     
     for (let i = 0; i < count; i++) {

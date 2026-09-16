@@ -2184,7 +2184,18 @@ function initApp() {
       // 2. 產出使用 Table 排版的個人戰情室 HTML
       const warRoomHtml = buildWarRoomHtml(currentBodyMapPng, baselineBodyMapPng);
 
-      // 3. 建立標準獨立列印容器
+      // 3. 建立標準獨立列印容器 (掛載於頂層 DOM 確保 html2canvas 具備完整 740px 物理渲染維度)
+      const renderWrapper = document.createElement("div");
+      renderWrapper.id = "pdf-render-wrapper";
+      renderWrapper.style.position = "fixed";
+      renderWrapper.style.left = "0px";
+      renderWrapper.style.top = "0px";
+      renderWrapper.style.width = "740px";
+      renderWrapper.style.zIndex = "-9999";
+      renderWrapper.style.opacity = "1";
+      renderWrapper.style.pointerEvents = "none";
+      renderWrapper.style.background = "#ffffff";
+
       const printable = document.createElement("div");
       printable.id = "printable-pdf-document";
       printable.style.width = "740px";
@@ -2192,6 +2203,12 @@ function initApp() {
       printable.style.color = "#0f172a";
       printable.style.boxSizing = "border-box";
       printable.innerHTML = warRoomHtml;
+
+      renderWrapper.appendChild(printable);
+      document.body.appendChild(renderWrapper);
+
+      // 等待 DOM 渲染掛載完畢
+      await new Promise(r => setTimeout(r, 150));
 
       const dateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '');
       const fileName = `人因小管家PRO_A4戰情室評估報告_${dateStr}.pdf`;
@@ -2205,7 +2222,8 @@ function initApp() {
           scale: 2,
           useCORS: true,
           logging: false,
-          letterRendering: true
+          scrollY: 0,
+          scrollX: 0
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: 'avoid-all' }
@@ -2233,6 +2251,7 @@ function initApp() {
 
       // 清理 DOM
       setTimeout(() => {
+        renderWrapper.remove();
         toast.remove();
         window._forceDirectPdfDownload = false;
       }, 500);

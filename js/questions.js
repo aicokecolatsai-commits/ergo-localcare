@@ -67,13 +67,13 @@ const ERGO_CONFIG = {
       }
     },
     {
-      id: "technician",
+      id: "repetitive_hand",
       seq: "04",
-      icon: "⚙️",
-      name: "技術操作與重複施力族",
-      subtitle: "產線組裝・倉儲搬運・設備檢修",
-      desc: "頻繁重複性手部動作、特定手腕扭力或重物搬運，上肢前臂肌肉高張力與下背力矩過大。",
-      badge: "重複操作 / 搬運",
+      icon: "🔧",
+      name: "手部高頻操作與精細組裝族",
+      subtitle: "產線組裝・工具操作・手部高頻重複",
+      desc: "高頻率手部重複動作、手指捏握力、工具震動或手腕扭力，上肢前臂肌群與手腕關節持續性受力。",
+      badge: "重複手部操作 (KIM-MHO)",
       morandi: {
         color: "#7a2333",
         border: "#e29aa6",
@@ -84,6 +84,26 @@ const ERGO_CONFIG = {
         seqColor: "#7a2333",
         titleColor: "#2e070e",
         descColor: "#541c25"
+      }
+    },
+    {
+      id: "material_handling",
+      seq: "05",
+      icon: "📦",
+      name: "重物搬運與物流推拉族",
+      subtitle: "倉儲物流・重物抬舉・台車搬運拉推",
+      desc: "常態人工抬舉搬運、重物裝卸或台車推拉，腰椎 L4-S1 剪力負載大，常有軀幹前傾扭轉與下肢承重。",
+      badge: "人工抬舉搬運 (KIM-LHC/PP)",
+      morandi: {
+        color: "#8a3c1b",
+        border: "#e4a88b",
+        hoverBorder: "#b85328",
+        bg: "linear-gradient(135deg, #fce8df 0%, #fdf4ee 100%)",
+        badgeBg: "#f7cfbe",
+        badgeText: "#521e08",
+        seqColor: "#8a3c1b",
+        titleColor: "#381203",
+        descColor: "#61270f"
       }
     }
   ],
@@ -363,93 +383,276 @@ const ERGO_CONFIG = {
       }
     ],
 
-    technician: [
+    repetitive_hand: [
       {
         id: "q1_neck",
         dimension: "neck",
         dimensionName: "肩頸作業負荷",
-        question: "1. 進行精細組裝、數位繪圖或維修時，肩頸部肌肉的感受？",
+        question: "1. 進行手部重複操作、精密組裝或使用工具時，肩頸部肌肉的感受？",
         options: [
-          { label: "A. 動作流暢，肩部放鬆自然", penalty: 0 },
-          { label: "B. 肩頸肌肉維持持續性收縮發僵", penalty: 5 },
-          { label: "C. 單側肩膀劇痛，手臂抬舉時有明顯關節牽扯痛", penalty: 10 }
+          { label: "A. 動作流暢，雙肩自然放鬆下沉，無僵硬感", penalty: 0 },
+          { label: "B. 雙肩不自覺聳起發僵，後頸肌肉持續緊繃酸脹", penalty: 5 },
+          { label: "C. 單側或雙側肩膀劇痛，手臂抬舉操作時有明顯關節牽扯痛", penalty: 10 }
         ]
       },
       {
-        id: "q2_lower_back",
-        dimension: "back",
-        dimensionName: "腰部受力負載",
-        question: "2. 搬運物件、工具或維持固定前傾作業後，腰部狀態？",
-        options: [
-          { label: "A. 腰背有力，無疲累感", penalty: 0 },
-          { label: "B. 下班時腰部僵硬，彎腰活動時感到酸楚", penalty: 5 },
-          { label: "C. 曾有急性扭閃腰病史，或有經常性下背深層牽扯抽痛", penalty: 10 }
-        ]
-      },
-      {
-        id: "q3_wrist",
+        id: "q2_arm_wrist",
         dimension: "wrist",
-        dimensionName: "手指腕部關節",
-        question: "3. 長時間握持工具/手繪筆或重複施力操作，手部感覺？",
+        dimensionName: "前臂與手腕肌腱",
+        question: "2. 連續進行手部高頻動作或工具旋轉後，前臂與手腕的狀態？",
         options: [
-          { label: "A. 握持自如，手指腕關節活動靈活無阻", penalty: 0 },
-          { label: "B. 手指關節酸脹，手腕內側或外側按壓微痛", penalty: 5 },
-          { label: "C. 出現扳機指症狀（活動卡阻響聲）、腕關節劇烈疼痛無力", penalty: 10 }
+          { label: "A. 前臂靈活輕鬆，手腕關節活動自如", penalty: 0 },
+          { label: "B. 前臂內側/外側肌肉酸脹（網球肘/高爾夫球肘前期感），手腕酸痛", penalty: 5 },
+          { label: "C. 手腕劇烈抽痛、掌面發麻或活動時有肌腱摩擦摩擦感", penalty: 10 }
+        ]
+      },
+      {
+        id: "q3_finger_pinch",
+        dimension: "wrist",
+        dimensionName: "手指捏力與關節",
+        question: "3. 長時間使用手指進行捏握 (Pinch)、按壓或微細物件組裝後，手指狀態？",
+        options: [
+          { label: "A. 手指活動靈活敏銳，無卡阻無酸痛", penalty: 0 },
+          { label: "B. 指節酸脹晨間微僵，大拇指根部按壓微痛", penalty: 5 },
+          { label: "C. 出現扳機指症狀（活動時卡阻響聲）、指尖發麻無力", penalty: 10 }
         ]
       },
       {
         id: "q4_eye",
         dimension: "eye",
         dimensionName: "精細視覺負荷",
-        question: "4. 長時間注視精密工件、線稿或細微零件後，視覺感受？",
+        question: "4. 長時間注視微小零件、焊點、精密儀表或細微裝配介面後，眼睛感受？",
         options: [
           { label: "A. 視線清晰敏銳，對比分辨良好", penalty: 0 },
-          { label: "B. 眼睛乾澀發熱，向遠處觀看時需數秒重新對焦", penalty: 5 },
-          { label: "C. 顯著眼眶周圍脹痛、頭暈，注視微細物件時出現疊影", penalty: 10 }
+          { label: "B. 眼睛乾澀發熱、需用力眨眼或數秒重新對焦", penalty: 5 },
+          { label: "C. 眼眶脹痛、頭暈，注視微細物件時出現疊影或視力模糊", penalty: 10 }
         ]
       },
       {
         id: "q5_screen_height",
         dimension: "trap_screen",
-        dimensionName: "作業視距與傾角",
-        question: "5. 您的工作檯面或數位繪圖板的擺放傾斜度？",
+        dimensionName: "作業檯面高度與支撐",
+        question: "5. 您的手部作業檯面高度與手肘支撐情況？",
         options: [
-          { label: "A. 具備適當傾角（約 30~45 度），視線自然垂直作業面", penalty: 0 },
-          { label: "B. 完全平放於桌面，需稍微低頭並向前伸長頸部作業", penalty: 5 },
-          { label: "C. 完全平放或需扭轉軀幹側面操作，頸部大幅前傾旋轉", penalty: 10 }
+          { label: "A. 檯面高度適中（手肘呈 90~105 度自然平放），手臂有舒適托撐", penalty: 0 },
+          { label: "B. 檯面略高或略低，作業時手肘懸空無支撐", penalty: 5 },
+          { label: "C. 檯面高度嚴重不當，需長時間聳肩懸臂或深度低頭前傾操作", penalty: 10 }
         ]
       },
       {
         id: "q6_chair_support",
         dimension: "trap_chair",
         dimensionName: "工具握柄人因設計",
-        question: "6. 您常態使用的工具柄或筆具的人因工學適配性？",
+        question: "6. 您常態使用的手工具/夾具/操作柄人因設計？",
         options: [
-          { label: "A. 握柄粗細適中、包覆防滑減震材質，省力握持", penalty: 0 },
-          { label: "B. 握柄過細或為硬質塑料，需使用較大捏握力量操作", penalty: 5 },
-          { label: "C. 震動幅度大、邊緣硬銳，長期壓迫掌心神經與血管", penalty: 10 }
+          { label: "A. 握柄粗細符合手型、具防滑減震包覆，省力操作", penalty: 0 },
+          { label: "B. 握柄過細/過粗或為硬質塑料，需較大捏握力操作", penalty: 5 },
+          { label: "C. 工具震動幅度大、邊緣硬銳壓迫掌心，或需極端折腕施力", penalty: 10 }
         ]
       },
       {
         id: "q7_glare",
         dimension: "trap_glare",
-        dimensionName: "物料搬運力矩",
-        question: "7. 搬運物件或工具箱時，您的作業姿勢習慣？",
+        dimensionName: "手腕偏轉角度",
+        question: "7. 操作過程中，手腕是否經常處於極端彎曲或扭轉（橈偏/尺偏）角度？",
         options: [
-          { label: "A. 屈膝下蹲，將物件緊靠胸口，運用腿部核心力量平穩起身", penalty: 0 },
-          { label: "B. 雙膝保持挺直，直接彎腰前傾拉起物件", penalty: 5 },
-          { label: "C. 彎腰同時扭轉軀幹搬起重物（椎間盤高風險動作）", penalty: 10 }
+          { label: "A. 手腕多能維持在直立中立位 (Neutral Position)", penalty: 0 },
+          { label: "B. 偶爾因作業角度需要而折腕或扭轉手腕", penalty: 5 },
+          { label: "C. 絕大部分時間手腕處於極度背屈、掌屈或過度扭轉施力", penalty: 10 }
         ]
       },
       {
         id: "q8_sedentary",
         dimension: "trap_sedentary",
-        dimensionName: "反向伸展循環",
-        question: "8. 進行重複性作業時，您是否會定時進行「反向舒緩伸展」？",
+        dimensionName: "定時手部微伸展",
+        question: "8. 進行重複性手部操作時，您是否會定時進行「反向舒緩伸展」？",
         options: [
-          { label: "A. 每 30~45 分鐘會主動進行 20 秒反向放鬆與手指腕關節伸展", penalty: 0 },
+          { label: "A. 每 30~45 分鐘主動進行 20 秒手腕前臂反向放鬆微伸展", penalty: 0 },
           { label: "B. 只有在感到明顯酸麻無力時才會停下稍作甩動", penalty: 15 },
-          { label: "C. 連續作業數小時不中斷，直到該工段結束才停歇", penalty: 30 }
+          { label: "C. 連續作業數小時不中斷，直到工段結束才停歇", penalty: 30 }
+        ]
+      }
+    ],
+
+    material_handling: [
+      {
+        id: "q1_neck",
+        dimension: "back",
+        dimensionName: "腰椎搬運負載",
+        question: "1. 執行人工搬運、抬舉貨物或推拉台車後，腰部與下背狀態？",
+        options: [
+          { label: "A. 腰背有力無酸痛，活動輕鬆自如", penalty: 0 },
+          { label: "B. 下班時腰部僵硬沉重，彎腰或挺直時感到酸楚發緊", penalty: 5 },
+          { label: "C. 曾有急性閃腰病史，或有經常性下背深層抽痛、傳導至下肢", penalty: 10 }
+        ]
+      },
+      {
+        id: "q2_lower_back",
+        dimension: "neck",
+        dimensionName: "肩部與上背承受力矩",
+        question: "2. 抬舉重物或推拉重型台車時，雙肩與上背的感受？",
+        options: [
+          { label: "A. 肩胛與上背穩定支撐，無明顯緊繃", penalty: 0 },
+          { label: "B. 肩膀與膏肓處酸痛緊繃，提重物時感到肩膀向下沉重牽拉", penalty: 5 },
+          { label: "C. 肩關節抬舉無力刺痛、手臂外展時有夾擠痛感", penalty: 10 }
+        ]
+      },
+      {
+        id: "q3_wrist",
+        dimension: "back",
+        dimensionName: "下肢膝關節與雙腿",
+        question: "3. 搬運過程中頻繁蹲下起立、負重行走，膝蓋與雙腿感受？",
+        options: [
+          { label: "A. 雙腿步伐穩健有力，關節無卡阻酸軟", penalty: 0 },
+          { label: "B. 膝關節前側酸脹、起立時雙腿略顯發沉", penalty: 5 },
+          { label: "C. 膝蓋彎曲時有卡阻響聲或刺痛，負重時膝蓋不穩定發軟", penalty: 10 }
+        ]
+      },
+      {
+        id: "q4_eye",
+        dimension: "wrist",
+        dimensionName: "抓握手感與手部疲勞",
+        question: "4. 搬運箱體或料盒時，手掌與手指的抓握狀態？",
+        options: [
+          { label: "A. 物件具備良好手把或凹槽，抓握穩固省力", penalty: 0 },
+          { label: "B. 物件無適當把手，需用力掐握箱底或邊緣，手指容易酸軟", penalty: 5 },
+          { label: "C. 經常搬運滑溜、邊緣銳利或過大無把手重物，手部極度疲累", penalty: 10 }
+        ]
+      },
+      {
+        id: "q5_screen_height",
+        dimension: "trap_screen",
+        dimensionName: "搬運起始姿勢與重心力矩",
+        question: "5. 從地面抬起重物時，您的標準姿勢習慣？",
+        options: [
+          { label: "A. 屈膝下蹲，將物件緊貼身體胸腹核心，運用腿部力量平穩起身", penalty: 0 },
+          { label: "B. 雙膝微彎但主要仍彎腰前傾拉起物件", penalty: 5 },
+          { label: "C. 雙腿完全挺直直接彎腰，甚至彎腰同時扭轉軀幹搬起重物（極高危險）", penalty: 10 }
+        ]
+      },
+      {
+        id: "q6_chair_support",
+        dimension: "trap_chair",
+        dimensionName: "抬舉高度與作業範圍",
+        question: "6. 常態搬運或堆疊物件的高度分佈？",
+        options: [
+          { label: "A. 物品多在膝蓋以上至手肘高度（黃金人因省力區間）", penalty: 0 },
+          { label: "B. 常需從地面直接抬起，或需抬舉至胸口高度", penalty: 5 },
+          { label: "C. 頻繁需自地面深蹲抬起，或高舉過肩放置於高層貨架", penalty: 10 }
+        ]
+      },
+      {
+        id: "q7_glare",
+        dimension: "trap_glare",
+        dimensionName: "台車推拉施力與動線",
+        question: "7. 使用台車或拖板車運送貨物時的施力狀態？",
+        options: [
+          { label: "A. 台車輪胎順暢、地面平整，使用全身重心向前「推」行", penalty: 0 },
+          { label: "B. 偶爾遇到地面坑洞或輪胎卡阻，需加大全身力道推動", penalty: 5 },
+          { label: "C. 經常以單手或倒退方式「拉」重型台車，或常在斜坡費力推拉", penalty: 10 }
+        ]
+      },
+      {
+        id: "q8_sedentary",
+        dimension: "trap_sedentary",
+        dimensionName: "負重頻率與恢復間歇",
+        question: "8. 每日重物搬運的總頻率與休息恢復間歇？",
+        options: [
+          { label: "A. 搬運單件大多在 15kg 以下，每批搬運後有足夠時間伸展調整", penalty: 0 },
+          { label: "B. 常搬運 15~25kg 物件，連續搬運約 1 小時才有短暫休息", penalty: 15 },
+          { label: "C. 經常單人搬運超過 25kg 重物，且高頻率連續搬運無適當緩衝", penalty: 30 }
+        ]
+      }
+    ],
+
+    // 相容別名
+    technician: [
+      {
+        id: "q1_neck",
+        dimension: "neck",
+        dimensionName: "肩頸作業負荷",
+        question: "1. 進行手部重複操作、組裝或使用工具時，肩頸部肌肉的感受？",
+        options: [
+          { label: "A. 動作流暢，雙肩自然放鬆下沉，無僵硬感", penalty: 0 },
+          { label: "B. 雙肩不自覺聳起發僵，後頸肌肉持續緊繃酸脹", penalty: 5 },
+          { label: "C. 單側或雙側肩膀劇痛，手臂抬舉操作時有明顯關節牽扯痛", penalty: 10 }
+        ]
+      },
+      {
+        id: "q2_arm_wrist",
+        dimension: "wrist",
+        dimensionName: "前臂與手腕肌腱",
+        question: "2. 連續進行手部高頻動作或工具旋轉後，前臂與手腕的狀態？",
+        options: [
+          { label: "A. 前臂靈活輕鬆，手腕關節活動自如", penalty: 0 },
+          { label: "B. 前臂內側/外側肌肉酸脹，手腕酸痛", penalty: 5 },
+          { label: "C. 手腕劇烈抽痛、掌面發麻或活動時有肌腱摩擦感", penalty: 10 }
+        ]
+      },
+      {
+        id: "q3_finger_pinch",
+        dimension: "wrist",
+        dimensionName: "手指捏力與關節",
+        question: "3. 長時間使用手指進行捏握、按壓或微細物件組裝後，手指狀態？",
+        options: [
+          { label: "A. 手指活動靈活敏銳，無卡阻無酸痛", penalty: 0 },
+          { label: "B. 指節酸脹晨間微僵，大拇指根部按壓微痛", penalty: 5 },
+          { label: "C. 出現扳機指症狀、指尖發麻無力", penalty: 10 }
+        ]
+      },
+      {
+        id: "q4_eye",
+        dimension: "eye",
+        dimensionName: "精細視覺負荷",
+        question: "4. 長時間注視微小零件、焊點或精密儀表後，眼睛感受？",
+        options: [
+          { label: "A. 視線清晰敏銳，對比分辨良好", penalty: 0 },
+          { label: "B. 眼睛乾澀發熱、需用力眨眼或數秒重新對焦", penalty: 5 },
+          { label: "C. 眼眶脹痛、頭暈，注視微細物件時出現疊影", penalty: 10 }
+        ]
+      },
+      {
+        id: "q5_screen_height",
+        dimension: "trap_screen",
+        dimensionName: "作業檯面高度與支撐",
+        question: "5. 您的手部作業檯面高度與手肘支撐情況？",
+        options: [
+          { label: "A. 檯面高度適中（手肘呈 90~105 度自然平放），手臂有舒適托撐", penalty: 0 },
+          { label: "B. 檯面略高或略低，作業時手肘懸空無支撐", penalty: 5 },
+          { label: "C. 檯面高度嚴重不當，需長時間聳肩懸臂操作", penalty: 10 }
+        ]
+      },
+      {
+        id: "q6_chair_support",
+        dimension: "trap_chair",
+        dimensionName: "工具握柄人因設計",
+        question: "6. 您常態使用的手工具/夾具人因設計？",
+        options: [
+          { label: "A. 握柄粗細適中、具防滑減震包覆，省力操作", penalty: 0 },
+          { label: "B. 握柄過細/過粗，需較大捏握力操作", penalty: 5 },
+          { label: "C. 工具震動幅度大、邊緣硬銳壓迫掌心", penalty: 10 }
+        ]
+      },
+      {
+        id: "q7_glare",
+        dimension: "trap_glare",
+        dimensionName: "手腕偏轉角度",
+        question: "7. 操作過程中，手腕是否經常處於極端彎曲或扭轉角度？",
+        options: [
+          { label: "A. 手腕多能維持在直立中立位", penalty: 0 },
+          { label: "B. 偶爾因作業角度需要而折腕或扭轉手腕", penalty: 5 },
+          { label: "C. 絕大部分時間手腕處於極度背屈或扭轉施力", penalty: 10 }
+        ]
+      },
+      {
+        id: "q8_sedentary",
+        dimension: "trap_sedentary",
+        dimensionName: "定時手部微伸展",
+        question: "8. 進行重複性手部操作時，您是否會定時進行反向伸展？",
+        options: [
+          { label: "A. 每 30~45 分鐘主動進行 20 秒手腕前臂微伸展", penalty: 0 },
+          { label: "B. 只有在感到明顯酸麻無力時才會停下稍作甩動", penalty: 15 },
+          { label: "C. 連續作業數小時不中斷，直到工段結束才停歇", penalty: 30 }
         ]
       }
     ]
@@ -603,9 +806,13 @@ const ERGO_CONFIG = {
       );
     }
 
-    if (role === "technician" || (nmqData.lowerback >= 3 && (role === "technician" || role === "standing"))) {
+    if (role === "material_handling" || (nmqData.lowerback >= 3 && (role === "material_handling" || role === "technician" || role === "standing"))) {
       envGuides.push(
         "【物料搬運力量區控制（MMH）】：抬舉物料時緊貼身體中軸（肚臍 25 公分內），腰椎力矩可即刻降低 50% 以上；轉身搬運時嚴禁「彎腰＋腰椎扭轉」，務必以「雙腳跨步轉向」；超過 20 公斤物料務必雙人協作或善用升降台車。"
+      );
+    } else if (role === "repetitive_hand" || nmqData.wrist_r >= 2 || nmqData.wrist_l >= 2) {
+      envGuides.push(
+        "【手部高頻重複減壓與工具配置（MHO）】：手腕保持在中立位操作，避免極端折腕；選用符合手型且包覆減震防滑材質之握把工具；每 30 分鐘進行前臂伸肌與腕屈肌反向微伸展。"
       );
     }
 
@@ -621,15 +828,20 @@ const ERGO_CONFIG = {
           "【站姿作業人因適配】：工作台面維持在手肘下方 5~10 公分；穿著足弓支撐減震鞋墊並善用防疲勞地墊，每小時定時進行腳踝幫浦運動促進下肢血液回流。",
           "【重心交替與間歇坐下】：避免單腳三七步站立，爭取每 1~2 小時短暫坐下 3 分鐘釋放腰椎壓力。"
         );
-      } else if (role === "technician") {
+      } else if (role === "repetitive_hand") {
         envGuides.push(
-          "【精密作業力學維護】：工作檯面調整至合適傾角，手部操作時前臂應有靠墊支撐；每 40 分鐘執行手腕與手指反向伸展，預防累積性肌腱張力。",
-          "【MMH 物料搬運準則】：搬運重物緊靠軀幹，屈膝蹲下代替直接彎腰，轉向時以腳步移動取代腰部旋轉。"
+          "【精密手部作業力學維護】：工作檯面調整至手肘自然支撐高度，前臂加裝軟質靠墊；每 30~45 分鐘執行手腕與手指反向伸展，預防肌腱炎與腕隧道症候群。",
+          "【工具人因適配】：檢查常用工具握柄，避免金屬硬邊壓迫掌心血管與正中神經。"
+        );
+      } else if (role === "material_handling") {
+        envGuides.push(
+          "【重物抬舉搬運黃金法則】：搬運物件緊靠軀幹胸腹核心，屈膝蹲下代替直接彎腰，轉向時以腳步移動取代腰椎扭轉。",
+          "【推拉動線與減力配置】：優先以全身重心向前「推」台車而非單手倒退拉行；單人負重上限嚴格控制在 20kg 內。"
         );
       } else {
         envGuides.push(
           "【動態間歇保養】：持續落實 45~60 分鐘微起身活動與 20-20-20 護眼原則，維持身體低折舊率。",
-          "【環境前瞻預防】：每季檢視工作椅氣壓棒與螢幕支架螺絲，避免家具耗損導致無自覺的姿勢代償。"
+          "【環境前瞻預防】：每季檢視工作環境設備，避免器具耗損導致無自覺的姿勢代償。"
         );
       }
     }

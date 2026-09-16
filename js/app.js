@@ -834,6 +834,7 @@ function initApp() {
 
     // 渲染動態個人化改善指引清單 (分區呈現：人體圖痛點處方 + 環境配置方針 + 前後測成效指引)
     const elGuides = document.getElementById("res-action-guides");
+    if (elGuides) {
       const isRetest = !!(baselineAssessment && isRetestMode);
       const activeGuideObj = ERGO_CONFIG.generatePersonalizedActionGuides(
         selectedRole,

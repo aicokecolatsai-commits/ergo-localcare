@@ -143,6 +143,9 @@ function initApp() {
   function startBodymapStep(roleId) {
     selectedRole = roleId;
     isRetestMode = false;
+    userAnswers = [];
+    userBodymapData = {};
+    userBodymapDetails = {};
     elStepRole.classList.add("hidden");
     elStepBodymap.classList.remove("hidden");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -161,7 +164,7 @@ function initApp() {
     const stepSubtitle = document.getElementById("bodymap-step-subtitle");
     if (stepSubtitle) stepSubtitle.innerText = "可直接點選人體圖或滑動上方膠囊，於下方彈出選單設定程度";
 
-    // 初始化人體圖元件
+    // 初始化人體圖元件（保證清空無殘留）
     if (!studentBodyMap) {
       studentBodyMap = new BodyMapComponent({
         containerId: "student-bodymap-container",
@@ -173,7 +176,7 @@ function initApp() {
         }
       });
     } else {
-      studentBodyMap.setData(userBodymapData, userBodymapDetails);
+      studentBodyMap.setData({}, {});
     }
     updateBodymapSummary();
   }
@@ -219,6 +222,12 @@ function initApp() {
       const stepRetestBanner = document.getElementById("bodymap-retest-banner");
       if (stepRetestBanner) stepRetestBanner.classList.add("hidden");
     } else {
+      userBodymapData = {};
+      userBodymapDetails = {};
+      userAnswers = [];
+      if (studentBodyMap) {
+        studentBodyMap.setData({}, {});
+      }
       elStepBodymap.classList.add("hidden");
       elStepRole.classList.remove("hidden");
     }
@@ -407,10 +416,11 @@ function initApp() {
       ERGO_CONFIG.scoreTiers.find((t) => totalScore >= t.min && totalScore <= t.max) ||
       ERGO_CONFIG.scoreTiers[ERGO_CONFIG.scoreTiers.length - 1];
 
-    // 建立 15 個解剖區域的 NMQ 資料庫格式 (0~5 分純數值)
+    // 建立 15 個解剖區域的 NMQ 資料庫格式 (0~5 分純數值，嚴格過濾確保無殘留非零髒資料)
     const nmqData = {};
     NMQ_ZONES.forEach((z) => {
-      nmqData[z.id] = userBodymapData[z.id] || 0;
+      const v = parseInt(userBodymapData[z.id], 10);
+      nmqData[z.id] = (!isNaN(v) && v > 0) ? v : 0;
     });
 
     const isRetest = !!(isRetestMode && baselineAssessment);
@@ -418,10 +428,10 @@ function initApp() {
     // 呼叫動態人因指引引擎，產出完全客製化建議 (含 15 區痛點處方 + 環境配置 + 前後測成效指引)
     const personalizedGuides = ERGO_CONFIG.generatePersonalizedActionGuides(
       selectedRole,
-      userBodymapData,
+      nmqData,
       traps,
       isRetest,
-      baselineAssessment ? (baselineAssessment.bodymapData || {}) : null
+      baselineAssessment ? (baselineAssessment.bodymapData || baselineAssessment.nmqData || {}) : null
     );
 
     // 計算作答總耗時與品質旗標 (防惡意刷題/防極速亂點)
@@ -910,15 +920,27 @@ function initApp() {
       elDisclaimer.innerText = ERGO_CONFIG.disclaimer;
     }
 
-    document.getElementById("btn-restart").addEventListener("click", () => {
-      userBodymapData = {};
-      userBodymapDetails = {};
-      elStepResult.classList.add("hidden");
-      elStepRole.classList.remove("hidden");
-      resetFlexibilityModule();
-      checkRestoreBanner();
-      renderRoles();
-    });
+    const btnRestart = document.getElementById("btn-restart");
+    if (btnRestart) {
+      btnRestart.onclick = () => {
+        userBodymapData = {};
+        userBodymapDetails = {};
+        userAnswers = [];
+        baselineAssessment = null;
+        isRetestMode = false;
+        if (studentBodyMap) {
+          studentBodyMap.setData({}, {});
+        }
+        elStepResult.classList.add("hidden");
+        elStepQuiz.classList.add("hidden");
+        elStepBodymap.classList.add("hidden");
+        elStepRole.classList.remove("hidden");
+        resetFlexibilityModule();
+        checkRestoreBanner();
+        renderRoles();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+    }
   }
 
   // 9. 課堂體適能柔軟度自我檢測模組互動邏輯
@@ -1404,31 +1426,33 @@ function initApp() {
     let guideSectionTitle = isRetestActive ? "🛠️ 痛點部位處方・工作站環境方針與維持指引" : "🛠️ 人體圖痛點處方與環境調整方針";
     const displayItems = [];
 
-    // 1. 痛點部位處方 (優先提取 1~2 個點選部位之專屬處方)
+    // 1. 痛點部位處方 (依嚴重度優先呈現學員所有點選部位之專屬處方)
     bGuides.forEach(bg => {
-      if (!bg.includes("維持優質人因基準") && displayItems.length < 2) {
+      if (!bg.includes("維持優質人因基準") && displayItems.length < 3) {
         displayItems.push({ label: "部位處方", color: "#e11d48", bg: "#ffe4e6", border: "#fecdd3", text: bg });
       }
     });
 
     // 2. 工作站環境配置調整方針
-    if (eGuides.length > 0 && displayItems.length < 3) {
+    if (eGuides.length > 0 && displayItems.length < 4) {
       displayItems.push({ label: "環境方針", color: "#0284c7", bg: "#e0f2fe", border: "#bae6fd", text: eGuides[0] });
     }
 
     // 3. 前後測改善成效與維持指引
-    if (isRetestActive && rGuides.length > 0 && displayItems.length < 3) {
+    if (isRetestActive && rGuides.length > 0 && displayItems.length < 4) {
       displayItems.push({ label: "改善維持", color: "#15803d", bg: "#dcfce7", border: "#86efac", text: rGuides[0] });
     }
 
-    // 備援充實至 3 項
-    if (displayItems.length < 3) {
-      if (bGuides.length > 0 && displayItems.length === 0) {
+    // 備援充實至 2~3 項
+    if (displayItems.length === 0) {
+      if (bGuides.length > 0) {
         displayItems.push({ label: "人因基準", color: "#059669", bg: "#ecfdf5", border: "#a7f3d0", text: bGuides[0] });
       }
-      if (eGuides.length > 1 && displayItems.length < 3) {
-        displayItems.push({ label: "動態保養", color: "#0284c7", bg: "#e0f2fe", border: "#bae6fd", text: eGuides[1] });
+      if (eGuides.length > 0) {
+        displayItems.push({ label: "環境方針", color: "#0284c7", bg: "#e0f2fe", border: "#bae6fd", text: eGuides[0] });
       }
+    } else if (displayItems.length === 1 && eGuides.length > 0) {
+      displayItems.push({ label: "環境方針", color: "#0284c7", bg: "#e0f2fe", border: "#bae6fd", text: eGuides[0] });
     }
 
     const guidesHtml = displayItems.slice(0, 3).map((item) => `

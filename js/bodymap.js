@@ -92,8 +92,8 @@ class BodyMapComponent {
             <g id="heatmap-targets">
               ${NMQ_ZONES.map((z) => `
                 <g class="zone-target ${this.interactive ? 'cursor-pointer' : ''}" data-id="${z.id}" id="target-${z.id}">
-                  <!-- 放大點擊熱區，手機更易擊中 -->
-                  <circle cx="${z.cx}" cy="${z.cy}" r="${z.r + 7}" fill="transparent" />
+                  <!-- 精準點擊熱區，防止相鄰解剖部位誤觸 -->
+                  <circle cx="${z.cx}" cy="${z.cy}" r="${z.r + 2}" fill="transparent" />
                   <circle cx="${z.cx}" cy="${z.cy}" r="${z.r}" class="zone-circle transition-all duration-200" fill="#f8fafc" fill-opacity="0.95" stroke="#94a3b8" stroke-width="1.5" />
                   <text x="${z.cx}" y="${z.cy}" text-anchor="middle" dominant-baseline="central" font-size="7.5" font-weight="bold" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" class="zone-text fill-slate-700 pointer-events-none select-none">
                     ${z.shortName || z.name}

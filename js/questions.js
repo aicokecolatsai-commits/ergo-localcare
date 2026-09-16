@@ -758,14 +758,9 @@ const ERGO_CONFIG = {
       ankle_l: "【左踝與足底筋膜重整】：換穿具備良好足弓支撐與避震機能的鞋款；定時轉動踝關節，促進下肢末梢循環。"
     };
 
-    // 1. 生成人體圖痛點部位專屬處方 (整合前測與後測所有曾有點選的部位，按最高嚴重度降序排列)
-    const combinedNmq = { ...(baselineNmqData || {}) };
-    Object.keys(nmqData || {}).forEach(k => {
-      combinedNmq[k] = Math.max(combinedNmq[k] || 0, nmqData[k] || 0);
-    });
-
-    const activeZones = Object.entries(combinedNmq)
-      .filter(([id, level]) => level >= 1 && zonePrescriptions[id])
+    // 1. 生成人體圖痛點部位專屬處方 (嚴格只針對「本次實際點選 level >= 1」之解剖部位，按嚴重度排序)
+    const activeZones = Object.entries(nmqData || {})
+      .filter(([id, level]) => (level || 0) >= 1 && zonePrescriptions[id])
       .sort((a, b) => b[1] - a[1]);
 
     activeZones.forEach(([id, level]) => {

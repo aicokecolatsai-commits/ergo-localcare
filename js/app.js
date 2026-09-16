@@ -1674,18 +1674,18 @@ function initApp() {
           </table>
 
           <!-- 0~100 連續橫桿光譜落點儀 (擴大高度距離，徹底解決方框重疊遮蓋光譜問題) -->
-          <div style="margin-top: 5px; padding-top: 4px; border-top: 1px dashed #e2e8f0;">
-            <div style="position: relative; padding-top: 26px; padding-bottom: 2px;">
+          <div style="margin-top: 4px; padding-top: 4px; border-top: 1px dashed #e2e8f0;">
+            <div style="position: relative; padding-top: 24px; padding-bottom: 2px;">
               ${isRetestActive && baselineData ? `
-                <div style="position: absolute; top: 0; left: ${Math.max(8, Math.min(92, baselineData.score))}%; transform: translateX(-50%); font-size: 8px; font-weight: 900; background: #475569; color: #ffffff; padding: 1.5px 5px; border-radius: 3px; white-space: nowrap; z-index: 2;">
+                <div style="position: absolute; top: 0; left: ${Math.max(8, Math.min(92, baselineData.score))}%; transform: translateX(-50%); font-size: 8px; font-weight: 900; background: #64748b; color: #ffffff; padding: 1.5px 5px; border-radius: 3px; white-space: nowrap; z-index: 2;">
                   ⏮️ 前測：${baselineData.score}分
                 </div>
-                <div style="position: absolute; top: 0; left: ${Math.max(8, Math.min(92, score))}%; transform: translateX(-50%); font-size: 8.5px; font-weight: 900; background: #0f172a; color: #34d399; border: 1.5px solid #10b981; padding: 1.5px 6px; border-radius: 3px; white-space: nowrap; z-index: 3;">
-                  🎯 改善後：${score}分 (${tierInfo.title.split(' ')[0]})
+                <div style="position: absolute; top: 0; left: ${Math.max(8, Math.min(92, score))}%; transform: translateX(-50%); font-size: 8.5px; font-weight: 900; background: #2b4c6f; color: #ffffff; border: 1.5px solid #5b84b1; padding: 1.5px 6px; border-radius: 3px; white-space: nowrap; z-index: 3;">
+                  🎯 改善後：<span style="color: #7dd3fc;">${score}分</span> (${tierInfo.title.split(' ')[0]})
                 </div>
               ` : `
-                <div style="position: absolute; top: 0; left: ${Math.max(8, Math.min(92, score))}%; transform: translateX(-50%); font-size: 8.5px; font-weight: 900; background: #0f172a; color: #ffffff; padding: 1.5px 6px; border-radius: 3px; white-space: nowrap;">
-                  🎯 您的落點：${score}分 (${tierInfo.title.split(' ')[0]})
+                <div style="position: absolute; top: 0; left: ${Math.max(8, Math.min(92, score))}%; transform: translateX(-50%); font-size: 8.5px; font-weight: 900; background: #2b4c6f; color: #ffffff; border: 1.5px solid #5b84b1; padding: 1.5px 6px; border-radius: 3px; white-space: nowrap;">
+                  🎯 您的落點：<span style="color: #7dd3fc;">${score}分</span> (${tierInfo.title.split(' ')[0]})
                 </div>
               `}
               <div style="height: 8px; border-radius: 4px; background: linear-gradient(to right, #f43f5e 0%, #f97316 45%, #eab308 70%, #10b981 100%); width: 100%; margin-top: 5px;"></div>
@@ -1702,15 +1702,15 @@ function initApp() {
         </div>
 
         <!-- 第二層戰情主軸：人體現況圖與 NMQ 清單 -->
-        <div style="margin-bottom: 6px;">
+        <div style="margin-bottom: 5px;">
           ${bodymapSectionHtml}
         </div>
 
         <!-- 第三層戰情整合：課堂體適能上下肢檢測 -->
-        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 5px 8px; margin-bottom: 6px; box-sizing: border-box;">
-          <table style="width: 100%; border-bottom: 1px solid #dcfce7; margin-bottom: 3px; padding-bottom: 2px; table-layout: fixed;">
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 4px 7px; margin-bottom: 5px; box-sizing: border-box;">
+          <table style="width: 100%; border-bottom: 1px solid #dcfce7; margin-bottom: 2.5px; padding-bottom: 1.5px; table-layout: fixed;">
             <tr>
-              <td style="text-align: left; font-size: 9.5px; font-weight: bold; color: #166534;">
+              <td style="text-align: left; font-size: 9px; font-weight: bold; color: #166534;">
                 🏃‍♂️ 課堂實作：體適能上下肢柔軟度自我檢測與生物力學分析
               </td>
               <td style="text-align: right; font-size: 8px; font-weight: 600; color: #15803d; width: 110px;">
@@ -1724,7 +1724,7 @@ function initApp() {
           <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
             <tr>
               <td style="width: 50%; vertical-align: top; padding-right: 3px;">
-                <div style="background: #ffffff; border: 1px solid #dcfce7; border-radius: 4px; padding: 4px 6px; font-size: 8.5px; line-height: 1.3;">
+                <div style="background: #ffffff; border: 1px solid #dcfce7; border-radius: 4px; padding: 3.5px 5px; font-size: 8px; line-height: 1.3;">
                   <span style="font-weight: bold; color: #0f172a;">1. 上肢抓背測驗：</span>
                   <span style="font-weight: bold; color: #0284c7;">${upperText}</span>
                   <div style="color: #475569; margin-top: 1px;">
@@ -1733,7 +1733,7 @@ function initApp() {
                 </div>
               </td>
               <td style="width: 50%; vertical-align: top; padding-left: 3px;">
-                <div style="background: #ffffff; border: 1px solid #dcfce7; border-radius: 4px; padding: 4px 6px; font-size: 8.5px; line-height: 1.3;">
+                <div style="background: #ffffff; border: 1px solid #dcfce7; border-radius: 4px; padding: 3.5px 5px; font-size: 8px; line-height: 1.3;">
                   <span style="font-weight: bold; color: #0f172a;">2. 下肢椅上體前彎：</span>
                   <span style="font-weight: bold; color: #0284c7;">${lowerText}</span>
                   <div style="color: #475569; margin-top: 1px;">
@@ -1746,66 +1746,66 @@ function initApp() {
         </div>
 
         <!-- 第四層：職場微習慣執行指引 (實用行動方案) -->
-        <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; padding: 5px 8px; margin-bottom: 6px; box-sizing: border-box;">
+        <div style="background: #f0fdfa; border: 1px solid #99f6e4; border-radius: 6px; padding: 4px 7px; margin-bottom: 5px; box-sizing: border-box;">
           <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
             <tr>
-              <td style="font-size: 9px; font-weight: bold; color: #115e59; width: 140px; vertical-align: middle;">
+              <td style="font-size: 8.5px; font-weight: bold; color: #115e59; width: 135px; vertical-align: middle;">
                 🌱 課後職場微習慣執行指引：
               </td>
-              <td style="font-size: 8.5px; color: #134e4a; line-height: 1.35; vertical-align: middle;">
-                💧 <strong>每小時補水起身</strong>（促進下肢血液循環與肌肉收縮回流） ｜ 🚶 <strong>50分鐘站立走動</strong>（重啟脊椎循環）<br>
-                🧘 <strong>每日 15:00 辦公室微伸展</strong>（椅前彎30秒+擴胸） ｜ 👀 <strong>20-20-20 護眼法則</strong>（放鬆睫狀肌）
+              <td style="font-size: 8px; color: #134e4a; line-height: 1.35; vertical-align: middle;">
+                💧 <strong>每小時補水起身</strong>（促進血液回流） ｜ 🚶 <strong>50分鐘站立走動</strong>（重啟脊椎循環）<br>
+                🧘 <strong>每日 15:00 辦公室微伸展</strong>（椅前彎30秒） ｜ 👀 <strong>20-20-20 護眼法則</strong>（放鬆睫狀肌）
               </td>
             </tr>
           </table>
         </div>
 
-        <!-- 第五層：官方延伸工具、動齡 App 與知識庫連結 (含清晰 QR Code) -->
-        <table style="width: 100%; border-collapse: collapse; table-layout: fixed; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 6px;">
+        <!-- 第五層：官方延伸工具、動齡 App 與知識庫連結 (內嵌高清 Base64 QR Code) -->
+        <table style="width: 100%; border-collapse: collapse; table-layout: fixed; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 5px;">
           <tr>
             <!-- 1. KIM 2019 德國人因 -->
-            <td style="width: 33.3%; padding: 4px 6px; border-right: 1px solid #e2e8f0; vertical-align: middle;">
+            <td style="width: 33.3%; padding: 3px 5px; border-right: 1px solid #e2e8f0; vertical-align: middle;">
               <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
                 <tr>
-                  <td style="width: 44px; text-align: center; vertical-align: middle; padding-right: 4px;">
-                    <img src="assets/qr-kim.png" style="width: 40px; height: 40px; display: block; border-radius: 3px; border: 1px solid #cbd5e1; margin: 0 auto;">
+                  <td style="width: 38px; text-align: center; vertical-align: middle; padding-right: 3px;">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQMAAACXljzdAAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABgUlEQVRYhdWYMbKDMAxExVC45Ag+CjeLOZqP4iO4TMGgrFbmz5D5qREqPMSvYeWVLCLyM4paiKS+bjLjcZu4cwQgL77gtKeOVd98tq3gBBpased1I5FpX6DqCQSZ76tibeCPITJb/rFm1UcQ946+8VP3pPXbVTcSr0bz9bodeOtarnUak4xAxqu4kq8ISUxPw2KncEhqyP/coSo2Qf61wSk4BWW/tjAemrxYhyToHtADbZ2nEJkU+kV3WargLNi1x/ncTuyts/Xj7mYRu1eybrGJO8ST+593YhLcJT2rTxvKe1tQja40MBHq4UynO1XJwrMITYYeOB6/0sVVoYlPzucUTe+sYw65m1g1WpbH1FmO2YjEJixEnzY4xfntXYKT+b3Yve2+Ts3736pHaOJh82hl5zN322gam7gUzzwclM8JX0ITn/1tQebhHUxKfz3xdjK+9Hzv6p3whD1Ezsj6EJL4VW2qPCQ2oXe4h5tFxjdgLbHJWY3JZfg/GLxlIpOf8QFqSm3PFia3zAAAAABJRU5ErkJggg==" style="width: 34px; height: 34px; display: block; border-radius: 2px; border: 1px solid #cbd5e1; margin: 0 auto;">
                   </td>
-                  <td style="vertical-align: middle; font-size: 8.5px; line-height: 1.25;">
+                  <td style="vertical-align: middle; font-size: 8px; line-height: 1.25;">
                     <div style="font-weight: bold; color: #0f172a;">📐 KIM 2019 德國法</div>
-                    <div style="color: #0284c7; font-size: 7.5px; word-break: break-all;">aicokecolatsai.../KIM2019/</div>
-                    <div style="color: #64748b; font-size: 7.5px;">掃描評估抬舉搬運負荷</div>
+                    <div style="color: #0284c7; font-size: 7px; word-break: break-all;">aicokecolatsai.../KIM2019/</div>
+                    <div style="color: #64748b; font-size: 7px;">掃描評估抬舉搬運負荷</div>
                   </td>
                 </tr>
               </table>
             </td>
 
             <!-- 2. 動齡健康管理 App -->
-            <td style="width: 33.3%; padding: 4px 6px; border-right: 1px solid #e2e8f0; vertical-align: middle;">
+            <td style="width: 33.3%; padding: 3px 5px; border-right: 1px solid #e2e8f0; vertical-align: middle;">
               <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
                 <tr>
-                  <td style="width: 44px; text-align: center; vertical-align: middle; padding-right: 4px;">
-                    <img src="assets/qr-moveage.png" style="width: 40px; height: 40px; display: block; border-radius: 3px; border: 1px solid #cbd5e1; margin: 0 auto;">
+                  <td style="width: 38px; text-align: center; vertical-align: middle; padding-right: 3px;">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQMAAACXljzdAAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAABjklEQVRYhdWYPbLCMAyElaFI6SPkKLkZztFyFB8hZQqPxa5kw+PNUEdREcAfBZJWP0bkp2WliczHqvI4F9XJTloA8rQfONX54JdOfJgqj4KTh2rJfL9uzZ5TTarbHQgijyxonQv9uQuBapALPle9BXHt6Jl0G/58qepC4tVIXUMhqMY9f9dpTNINEd+lWaz/tbmQhP4Udo9k/a/QqwNexSZPmbWIZYGeLFRQKq6q0ASdWuRPv4aDzEJkkquk0muTZN1MRzkG4e9tj09X9ojHJhZrepJYjer2UUhUYlNEq3HmIrfhT2CCOlS+koj1a2inUOmhiYUdZ+h8XTvofOZPYIIsoE5xhikjb+2stodcThDlRb2HTOr70MFOEpzQms1t6HrhveQgj02YBc4S5V4EhdggX7WFJm7IQtrF74AiSTU4ySZx3zbwLGPDl9DEd3+7kWxQvPtT3qq6lvhNj73Zts6hkLuQvuEjypyA7R7k4P8YgnuJm8Qmph2vxtGvfR+NTEY1snH03b5Pmcjk70AkrEyS7fQKhkAAAAASUVORK5CYII=" style="width: 34px; height: 34px; display: block; border-radius: 2px; border: 1px solid #cbd5e1; margin: 0 auto;">
                   </td>
-                  <td style="vertical-align: middle; font-size: 8.5px; line-height: 1.25;">
+                  <td style="vertical-align: middle; font-size: 8px; line-height: 1.25;">
                     <div style="font-weight: bold; color: #0f172a;">📱 動齡健康 App</div>
-                    <div style="color: #0284c7; font-size: 7.5px; word-break: break-all;">move-age-web...</div>
-                    <div style="color: #64748b; font-size: 7.5px;">血壓量測與微習慣任務</div>
+                    <div style="color: #0284c7; font-size: 7px; word-break: break-all;">move-age-web...</div>
+                    <div style="color: #64748b; font-size: 7px;">血壓量測與微習慣任務</div>
                   </td>
                 </tr>
               </table>
             </td>
 
             <!-- 3. 人因工程部落格 -->
-            <td style="width: 33.3%; padding: 4px 6px; vertical-align: middle;">
+            <td style="width: 33.3%; padding: 3px 5px; vertical-align: middle;">
               <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
                 <tr>
-                  <td style="width: 44px; text-align: center; vertical-align: middle; padding-right: 4px;">
-                    <img src="assets/qr-blog.png" style="width: 40px; height: 40px; display: block; border-radius: 3px; border: 1px solid #cbd5e1; margin: 0 auto;">
+                  <td style="width: 38px; text-align: center; vertical-align: middle; padding-right: 3px;">
+                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAADIAQMAAACXljzdAAAABlBMVEX///8AAABVwtN+AAAACXBIWXMAAA7EAAAOxAGVKw4bAAAA/UlEQVRYhd2XwRLCMAhEly/Pn4OBJdFUe++KGTvD68EdNoDAbYyoAOYxn8eY8GeT+u2ByJOJiVEvqZLUmUrnY6r00uryhEod+BOS1WNenbQTwcL98KgW6U6RH2+dZw/RIh8RrfI7hMigzhUUm0aUJrxeVbfKKpNqe8FJm7O2XxAlla3vjdKOpkrGKltPJluz9tkEy28RS0rfH1UCygSw1lE6UZbE+wZ1tvdRScLRg7Np5/yRJHuYzuhmYJflQIoMiquN1PY4PTchKbIr18sBlZouoc74sCIvlzjJh1WSzU+eAN53yq7/XKUInVhKmYzTo2KE5qMLfc/aUCW38QIR6WxqI37sEwAAAABJRU5ErkJggg==" style="width: 34px; height: 34px; display: block; border-radius: 2px; border: 1px solid #cbd5e1; margin: 0 auto;">
                   </td>
-                  <td style="vertical-align: middle; font-size: 8.5px; line-height: 1.25;">
+                  <td style="vertical-align: middle; font-size: 8px; line-height: 1.25;">
                     <div style="font-weight: bold; color: #0f172a;">📚 人因工程部落格</div>
-                    <div style="color: #0284c7; font-size: 7.5px; word-break: break-all;">ergopt.blogspot.com</div>
-                    <div style="color: #64748b; font-size: 7.5px;">人因改善與健康專欄</div>
+                    <div style="color: #0284c7; font-size: 7px; word-break: break-all;">ergopt.blogspot.com</div>
+                    <div style="color: #64748b; font-size: 7px;">人因改善與健康專欄</div>
                   </td>
                 </tr>
               </table>
@@ -1814,7 +1814,7 @@ function initApp() {
         </table>
 
         <!-- 第六層：法律免責與官方認證 Footer -->
-        <div style="border-top: 1px solid #cbd5e1; padding-top: 3px; font-size: 8px; color: #64748b; line-height: 1.25; text-align: center;">
+        <div style="border-top: 1px solid #cbd5e1; padding-top: 3px; font-size: 7.5px; color: #64748b; line-height: 1.25; text-align: center;">
           ⚠️ 免責聲明：本報告係依據北歐肌肉骨骼問卷 (NMQ) 與人因工程人體測量學原理設計之自我檢核指標，非屬醫療診斷行為。<br>
           人因小管家(Noah) 研發
         </div>
@@ -2184,14 +2184,17 @@ function initApp() {
       // 2. 產出使用 Table 排版的個人戰情室 HTML
       const warRoomHtml = buildWarRoomHtml(currentBodyMapPng, baselineBodyMapPng);
 
-      // 3. 構建專屬 A4 高解析度輸出容器 (740px 精準單頁寬度，杜絕右側裁切)
+      // 3. 構建專屬 A4 高解析度輸出容器 (740px 精準單頁寬度，杜絕右側裁切與跨頁跑版)
       const renderWrapper = document.createElement("div");
       renderWrapper.id = "pdf-render-wrapper";
-      renderWrapper.style.position = "fixed";
-      renderWrapper.style.left = "-9999px";
-      renderWrapper.style.top = "0";
+      renderWrapper.style.position = "absolute";
+      renderWrapper.style.left = "0px";
+      renderWrapper.style.top = "0px";
       renderWrapper.style.width = "740px";
       renderWrapper.style.zIndex = "-9999";
+      renderWrapper.style.opacity = "1";
+      renderWrapper.style.pointerEvents = "none";
+      renderWrapper.style.background = "#ffffff";
 
       const printable = document.createElement("div");
       printable.id = "printable-pdf-document";
@@ -2204,28 +2207,29 @@ function initApp() {
       renderWrapper.appendChild(printable);
       document.body.appendChild(renderWrapper);
 
-      // 等待圖片載入完畢
-      await new Promise(r => setTimeout(r, 150));
+      // 等待圖片與字型完全就緒
+      await new Promise(r => setTimeout(r, 200));
 
       const dateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '');
       const fileName = `人因小管家PRO_A4戰情室評估報告_${dateStr}.pdf`;
 
-      // 設定 html2pdf 選項 (4mm 邊界 + scale: 3 可列印高品質 + avoid-all 單頁防裁切)
+      // 設定 html2pdf 選項 (4mm 邊界 + scale: 2 高清印刷 + avoid-all 單頁防裁切)
       const opt = {
         margin: [4, 4, 4, 4],
         filename: fileName,
-        image: { type: 'jpeg', quality: 1.0 },
+        image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
-          scale: 3,
+          scale: 2,
           useCORS: true,
           logging: false,
           scrollY: 0,
           scrollX: 0,
-          letterRendering: true,
-          windowWidth: 740
+          width: 740,
+          windowWidth: 740,
+          letterRendering: true
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+        pagebreak: { mode: 'avoid-all' }
       };
 
       const pdfBlob = await html2pdf().set(opt).from(printable).output('blob');

@@ -2205,14 +2205,14 @@ function initApp() {
       // 2. 產出使用 Table 排版的個人戰情室 HTML
       const warRoomHtml = buildWarRoomHtml(currentBodyMapPng, baselineBodyMapPng);
 
-      // 3. 建立標準獨立列印容器 (掛載於頂層 DOM 確保 html2canvas 具備完整 740px 物理渲染維度)
+      // 3. 建立標準獨立列印容器 (置於 Toast 底下，確保 WebKit 與 Blink 獲得完整 740px 物理渲染維度)
       const renderWrapper = document.createElement("div");
       renderWrapper.id = "pdf-render-wrapper";
       renderWrapper.style.position = "fixed";
       renderWrapper.style.left = "0px";
       renderWrapper.style.top = "0px";
       renderWrapper.style.width = "740px";
-      renderWrapper.style.zIndex = "-9999";
+      renderWrapper.style.zIndex = "100";
       renderWrapper.style.opacity = "1";
       renderWrapper.style.pointerEvents = "none";
       renderWrapper.style.background = "#ffffff";
@@ -2229,12 +2229,12 @@ function initApp() {
       document.body.appendChild(renderWrapper);
 
       // 等待 DOM 渲染掛載完畢
-      await new Promise(r => setTimeout(r, 150));
+      await new Promise(r => setTimeout(r, 200));
 
       const dateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '');
       const fileName = `人因小管家PRO_A4戰情室評估報告_${dateStr}.pdf`;
 
-      // 設定 html2pdf 純淨標準選項 (完全杜絕自訂寬度導致的 offset 裁切 bug)
+      // 設定 html2pdf 純淨標準選項 (加入 windowWidth: 760 徹底解決手機版寬度被截斷問題)
       const opt = {
         margin: [4, 4, 4, 4],
         filename: fileName,
@@ -2244,7 +2244,9 @@ function initApp() {
           useCORS: true,
           logging: false,
           scrollY: 0,
-          scrollX: 0
+          scrollX: 0,
+          windowWidth: 760,
+          width: 740
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: 'avoid-all' }
@@ -2254,13 +2256,31 @@ function initApp() {
       const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
       if (isShare) {
-        // 分享模式
+        // 分享模式 (優先調用原生系統分享面板)
         if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-          await navigator.share({
-            title: '人因小管家 PRO 個人 A4 人因戰情室報告',
-            text: `人因小管家(Noah) 研發・我的健康得分：${currentReportState.score}分`,
-            files: [pdfFile]
-          });
+          try {
+            await navigator.share({
+              title: '人因小管家 - 人體老化指標戰情室報告',
+              text: `受檢學員：${studentName || '專案受檢人員'}・人因健康得分：${currentReportState.score}分`,
+              files: [pdfFile]
+            });
+          } catch (shareErr) {
+            if (shareErr.name !== 'AbortError') {
+              downloadPdfBlob(pdfBlob, fileName);
+            }
+          }
+        } else if (navigator.share) {
+          try {
+            await navigator.share({
+              title: '人因小管家 - 人體老化指標戰情室報告',
+              text: `受檢學員：${studentName || '專案受檢人員'}・人因健康得分：${currentReportState.score}分\n報告網址：${window.location.href}`,
+              url: window.location.href
+            });
+          } catch (shareErr) {
+            if (shareErr.name !== 'AbortError') {
+              downloadPdfBlob(pdfBlob, fileName);
+            }
+          }
         } else {
           // 若不支援原生分享，自動轉為直接下載
           downloadPdfBlob(pdfBlob, fileName);
@@ -2287,17 +2307,33 @@ function initApp() {
   }
 
   function downloadPdfBlob(blob, filename) {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.target = "_blank";
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      a.remove();
-      URL.revokeObjectURL(url);
-    }, 1500);
+    
+    if (isIOS) {
+      // iOS Mobile Safari 開啟新分頁原生預覽與下載
+      const newWin = window.open(url, '_blank');
+      if (!newWin) {
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => a.remove(), 1500);
+      }
+    } else {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        a.remove();
+        URL.revokeObjectURL(url);
+      }, 2500);
+    }
   }
 
   // 11. 首頁與全局一鍵重置 (清除初評/複評/作答紀錄)

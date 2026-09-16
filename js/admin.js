@@ -311,17 +311,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const { headers, rows, count, summary } = buildSessionExportData(currentSession);
-  // ==========================================
-  // 7. 同步至 Google 試算表 (分頁)
-  // ==========================================
-  async function performGSheetSync(btnElement) {
-    const webhookUrl = APP_CONFIG.getGSheetWebhook();
-    if (!webhookUrl) {
-      openGSheetModal();
-      return;
-    }
-
     let { headers, rows, count, summary } = buildSessionExportData(currentSession);
     if (count === 0) {
       const shouldGenerate = confirm(`場次【${currentSession}】目前尚無學員作答數據。\n\n點選【確定】：系統將自動生成 30 筆模擬數據並立即同步至 Google 試算表\n點選【取消】：僅在試算表建立該場次的中文表頭分頁`);

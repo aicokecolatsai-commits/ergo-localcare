@@ -132,11 +132,8 @@ body {
 
 /* 專業 A4 戰情室原生列印樣式 (瀏覽器原生 Print to PDF，完美支援所有現代 CSS、SVG、高畫質輸出) */
 @media print {
-  body > * {
+  body > *:not(#print-only-warroom-container) {
     display: none !important;
-  }
-  #print-only-warroom-container, #print-only-warroom-container * {
-    visibility: visible !important;
   }
   #print-only-warroom-container {
     display: block !important;
@@ -146,11 +143,19 @@ body {
     width: 100% !important;
     background: #ffffff !important;
     color: #0f172a !important;
+    margin: 0 !important;
+    padding: 0 !important;
     z-index: 99999 !important;
+  }
+  #print-only-warroom-container * {
+    visibility: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   @page {
     size: A4 portrait;
-    margin: 6mm;
+    margin: 5mm;
   }
 }
+
 

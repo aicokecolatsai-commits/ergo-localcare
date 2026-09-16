@@ -1503,14 +1503,18 @@ function initApp() {
                   <tr>
                     <td style="width: 50%; text-align: center; vertical-align: top; padding-right: 3px;">
                       <div style="font-size: 9px; font-weight: bold; color: #475569; margin-bottom: 2px;">改善前 (前測)</div>
-                      <img src="${baselineBodyMapPng || currentBodyMapPng}" style="width: 125px; height: 195px; max-height: 200px; object-fit: contain; display: block; margin: 0 auto; border-radius: 4px;">
+                      <div style="width: 125px; height: 195px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                        ${generateBodymapSvgString(baselineBodymap, 125, 195)}
+                      </div>
                       <div style="font-size: 9px; font-weight: 900; color: #475569; margin-top: 2px;">
                         ${baselineData.score}分·${baselineData.tierInfo ? baselineData.tierInfo.title.split(' ')[0] : ''}
                       </div>
                     </td>
                     <td style="width: 50%; text-align: center; vertical-align: top; padding-left: 3px; border-left: 1px dashed #cbd5e1;">
                       <div style="font-size: 9px; font-weight: bold; color: #15803d; margin-bottom: 2px;">改善後 (複測)</div>
-                      <img src="${currentBodyMapPng}" style="width: 125px; height: 195px; max-height: 200px; object-fit: contain; display: block; margin: 0 auto; border-radius: 4px;">
+                      <div style="width: 125px; height: 195px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                        ${generateBodymapSvgString(bodymapData, 125, 195)}
+                      </div>
                       <div style="font-size: 9px; font-weight: 900; color: #15803d; margin-top: 2px;">
                         ${score}分·${tierInfo.title.split(' ')[0]}
                       </div>
@@ -1560,7 +1564,9 @@ function initApp() {
                 <div style="font-size: 10.5px; font-weight: 900; color: #0f172a; margin-bottom: 4px; border-bottom: 1px solid #f1f5f9; padding-bottom: 2px; text-align: left;">
                   🧍 肌肉骨骼痛點分佈圖
                 </div>
-                <img src="${currentBodyMapPng}" style="width: 170px; height: 260px; max-height: 270px; object-fit: contain; display: block; margin: 0 auto; border-radius: 4px;">
+                <div style="width: 170px; height: 260px; margin: 0 auto; display: flex; align-items: center; justify-content: center;">
+                  ${generateBodymapSvgString(bodymapData, 170, 260)}
+                </div>
               </div>
             </td>
             <td style="width: 486px; vertical-align: top; padding-left: 0;">
@@ -1997,22 +2003,11 @@ function initApp() {
   }
 
   // 螢幕全頁預覽戰情室 Modal (支援自動適應手機螢幕尺寸、縮放切換、永不裁切)
-  async function showWarRoomPreviewModal() {
+  function showWarRoomPreviewModal() {
     const existing = document.getElementById("warroom-preview-modal");
     if (existing) existing.remove();
 
-    // 向量人體圖 Data URL (支援前後測雙人體圖，100% 向量銳利度即時生成)
-    const currentBodmap = (currentReportState && currentReportState.bodymapData) || userBodymapData || {};
-    const currentBodyMapDataUrl = getBodymapDataUrl(currentBodmap, 200, 330);
-
-    const baselineData = baselineAssessment || (currentReportState && currentReportState.baselineAssessment) || null;
-    const isRetestActive = !!(baselineData && (isRetestMode || (currentReportState && currentReportState.isRetest)));
-    let baselineBodyMapDataUrl = null;
-    if (isRetestActive && baselineData) {
-      baselineBodyMapDataUrl = getBodymapDataUrl(baselineData.bodymapData || {}, 200, 330);
-    }
-
-    const warRoomHtml = buildWarRoomHtml(currentBodyMapDataUrl, baselineBodyMapDataUrl);
+    const warRoomHtml = buildWarRoomHtml();
 
     const modal = document.createElement("div");
     modal.id = "warroom-preview-modal";
@@ -2160,37 +2155,23 @@ function initApp() {
         <div class="w-12 h-12 border-4 border-sky-600 border-t-transparent rounded-full animate-spin"></div>
         <div>
           <div class="font-black text-slate-900 text-sm md:text-base">正在產出 A4 人因戰情室報告</div>
-          <p class="text-xs text-slate-500 mt-1">向量人體圖 300DPI 渲染、排版計算與光譜生成中...</p>
+          <p class="text-xs text-slate-500 mt-1">向量排版計算與高畫質 PDF 生成中...</p>
         </div>
       </div>
     `;
     document.body.appendChild(toast);
 
     try {
-      // 1. 生成向量人體圖 Data URL (100% 同步即時生成，零延遲零失敗)
-      const currentBodmap = (currentReportState && currentReportState.bodymapData) || userBodymapData || {};
-      const currentBodyMapDataUrl = getBodymapDataUrl(currentBodmap, 200, 330);
+      // 1. 產出使用 Table 排版的個人戰情室 HTML
+      const warRoomHtml = buildWarRoomHtml();
 
-      const baselineData = baselineAssessment || (currentReportState && currentReportState.baselineAssessment) || null;
-      const isRetestActive = !!(baselineData && (isRetestMode || (currentReportState && currentReportState.isRetest)));
-      let baselineBodyMapDataUrl = null;
-      if (isRetestActive && baselineData) {
-        baselineBodyMapDataUrl = getBodymapDataUrl(baselineData.bodymapData || {}, 200, 330);
-      }
-
-      // 2. 產出使用 Table 排版的個人戰情室 HTML
-      const warRoomHtml = buildWarRoomHtml(currentBodyMapDataUrl, baselineBodyMapDataUrl);
-
-      // 3. 建立標準獨立列印容器 (置於 Toast 底下，確保 WebKit 與 Blink 獲得完整 740px 物理渲染維度)
+      // 2. 建立標準獨立列印容器 (置於離屏可計算區域)
       const renderWrapper = document.createElement("div");
       renderWrapper.id = "pdf-render-wrapper";
-      renderWrapper.style.position = "fixed";
-      renderWrapper.style.left = "0px";
+      renderWrapper.style.position = "absolute";
+      renderWrapper.style.left = "-9999px";
       renderWrapper.style.top = "0px";
       renderWrapper.style.width = "740px";
-      renderWrapper.style.zIndex = "100";
-      renderWrapper.style.opacity = "1";
-      renderWrapper.style.pointerEvents = "none";
       renderWrapper.style.background = "#ffffff";
 
       const printable = document.createElement("div");
@@ -2205,24 +2186,23 @@ function initApp() {
       document.body.appendChild(renderWrapper);
 
       // 等待 DOM 渲染掛載完畢
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 150));
 
       const dateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '');
       const fileName = `人因小管家PRO_A4戰情室評估報告_${dateStr}.pdf`;
 
-      // 設定 html2pdf 純淨標準選項 (加入 windowWidth: 760 徹底解決手機版寬度被截斷問題)
+      // 設定 html2pdf 純淨標準選項
       const opt = {
-        margin: [4, 4, 4, 4],
+        margin: [3, 3, 3, 3],
         filename: fileName,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: {
           scale: 2,
           useCORS: true,
+          allowTaint: true,
           logging: false,
-          scrollY: 0,
           scrollX: 0,
-          windowWidth: 760,
-          width: 740
+          scrollY: 0
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: 'avoid-all' }

@@ -3,6 +3,85 @@
  * 負責新增場次、動態產出 QR Code 與投影連結、繁體中文 CSV 匯出與 Google 試算表多分頁 (Multi-Tab) 整合
  */
 
+const GAS_TEMPLATE_CODE = `/**
+ * 【人因小管家】Google 試算表自動多分頁同步腳本
+ * Noah / 蔡健儀 專屬人因研習數據中心
+ */
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.tryLock(15000);
+  
+  try {
+    var contents = e.postData.contents;
+    var data = JSON.parse(contents);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    
+    var sessionName = (data.sessionName || "場次數據").toString().trim();
+    // 試算表分頁名稱限制符號與長度
+    sessionName = sessionName.replace(/[:\\/?*\\[\\]\\\\]/g, "_").substring(0, 80);
+    
+    // 1. 取得或新建該場次專屬分頁
+    var sheet = ss.getSheetByName(sessionName);
+    if (!sheet) {
+      sheet = ss.insertSheet(sessionName);
+    } else {
+      sheet.clear(); // 覆蓋更新最新完整場次數據
+    }
+    
+    // 2. 寫入總結資訊列 (Dashboard Summary)
+    var summary = data.summary || {};
+    var timestamp = Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy/MM/dd HH:mm:ss");
+    
+    sheet.appendRow(["📊 場次名稱", sessionName, "⏱️ 同步時間", timestamp, "👥 總填答人數", (data.rows ? data.rows.length : 0), "🎯 平均健康分", (summary.avgScore || "-")]);
+    var summaryRange = sheet.getRange(1, 1, 1, 8);
+    summaryRange.setBackground("#f0fdf4").setFontColor("#166534").setFontWeight("bold");
+    sheet.appendRow([""]); // 空行
+    
+    // 3. 寫入繁體中文表頭
+    var headers = data.headers || [];
+    sheet.appendRow(headers);
+    var headerRowIndex = 3;
+    var headerRange = sheet.getRange(headerRowIndex, 1, 1, headers.length);
+    headerRange.setBackground("#0f766e")
+               .setFontColor("#ffffff")
+               .setFontWeight("bold")
+               .setHorizontalAlignment("center");
+               
+    sheet.setFrozenRows(headerRowIndex);
+    
+    // 4. 批次寫入學員作答數據
+    if (data.rows && data.rows.length > 0) {
+      sheet.getRange(headerRowIndex + 1, 1, data.rows.length, headers.length).setValues(data.rows);
+      var dataRange = sheet.getRange(headerRowIndex + 1, 1, data.rows.length, headers.length);
+      dataRange.setVerticalAlignment("middle");
+    }
+    
+    // 5. 自動調整欄寬
+    for (var c = 1; c <= headers.length; c++) {
+      sheet.autoResizeColumn(c);
+    }
+    
+    var sheetId = sheet.getSheetId();
+    var sheetUrl = ss.getUrl() + "#gid=" + sheetId;
+    
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "success",
+      message: "成功同步 " + (data.rows ? data.rows.length : 0) + " 筆數據至分頁【" + sessionName + "】",
+      sheetUrl: sheetUrl,
+      sessionName: sessionName,
+      totalRows: data.rows ? data.rows.length : 0
+    })).setMimeType(ContentService.MimeType.JSON);
+    
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({
+      status: "error",
+      message: err.toString()
+    })).setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}`;
+
 document.addEventListener("DOMContentLoaded", () => {
   const elSessionInput = document.getElementById("session-id-input");
   const elBtnCreate = document.getElementById("btn-create-session");
@@ -463,87 +542,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==========================================
-  // 9. Google 試算表設定 Modal 與教學腳本
+  // 9. Google 試算表設定 Modal 與狀態管理
   // ==========================================
-  const GAS_TEMPLATE_CODE = `/**
- * 【人因小管家】Google 試算表自動多分頁同步腳本
- * Noah / 蔡健儀 專屬人因研習數據中心
- */
-function doPost(e) {
-  var lock = LockService.getScriptLock();
-  lock.tryLock(15000);
-  
-  try {
-    var contents = e.postData.contents;
-    var data = JSON.parse(contents);
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    
-    var sessionName = (data.sessionName || "場次數據").toString().trim();
-    // 試算表分頁名稱限制符號與長度
-    sessionName = sessionName.replace(/[:\\/?*\\[\\]\\\\]/g, "_").substring(0, 80);
-    
-    // 1. 取得或新建該場次專屬分頁
-    var sheet = ss.getSheetByName(sessionName);
-    if (!sheet) {
-      sheet = ss.insertSheet(sessionName);
-    } else {
-      sheet.clear(); // 覆蓋更新最新完整場次數據
-    }
-    
-    // 2. 寫入總結資訊列 (Dashboard Summary)
-    var summary = data.summary || {};
-    var timestamp = Utilities.formatDate(new Date(), "Asia/Taipei", "yyyy/MM/dd HH:mm:ss");
-    
-    sheet.appendRow(["📊 場次名稱", sessionName, "⏱️ 同步時間", timestamp, "👥 總填答人數", (data.rows ? data.rows.length : 0), "🎯 平均健康分", (summary.avgScore || "-")]);
-    var summaryRange = sheet.getRange(1, 1, 1, 8);
-    summaryRange.setBackground("#f0fdf4").setFontColor("#166534").setFontWeight("bold");
-    sheet.appendRow([""]); // 空行
-    
-    // 3. 寫入繁體中文表頭
-    var headers = data.headers || [];
-    sheet.appendRow(headers);
-    var headerRowIndex = 3;
-    var headerRange = sheet.getRange(headerRowIndex, 1, 1, headers.length);
-    headerRange.setBackground("#0f766e")
-               .setFontColor("#ffffff")
-               .setFontWeight("bold")
-               .setHorizontalAlignment("center");
-               
-    sheet.setFrozenRows(headerRowIndex);
-    
-    // 4. 批次寫入學員作答數據
-    if (data.rows && data.rows.length > 0) {
-      sheet.getRange(headerRowIndex + 1, 1, data.rows.length, headers.length).setValues(data.rows);
-      var dataRange = sheet.getRange(headerRowIndex + 1, 1, data.rows.length, headers.length);
-      dataRange.setVerticalAlignment("middle");
-    }
-    
-    // 5. 自動調整欄寬
-    for (var c = 1; c <= headers.length; c++) {
-      sheet.autoResizeColumn(c);
-    }
-    
-    var sheetId = sheet.getSheetId();
-    var sheetUrl = ss.getUrl() + "#gid=" + sheetId;
-    
-    return ContentService.createTextOutput(JSON.stringify({
-      status: "success",
-      message: "成功同步 " + (data.rows ? data.rows.length : 0) + " 筆數據至分頁【" + sessionName + "】",
-      sheetUrl: sheetUrl,
-      sessionName: sessionName,
-      totalRows: data.rows ? data.rows.length : 0
-    })).setMimeType(ContentService.MimeType.JSON);
-    
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({
-      status: "error",
-      message: err.toString()
-    })).setMimeType(ContentService.MimeType.JSON);
-  } finally {
-    lock.releaseLock();
-  }
-}`;
-
   function initGSheetIntegration() {
     if (elGasCodeBlock) {
       elGasCodeBlock.textContent = GAS_TEMPLATE_CODE;

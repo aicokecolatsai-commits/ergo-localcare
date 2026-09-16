@@ -2184,50 +2184,19 @@ function initApp() {
       // 2. 產出使用 Table 排版的個人戰情室 HTML
       const warRoomHtml = buildWarRoomHtml(currentBodyMapPng, baselineBodyMapPng);
 
-      // 3. 構建完全隔離的 760px 視窗 iframe (100% 解決手機直立/窄螢幕下 html2canvas 座標裁切與擠壓跑版問題)
-      const iframe = document.createElement("iframe");
-      iframe.id = "pdf-render-iframe";
-      iframe.style.position = "fixed";
-      iframe.style.left = "0px";
-      iframe.style.top = "0px";
-      iframe.style.width = "760px";
-      iframe.style.height = "1200px";
-      iframe.style.zIndex = "-9999";
-      iframe.style.opacity = "0.01";
-      iframe.style.pointerEvents = "none";
-      iframe.style.border = "none";
-      document.body.appendChild(iframe);
-
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-      iframeDoc.open();
-      iframeDoc.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <meta charset="UTF-8">
-            <style>
-              * { box-sizing: border-box; margin: 0; padding: 0; }
-              body { width: 740px; margin: 0 auto; padding: 0; background: #ffffff; color: #0f172a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif; }
-            </style>
-          </head>
-          <body>
-            <div id="printable-pdf-document" style="width: 740px; margin: 0 auto; background: #ffffff;">
-              ${warRoomHtml}
-            </div>
-          </body>
-        </html>
-      `);
-      iframeDoc.close();
-
-      // 等待 iframe DOM 與內嵌圖片渲染完畢
-      await new Promise(r => setTimeout(r, 250));
-
-      const targetElement = iframeDoc.getElementById("printable-pdf-document");
+      // 3. 建立標準獨立列印容器
+      const printable = document.createElement("div");
+      printable.id = "printable-pdf-document";
+      printable.style.width = "740px";
+      printable.style.backgroundColor = "#ffffff";
+      printable.style.color = "#0f172a";
+      printable.style.boxSizing = "border-box";
+      printable.innerHTML = warRoomHtml;
 
       const dateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '');
       const fileName = `人因小管家PRO_A4戰情室評估報告_${dateStr}.pdf`;
 
-      // 設定 html2pdf 選項 (4mm 邊界 + scale: 2 高清印刷 + avoid-all 單頁防裁切)
+      // 設定 html2pdf 純淨標準選項 (完全杜絕自訂寬度導致的 offset 裁切 bug)
       const opt = {
         margin: [4, 4, 4, 4],
         filename: fileName,
@@ -2236,17 +2205,13 @@ function initApp() {
           scale: 2,
           useCORS: true,
           logging: false,
-          scrollY: 0,
-          scrollX: 0,
-          width: 740,
-          windowWidth: 760,
           letterRendering: true
         },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         pagebreak: { mode: 'avoid-all' }
       };
 
-      const pdfBlob = await html2pdf().set(opt).from(targetElement).output('blob');
+      const pdfBlob = await html2pdf().set(opt).from(printable).output('blob');
       const pdfFile = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
       if (isShare) {
@@ -2268,7 +2233,6 @@ function initApp() {
 
       // 清理 DOM
       setTimeout(() => {
-        iframe.remove();
         toast.remove();
         window._forceDirectPdfDownload = false;
       }, 500);

@@ -469,7 +469,8 @@ function initApp() {
       detailsData,
       bodymapData: { ...userBodymapData },
       role: selectedRole,
-      isRetest: isRetestMode
+      isRetest: isRetestMode,
+      baselineAssessment: baselineAssessment ? { ...baselineAssessment } : null
     };
 
     // 前後測邏輯判定
@@ -479,7 +480,9 @@ function initApp() {
     const btnTriggerRetest = document.getElementById("btn-trigger-retest");
     const btnResetBaseline = document.getElementById("btn-reset-baseline");
 
-    if (isRetestMode && baselineAssessment) {
+    const isRetestActiveUI = !!(baselineAssessment && isRetestMode);
+
+    if (isRetestActiveUI) {
       // 複測模式已完成，顯示前後測對照成效
       if (retestBadge) {
         retestBadge.innerText = "✨ 現場改善後 (後測已完成)";
@@ -610,9 +613,7 @@ function initApp() {
 
     // 儲存至本地記憶，防學員演講中途跳出或重新整理遺失
     try {
-      localStorage.setItem("ergo_last_report_" + sessionId, JSON.stringify({
-        score, tierInfo, nmqData, customGuides, detailsData, bodymapData: userBodymapData, role: selectedRole, isRetest: isRetestMode
-      }));
+      localStorage.setItem("ergo_last_report_" + sessionId, JSON.stringify(currentReportState));
     } catch (e) {}
 
     // 渲染高對比光譜落點儀 (0~100 橫桿、穿透定位針、靶心光環與四級動態高亮)
@@ -1240,14 +1241,15 @@ function initApp() {
     else if (score < 70) scoreColor = "#f97316";
     else if (score < 85) scoreColor = "#eab308";
 
-    const isRetestActive = !!(baselineAssessment && (isRetestMode || (currentReportState && currentReportState.isRetest)));
-    const delta = isRetestActive ? (score - baselineAssessment.score) : 0;
+    const baselineData = baselineAssessment || (currentReportState && currentReportState.baselineAssessment) || null;
+    const isRetestActive = !!(baselineData && (isRetestMode || (currentReportState && currentReportState.isRetest)));
+    const delta = isRetestActive ? (score - baselineData.score) : 0;
 
     // 前後測對照區塊 HTML (若有前測基準且在複測模式)
     let beforeAfterHtml = "";
     let bodymapSectionHtml = "";
 
-    if (isRetestActive) {
+    if (isRetestActive && baselineData) {
       beforeAfterHtml = `
         <div style="background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 6px; padding: 4px 10px; margin-bottom: 5px; box-sizing: border-box;">
           <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
@@ -1255,7 +1257,7 @@ function initApp() {
               <td style="vertical-align: middle; text-align: left;">
                 <div style="font-size: 10px; font-weight: 900; color: #3730a3;">🔄 課堂前後測改善成效對照 (Before / After 改善評估)</div>
                 <div style="font-size: 8.5px; color: #4338ca; margin-top: 1px;">
-                  前測基準 <strong>${baselineAssessment.score}分</strong> (${baselineAssessment.tierInfo.title.split(' ')[0]}) ➔ 改善後複測 <strong>${score}分</strong> (${tierInfo.title.split(' ')[0]})
+                  前測基準 <strong>${baselineData.score}分</strong> (${baselineData.tierInfo ? baselineData.tierInfo.title.split(' ')[0] : ''}) ➔ 改善後複測 <strong>${score}分</strong> (${tierInfo.title.split(' ')[0]})
                 </div>
               </td>
               <td style="text-align: right; vertical-align: middle; width: 140px;">
@@ -1284,7 +1286,7 @@ function initApp() {
                       <div style="font-size: 8.5px; font-weight: bold; color: #475569; margin-bottom: 1px;">改善前 (前測)</div>
                       <img src="${baselineBodyMapPng || currentBodyMapPng}" style="width: 105px; height: auto; max-height: 175px; display: block; margin: 0 auto; border-radius: 3px;">
                       <div style="font-size: 8.5px; font-weight: 900; color: #475569; margin-top: 1px;">
-                        ${baselineAssessment.score}分·${baselineAssessment.tierInfo.title.split(' ')[0]}
+                        ${baselineData.score}分·${baselineData.tierInfo ? baselineData.tierInfo.title.split(' ')[0] : ''}
                       </div>
                     </td>
                     <td style="width: 50%; text-align: center; vertical-align: top; padding-left: 2px; border-left: 1px dashed #cbd5e1;">
@@ -1420,14 +1422,14 @@ function initApp() {
           <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
             <tr>
               <!-- KPI 1: 健康綜合評分 (支援前後測對照與單次評估) -->
-              ${isRetestActive ? `
+              ${isRetestActive && baselineData ? `
                 <td style="width: 140px; text-align: center; border-right: 1px solid #e2e8f0; padding-right: 6px; vertical-align: middle;">
                   <div style="font-size: 8px; font-weight: bold; color: #4338ca;">前後測對照評分</div>
                   <table style="width: 100%; border-collapse: collapse; margin: 1px 0;">
                     <tr>
                       <td style="text-align: center; width: 48%;">
                         <div style="font-size: 7.5px; color: #64748b; font-weight: bold;">前測</div>
-                        <div style="font-size: 18px; font-weight: 900; color: #64748b; line-height: 1;">${baselineAssessment.score}</div>
+                        <div style="font-size: 18px; font-weight: 900; color: #64748b; line-height: 1;">${baselineData.score}</div>
                       </td>
                       <td style="text-align: center; font-size: 11px; color: #94a3b8; width: 4%;">➔</td>
                       <td style="text-align: center; width: 48%;">
@@ -1476,9 +1478,9 @@ function initApp() {
           <!-- 0~100 連續橫桿光譜落點儀 (支援前後測雙落點對照) -->
           <div style="margin-top: 4px; padding-top: 4px; border-top: 1px dashed #e2e8f0;">
             <div style="position: relative; padding-top: 15px; padding-bottom: 2px;">
-              ${isRetestActive ? `
-                <div style="position: absolute; top: 0; left: ${Math.max(6, Math.min(94, baselineAssessment.score))}%; transform: translateX(-50%); font-size: 7.5px; font-weight: 900; background: #475569; color: #ffffff; padding: 1px 4px; border-radius: 3px; white-space: nowrap; z-index: 2;">
-                  ⏮️ 前測：${baselineAssessment.score}分
+              ${isRetestActive && baselineData ? `
+                <div style="position: absolute; top: 0; left: ${Math.max(6, Math.min(94, baselineData.score))}%; transform: translateX(-50%); font-size: 7.5px; font-weight: 900; background: #475569; color: #ffffff; padding: 1px 4px; border-radius: 3px; white-space: nowrap; z-index: 2;">
+                  ⏮️ 前測：${baselineData.score}分
                 </div>
                 <div style="position: absolute; top: 0; left: ${Math.max(6, Math.min(94, score))}%; transform: translateX(-50%); font-size: 8px; font-weight: 900; background: #0f172a; color: #34d399; border: 1px solid #10b981; padding: 1px 5px; border-radius: 3px; white-space: nowrap; z-index: 3;">
                   🎯 改善後：${score}分 (${tierInfo.title.split(' ')[0]})
@@ -1763,13 +1765,15 @@ function initApp() {
     if (existing) existing.remove();
 
     // 點陣化人體圖 (支援前後測雙人體圖，升級為 800x1320 高解析度)
-    const currentSvgStr = generateBodymapSvgString(userBodymapData);
+    const currentBodmap = (currentReportState && currentReportState.bodymapData) || userBodymapData || {};
+    const currentSvgStr = generateBodymapSvgString(currentBodmap);
     const currentBodyMapPng = await svgStringToPngDataUrl(currentSvgStr, 800, 1320);
 
+    const baselineData = baselineAssessment || (currentReportState && currentReportState.baselineAssessment) || null;
+    const isRetestActive = !!(baselineData && (isRetestMode || (currentReportState && currentReportState.isRetest)));
     let baselineBodyMapPng = null;
-    const isRetestActive = !!(baselineAssessment && (isRetestMode || (currentReportState && currentReportState.isRetest)));
-    if (isRetestActive) {
-      const baselineSvgStr = generateBodymapSvgString(baselineAssessment.bodymapData || {});
+    if (isRetestActive && baselineData) {
+      const baselineSvgStr = generateBodymapSvgString(baselineData.bodymapData || {});
       baselineBodyMapPng = await svgStringToPngDataUrl(baselineSvgStr, 800, 1320);
     }
 
@@ -1929,13 +1933,15 @@ function initApp() {
 
     try {
       // 1. 先將 SVG 向量人體圖轉換為 PNG Data URL (雙倍解析度 800x1320 確保印刷銳利)
-      const currentSvgStr = generateBodymapSvgString(userBodymapData);
+      const currentBodmap = (currentReportState && currentReportState.bodymapData) || userBodymapData || {};
+      const currentSvgStr = generateBodymapSvgString(currentBodmap);
       const currentBodyMapPng = await svgStringToPngDataUrl(currentSvgStr, 800, 1320);
 
+      const baselineData = baselineAssessment || (currentReportState && currentReportState.baselineAssessment) || null;
+      const isRetestActive = !!(baselineData && (isRetestMode || (currentReportState && currentReportState.isRetest)));
       let baselineBodyMapPng = null;
-      const isRetestActive = !!(baselineAssessment && (isRetestMode || (currentReportState && currentReportState.isRetest)));
-      if (isRetestActive) {
-        const baselineSvgStr = generateBodymapSvgString(baselineAssessment.bodymapData || {});
+      if (isRetestActive && baselineData) {
+        const baselineSvgStr = generateBodymapSvgString(baselineData.bodymapData || {});
         baselineBodyMapPng = await svgStringToPngDataUrl(baselineSvgStr, 800, 1320);
       }
 
@@ -2101,6 +2107,11 @@ function initApp() {
       btnRestore.onclick = () => {
         userBodymapData = cached.bodymapData || {};
         userBodymapDetails = cached.detailsData || {};
+        selectedRole = cached.role || null;
+        isRetestMode = !!cached.isRetest;
+        if (cached.baselineAssessment) {
+          baselineAssessment = cached.baselineAssessment;
+        }
         elStepRole.classList.add("hidden");
         elStepBodymap.classList.add("hidden");
         elStepQuiz.classList.add("hidden");
@@ -2117,6 +2128,11 @@ function initApp() {
         if (cached) {
           userBodymapData = cached.bodymapData || {};
           userBodymapDetails = cached.detailsData || {};
+          selectedRole = cached.role || null;
+          isRetestMode = !!cached.isRetest;
+          if (cached.baselineAssessment) {
+            baselineAssessment = cached.baselineAssessment;
+          }
           showResult(cached.score, cached.tierInfo, cached.nmqData, cached.customGuides, cached.detailsData);
         } else {
           const defaultTier = ERGO_CONFIG.scoreTiers[1]; // 良好

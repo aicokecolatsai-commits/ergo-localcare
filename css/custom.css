@@ -1,27 +1,46 @@
-/* 人因工程與防疲勞專業介面設計規範 (Ergo UI - White Morandi Edition) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
+/* ==========================================================================
+   人因小管家 (Ergo Interactive App) - NewCola UIUX 人因工程介面設計規範 (v2.0)
+   核心原則：溫暖克制、大字易讀、精簡資訊、手機拇指區、極限容錯、反 AI 模板感
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;600;700;900&display=swap');
 
 :root {
-  --font-sans: 'Inter', 'Noto Sans TC', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Inter', 'Noto Sans TC', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  
+  /* 基礎底色與文字 */
   --bg-primary: #f8fafc;
   --bg-surface: #ffffff;
-  --bg-card-dark: #ffffff;
+  --bg-card-dark: #151c28;
   --border-default: #e2e8f0;
+  --border-subtle: #f1f5f9;
   --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --text-secondary: #334155;
   --text-muted: #64748b;
   
   /* 莫蘭迪核心色系 (White Morandi Aesthetic Palette) */
-  --morandi-blue: #4a7c9d;       /* 莫蘭迪霧霾藍 */
+  --morandi-blue: #3b7197;       /* 莫蘭迪霧霾藍 (主色) */
   --morandi-blue-light: #f0f6fa;
-  --morandi-green: #508264;      /* 莫蘭迪鼠尾草綠 */
+  --morandi-green: #3d7e56;      /* 莫蘭迪鼠尾草綠 (健康/安全) */
   --morandi-green-light: #f0f7f3;
-  --morandi-oat: #b57e2a;        /* 莫蘭迪秋香杏黃 */
+  --morandi-oat: #b57e2a;        /* 莫蘭迪秋香杏黃 (注意/中度) */
   --morandi-oat-light: #fdf7ee;
-  --morandi-rose: #992c43;       /* 莫蘭迪煙燻莓紅 */
+  --morandi-rose: #992c43;       /* 莫蘭迪煙燻莓紅 (高度危險) */
   --morandi-rose-light: #fcf2f4;
   --morandi-terracotta: #ad4e29; /* 莫蘭迪陶土焦糖 */
   --morandi-stone: #64748b;      /* 莫蘭迪灰石 */
+
+  /* 觸控熱區與尺寸標準 */
+  --touch-target-min: 48px;
+  --radius-card: 18px;
+  --radius-btn: 14px;
+}
+
+html {
+  font-family: var(--font-sans);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -29,21 +48,25 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   -webkit-tap-highlight-color: transparent;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-size: 1rem;
+  overflow-x: hidden;
+  word-break: break-word;
 }
 
 /* 專業白底卡片基底 (精緻微陰影、乾淨柔和邊框、明確間距) */
 .ergo-card {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-default);
-  border-radius: 16px;
-  box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.04), 0 1px 3px -1px rgba(15, 23, 42, 0.02);
+  border-radius: var(--radius-card);
+  box-shadow: 0 2px 10px -2px rgba(15, 23, 42, 0.05), 0 1px 4px -1px rgba(15, 23, 42, 0.03);
   margin-bottom: 1.25rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 /* 確保結果頁所有卡片與區塊均有獨立呼吸間距，杜絕黏合 */
 #step-result > * {
-  margin-bottom: 1.25rem !important;
+  margin-bottom: 1.35rem !important;
 }
 #step-result > *:last-child {
   margin-bottom: 0 !important;
@@ -51,13 +74,13 @@ body {
 
 /* 輕微淡入動畫 */
 .fade-in {
-  animation: fadeIn 0.2s ease-out forwards;
+  animation: fadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -65,12 +88,19 @@ body {
   }
 }
 
-/* 觸控微回饋 (Press Feedback) */
+/* 手機拇指區標準觸控按鈕 */
 .touch-press {
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  transition: transform 0.12s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.12s ease, background-color 0.12s ease;
+  user-select: none;
+  -webkit-user-select: none;
 }
 .touch-press:active {
-  transform: scale(0.975);
+  transform: scale(0.972);
+}
+
+/* 人因標準按鈕與輸入框高度保護 (防止誤觸與微小尺寸) */
+button, a.btn-action, input[type="text"], select {
+  min-height: 44px;
 }
 
 /* 隱藏原生滾動條但保持滾動 */
@@ -84,7 +114,7 @@ body {
 
 /* 底部滑出抽屜 (Mobile Bottom Sheet Modal) */
 #zone-scale-drawer {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
   will-change: transform;
 }
 #zone-scale-drawer.sheet-open {
@@ -95,21 +125,21 @@ body {
 
 /* 極簡平滑自定義捲軸 */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
 
-/* 開場過場畫面 CSS 自動淡出與防呆保護 (即使 JS 延遲或無網路也 100% 確保淡出) */
+/* 開場過場畫面 CSS 自動淡出與防呆保護 */
 #brand-splash-screen {
   animation: splashAutoDismiss 0.4s ease 0.8s forwards;
 }
@@ -130,7 +160,7 @@ body {
   }
 }
 
-/* 專業 A4 戰情室原生列印樣式 (瀏覽器原生 Print to PDF，完美支援所有現代 CSS、SVG、高畫質輸出) */
+/* 專業 A4 戰情室原生列印樣式 */
 @media print {
   body > *:not(#print-only-warroom-container) {
     display: none !important;
@@ -154,8 +184,6 @@ body {
   }
   @page {
     size: A4 portrait;
-    margin: 5mm;
+    margin: 6mm;
   }
 }
-
-

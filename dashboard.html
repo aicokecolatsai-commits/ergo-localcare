@@ -20,7 +20,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- QRCode.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <link rel="stylesheet" href="css/custom.css">
+  <link rel="stylesheet" href="css/custom.css?v=20260921_v2">
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -38,146 +38,146 @@
     }
   </script>
 </head>
-<body class="bg-[#0d1117] text-slate-100 min-h-screen overflow-x-hidden flex flex-col justify-between selection:bg-sky-600 selection:text-white">
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen overflow-x-hidden flex flex-col justify-between selection:bg-sky-600 selection:text-white">
 
   <!-- 頂部狀態列 -->
-  <header class="border-b border-[#30363d] bg-[#161b22]/90 backdrop-blur px-4 md:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-50">
+  <header class="border-b border-slate-800 bg-[#121824]/95 backdrop-blur px-4 md:px-8 py-3 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-50 shadow-xs">
     <div class="flex items-center gap-3">
-      <img src="assets/logo.png" alt="人因小管家" class="w-10 h-10 md:w-11 md:h-11 object-contain drop-shadow flex-shrink-0">
+      <img src="assets/logo.png" alt="人因小管家" class="w-10 h-10 md:w-12 md:h-12 object-contain drop-shadow flex-shrink-0">
       <div>
-        <h1 class="text-sm md:text-base font-bold tracking-tight text-white flex items-center gap-2">
+        <h1 class="text-base md:text-lg font-black tracking-tight text-white flex items-center gap-2">
           <span>人因小管家 • 即時人因大數據看板</span>
-          <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-950 text-emerald-300 border border-emerald-700">
             ● LIVE 即時連線
           </span>
         </h1>
-        <div class="flex items-center gap-2 text-[11px] text-slate-400">
+        <div class="flex items-center gap-2 text-xs md:text-sm text-slate-400 font-medium">
           <span id="dash-session-title">場次載入中...</span>
           <span class="text-slate-600">|</span>
-          <span class="text-sky-300 font-medium">主講 / 系統開發：蔡健儀 人因工程專家</span>
+          <span class="text-sky-300 font-bold">主講 / 系統開發：蔡健儀 人因工程專家</span>
         </div>
       </div>
     </div>
 
     <div class="flex items-center gap-2 md:gap-3 flex-wrap">
       <!-- 防亂點過濾開關 -->
-      <button id="btn-toggle-filter" class="px-2.5 py-1.5 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-700 text-emerald-300 text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm" title="點擊切換：自動排除作答時間小於 8 秒或全身 15 部位極端滿分的異常灌水數據">
+      <button id="btn-toggle-filter" class="px-3 py-2 rounded-xl bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-600 text-emerald-300 text-xs md:text-sm font-bold transition-all flex items-center gap-1.5 shadow-sm touch-press min-h-[40px]" title="點擊切換：自動排除作答時間小於 8 秒或全身 15 部位極端滿分的異常灌水數據">
         <span id="filter-status-indicator">🛡️ 防亂點過濾：ON</span>
       </button>
 
-      <div class="hidden xl:flex items-center gap-2 text-xs text-slate-400">
-        <span>快捷鍵: <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">D</kbd> 模擬 / <kbd class="px-1.5 py-0.5 bg-slate-800 rounded border border-slate-700 text-slate-300">C</kbd> 清空</span>
+      <div class="hidden xl:flex items-center gap-2 text-xs text-slate-400 font-medium">
+        <span>快捷鍵: <kbd class="px-2 py-0.5 bg-slate-800 rounded-md border border-slate-700 text-slate-200">D</kbd> 模擬 / <kbd class="px-2 py-0.5 bg-slate-800 rounded-md border border-slate-700 text-slate-200">C</kbd> 清空</span>
       </div>
-      <button onclick="document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition-colors">
+      <button onclick="document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs md:text-sm font-bold text-slate-200 border border-slate-700 transition-colors touch-press min-h-[40px]">
         ⛶ 全螢幕
       </button>
-      <a id="nav-btn-admin" href="admin.html" class="px-3 py-1.5 rounded-lg bg-sky-950/80 hover:bg-sky-900 text-xs font-semibold text-sky-300 border border-sky-800 transition-colors flex items-center gap-1">
+      <a id="nav-btn-admin" href="admin.html" class="px-3.5 py-2 rounded-xl bg-sky-950/90 hover:bg-sky-900 text-xs md:text-sm font-bold text-sky-300 border border-sky-700 transition-colors flex items-center gap-1.5 touch-press min-h-[40px]">
         <span>⚙️ 場次管理</span>
       </a>
     </div>
   </header>
 
   <!-- 主儀表板區域 (16:9 網格佈局) -->
-  <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-5">
+  <main class="flex-grow p-4 md:p-6 lg:p-8 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-6">
     
     <!-- 左側欄：QR Code 掃描區與即時連線計數 (佔 4 欄) -->
-    <div class="lg:col-span-4 flex flex-col gap-4">
+    <div class="lg:col-span-4 flex flex-col gap-4 md:gap-5">
       <!-- QR Code 掃描卡 -->
-      <div class="ergo-card p-5 border border-[#30363d] bg-[#161b22] flex flex-col items-center justify-center text-center">
-        <span class="px-3 py-1 rounded-full bg-slate-800 text-sky-300 border border-slate-700 text-xs font-semibold tracking-wider mb-3">
+      <div class="p-5 md:p-6 border border-slate-800 bg-[#141b29] rounded-2xl flex flex-col items-center justify-center text-center shadow-md">
+        <span class="px-3.5 py-1 rounded-full bg-slate-800 text-sky-300 border border-slate-700 text-xs md:text-sm font-bold tracking-wider mb-3">
           📱 現場請掃碼開始自我評估
         </span>
         
-        <div class="p-3 bg-white rounded-xl shadow-inner mb-3">
-          <div id="qrcode-container" class="flex items-center justify-center min-w-[140px] min-h-[140px]"></div>
+        <div class="p-3.5 bg-white rounded-2xl shadow-inner mb-3">
+          <div id="qrcode-container" class="flex items-center justify-center min-w-[150px] min-h-[150px]"></div>
         </div>
 
-        <p class="text-xs text-slate-400 max-w-xs mb-1">
+        <p class="text-xs md:text-sm text-slate-300 font-medium max-w-xs mb-1">
           手機相機掃描 QR Code，60 秒獲得個人人因檢核報告
         </p>
-        <a id="qr-target-link" href="#" target="_blank" class="text-[11px] text-sky-400 hover:underline truncate max-w-full"></a>
+        <a id="qr-target-link" href="#" target="_blank" class="text-xs text-sky-400 hover:underline truncate max-w-full font-mono"></a>
       </div>
 
       <!-- 即時連線人數與全場平均分 -->
-      <div class="grid grid-cols-2 gap-3">
-        <div class="ergo-card p-4 border border-[#30363d] bg-[#161b22] text-center">
-          <p class="text-xs font-semibold text-slate-400">👥 已連線人數</p>
+      <div class="grid grid-cols-2 gap-3.5">
+        <div class="p-4 md:p-5 border border-slate-800 bg-[#141b29] rounded-2xl text-center shadow-md">
+          <p class="text-xs md:text-sm font-bold text-slate-400">👥 已連線人數</p>
           <div class="flex items-baseline justify-center gap-1 mt-1">
-            <span id="dash-total-count" class="text-3xl font-black text-white">0</span>
-            <span class="text-xs text-slate-500 font-medium">人</span>
+            <span id="dash-total-count" class="text-3xl md:text-4xl font-black text-white">0</span>
+            <span class="text-xs md:text-sm text-slate-400 font-medium">人</span>
           </div>
         </div>
-        <div class="ergo-card p-4 border border-[#30363d] bg-[#161b22] text-center">
-          <p class="text-xs font-semibold text-slate-400">⚡ 全場平均健康度</p>
+        <div class="p-4 md:p-5 border border-slate-800 bg-[#141b29] rounded-2xl text-center shadow-md">
+          <p class="text-xs md:text-sm font-bold text-slate-400">⚡ 全場平均健康度</p>
           <div class="flex items-baseline justify-center gap-1 mt-1">
-            <span id="dash-avg-score" class="text-3xl font-black text-sky-400">--</span>
-            <span class="text-xs text-slate-500 font-medium">/ 100</span>
+            <span id="dash-avg-score" class="text-3xl md:text-4xl font-black text-sky-400">--</span>
+            <span class="text-xs md:text-sm text-slate-400 font-medium">/ 100</span>
           </div>
         </div>
       </div>
 
       <!-- 族群分佈圓餅圖 -->
-      <div class="ergo-card p-4 border border-[#30363d] bg-[#161b22] flex-grow flex flex-col">
-        <h3 class="text-xs font-bold text-slate-300 mb-2">
+      <div class="p-5 border border-slate-800 bg-[#141b29] rounded-2xl flex-grow flex flex-col shadow-md">
+        <h3 class="text-xs md:text-sm font-bold text-slate-300 mb-2.5">
           👥 全場作業型態分佈
         </h3>
-        <div class="flex-grow min-h-[160px] relative">
+        <div class="flex-grow min-h-[170px] relative">
           <canvas id="rolePieChart"></canvas>
         </div>
       </div>
     </div>
 
     <!-- 右側欄：人體熱力圖、左右側對比與環境地雷 (佔 8 欄) -->
-    <div class="lg:col-span-8 flex flex-col gap-4">
+    <div class="lg:col-span-8 flex flex-col gap-4 md:gap-5">
       
       <!-- 狀態總評與現場提詞卡片 -->
-      <div class="ergo-card p-5 border border-[#30363d] bg-[#161b22] flex flex-col justify-between">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">全場人因風險指標</span>
-          <span id="dash-status-badge" class="px-3 py-0.5 rounded-full text-xs font-bold border border-slate-700 bg-slate-800 text-slate-400">
+      <div class="p-5 md:p-6 border border-slate-800 bg-[#141b29] rounded-2xl flex flex-col justify-between shadow-md">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs md:text-sm font-bold text-slate-400 uppercase tracking-wider">全場人因風險指標</span>
+          <span id="dash-status-badge" class="px-3.5 py-1 rounded-full text-xs md:text-sm font-bold border border-slate-700 bg-slate-800 text-slate-300">
             等待數據中...
           </span>
         </div>
-        <div id="dash-status-insight" class="text-sm text-slate-200 leading-relaxed font-normal">
+        <div id="dash-status-insight" class="text-sm md:text-base text-slate-100 leading-relaxed font-normal">
           請全場掃描左側 QR Code，開始 60 秒人因檢核。
         </div>
       </div>
 
       <!-- 中間雙欄：左側人體熱力透視圖 + 右側左右對比與痛點排行 -->
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-5">
         
         <!-- 全場 NMQ 人體熱力圖 (佔 5 欄) -->
-        <div class="md:col-span-5 ergo-card p-4 border border-[#30363d] bg-[#161b22] flex flex-col items-center">
-          <div class="w-full flex items-center justify-between mb-2">
-            <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+        <div class="md:col-span-5 p-5 border border-slate-800 bg-[#141b29] rounded-2xl flex flex-col items-center shadow-md">
+          <div class="w-full flex items-center justify-between mb-2.5">
+            <h3 class="text-xs md:text-sm font-bold text-white flex items-center gap-1.5">
               <span>🧍</span> 全場人體熱力透視圖
             </h3>
-            <span class="text-[10px] text-slate-400">紅:高溫 / 藍:低溫</span>
+            <span class="text-xs text-slate-400 font-medium">紅:高溫 / 藍:低溫</span>
           </div>
           <div id="dash-heatmap-container" class="w-full flex justify-center py-1"></div>
         </div>
 
         <!-- 左右側負載對比與排行 (佔 7 欄) -->
-        <div class="md:col-span-7 ergo-card p-4 border border-[#30363d] bg-[#161b22] flex flex-col justify-between">
+        <div class="md:col-span-7 p-5 border border-slate-800 bg-[#141b29] rounded-2xl flex flex-col justify-between shadow-md">
           <div>
             <div class="flex items-center justify-between mb-3">
-              <h3 class="text-xs font-bold text-white">
+              <h3 class="text-xs md:text-sm font-bold text-white">
                 ⚖️ 左右側單側負載對稱性分析
               </h3>
-              <span class="text-[10px] text-slate-400">滑鼠/單側習慣指標</span>
+              <span class="text-xs text-slate-400 font-medium">滑鼠/單側習慣指標</span>
             </div>
             
             <!-- 左右對比條 -->
-            <div id="asymmetry-list" class="space-y-2 mb-4">
+            <div id="asymmetry-list" class="space-y-2.5 mb-4">
               <!-- 由 dashboard.js 動態渲染 -->
             </div>
           </div>
 
           <!-- 全場三大痛點排行 -->
-          <div class="pt-3 border-t border-slate-800">
-            <h4 class="text-xs font-bold text-slate-300 mb-2">🚨 負載前三大部位排行</h4>
-            <div id="pain-rank-list" class="space-y-1.5">
-              <div class="text-center py-2 text-slate-500 text-xs">數據收集中...</div>
+          <div class="pt-3.5 border-t border-slate-800">
+            <h4 class="text-xs md:text-sm font-bold text-slate-300 mb-2">🚨 負載前三大部位排行</h4>
+            <div id="pain-rank-list" class="space-y-2">
+              <div class="text-center py-2 text-slate-500 text-xs md:text-sm">數據收集中...</div>
             </div>
           </div>
         </div>
@@ -185,12 +185,12 @@
       </div>
 
       <!-- 工作站人因地雷統計 (扣分原因) -->
-      <div class="ergo-card p-4 border border-[#30363d] bg-[#161b22]">
-        <h3 class="text-xs font-bold text-amber-400 mb-2.5">
+      <div class="p-5 border border-slate-800 bg-[#141b29] rounded-2xl shadow-md">
+        <h3 class="text-xs md:text-sm font-bold text-amber-400 mb-3">
           🛠️ 工作站人因環境盲點分佈 (作業姿態與環境配置)
         </h3>
-        <div id="traps-list" class="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <div class="text-center py-2 text-slate-500 text-xs col-span-2">數據收集中...</div>
+        <div id="traps-list" class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+          <div class="text-center py-2 text-slate-500 text-xs md:text-sm col-span-2">數據收集中...</div>
         </div>
       </div>
 
@@ -199,21 +199,21 @@
   </main>
 
   <!-- 底部資訊列 -->
-  <footer class="border-t border-[#30363d] bg-[#161b22] px-6 py-2.5 flex flex-col md:flex-row items-center justify-between text-[11px] text-slate-400 gap-2">
+  <footer class="border-t border-slate-800 bg-[#121824] px-6 py-3 flex flex-col md:flex-row items-center justify-between text-xs text-slate-400 gap-2">
     <div class="flex items-center gap-1.5">
       <span>© 人因小管家 (Noah) 蔡健儀 專屬系統</span>
       <span class="text-slate-600">｜</span>
       <span>人因工學智財保護・未經授權禁止抄襲商用</span>
     </div>
-    <div class="text-slate-500">
-      快捷控制：按 <kbd class="px-1 bg-slate-800 text-slate-300 rounded border border-slate-700">D</kbd> 注入模擬數據，按 <kbd class="px-1 bg-slate-800 text-slate-300 rounded border border-slate-700">C</kbd> 清空
+    <div class="text-slate-400 font-medium">
+      快捷控制：按 <kbd class="px-2 py-0.5 bg-slate-800 text-slate-200 rounded border border-slate-700">D</kbd> 注入模擬數據，按 <kbd class="px-2 py-0.5 bg-slate-800 text-slate-200 rounded border border-slate-700">C</kbd> 清空
     </div>
   </footer>
 
   <!-- 腳本引入 -->
-  <script src="js/config.js"></script>
-  <script src="js/bodymap.js"></script>
-  <script src="js/questions.js"></script>
-  <script src="js/dashboard.js"></script>
+  <script src="js/config.js?v=20260921_v2"></script>
+  <script src="js/bodymap.js?v=20260921_v2"></script>
+  <script src="js/questions.js?v=20260921_v2"></script>
+  <script src="js/dashboard.js?v=20260921_v2"></script>
 </body>
 </html>

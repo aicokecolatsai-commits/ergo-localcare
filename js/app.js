@@ -98,40 +98,42 @@ function initApp() {
     });
   }
 
-  // 1. 渲染角色挑選卡片 (莫蘭迪色系 + 序號層級 + 痛點特徵說明)
+  // 1. 渲染角色挑選卡片 (莫蘭迪色系 + 序號層級 + 痛點特徵說明 - NewCola UIUX 升級版)
   function renderRoles() {
     elRoleContainer.innerHTML = "";
     ERGO_CONFIG.roles.forEach((role) => {
       const card = document.createElement("button");
       card.type = "button";
       card.className =
-        "w-full text-left p-3.5 md:p-4 rounded-xl border transition-all duration-200 flex flex-col justify-between group touch-press relative overflow-hidden shadow-sm hover:shadow-md";
+        "w-full text-left p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between group touch-press relative overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-0.5";
       card.style.background = role.morandi.bg;
       card.style.borderColor = role.morandi.border;
       card.innerHTML = `
         <div class="w-full">
-          <div class="flex items-start justify-between gap-2 mb-1.5">
-            <div class="flex items-center gap-2.5">
-              <span class="text-base md:text-lg font-black px-2 py-0.5 rounded-md font-mono flex-shrink-0" style="color: ${role.morandi.seqColor}; background: ${role.morandi.badgeBg};">
+          <div class="flex items-start justify-between gap-3 mb-2">
+            <div class="flex items-center gap-3">
+              <span class="text-base sm:text-lg font-black px-2.5 py-1 rounded-xl font-mono flex-shrink-0 shadow-xs" style="color: ${role.morandi.seqColor}; background: ${role.morandi.badgeBg}; border: 1px solid ${role.morandi.border};">
                 ${role.seq}
               </span>
               <div>
-                <h3 class="text-sm md:text-base font-bold flex items-center gap-1.5" style="color: ${role.morandi.titleColor}">
-                  <span>${role.icon}</span>
+                <h3 class="text-base sm:text-lg font-black flex items-center gap-2" style="color: ${role.morandi.titleColor}">
+                  <span class="text-xl sm:text-2xl">${role.icon}</span>
                   <span>${role.name}</span>
                 </h3>
-                <p class="text-[11px] font-medium" style="color: ${role.morandi.descColor}">${role.subtitle}</p>
+                <p class="text-xs sm:text-sm font-semibold opacity-90 mt-0.5" style="color: ${role.morandi.descColor}">${role.subtitle}</p>
               </div>
             </div>
-            <span class="text-[10px] px-2 py-0.5 rounded-md font-semibold border flex-shrink-0" style="background: ${role.morandi.badgeBg}; color: ${role.morandi.badgeText}; border-color: ${role.morandi.border};">
+            <span class="text-xs px-2.5 py-1 rounded-lg font-bold border flex-shrink-0 shadow-xs" style="background: ${role.morandi.badgeBg}; color: ${role.morandi.badgeText}; border-color: ${role.morandi.border};">
               ${role.badge}
             </span>
           </div>
-          <p class="text-xs leading-relaxed mt-1 pl-1" style="color: ${role.morandi.descColor}">${role.desc}</p>
+          <p class="text-xs sm:text-sm leading-relaxed mt-2 pl-0.5 font-medium" style="color: ${role.morandi.descColor}">${role.desc}</p>
         </div>
-        <div class="mt-2.5 pt-2 border-t flex items-center justify-between text-xs font-semibold" style="border-color: ${role.morandi.border}; color: ${role.morandi.color}">
-          <span class="text-[10px] md:text-[11px] opacity-80 font-normal">專屬作業型態檢核題目</span>
-          <span class="group-hover:translate-x-1 transition-transform flex items-center gap-0.5 font-bold">點擊開始檢測 ➔</span>
+        <div class="mt-3.5 pt-2.5 border-t flex items-center justify-between text-xs sm:text-sm font-bold" style="border-color: ${role.morandi.border}; color: ${role.morandi.color}">
+          <span class="opacity-80 font-medium">🎯 專屬作業型態檢核題庫</span>
+          <span class="group-hover:translate-x-1.5 transition-transform flex items-center gap-1 font-black bg-white/80 px-3 py-1 rounded-lg shadow-xs border border-white/60">
+            開始檢測 ➔
+          </span>
         </div>
       `;
       card.addEventListener("click", () => startBodymapStep(role.id));
@@ -299,35 +301,35 @@ function initApp() {
 
     elQuestionContainer.innerHTML = `
       <div class="fade-in">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="text-xs font-semibold px-2 py-0.5 rounded bg-sky-50 text-sky-800 border border-sky-200">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-xs font-bold px-3 py-1 rounded-lg bg-sky-100 text-sky-800 border border-sky-200 shadow-xs">
             ${q.dimensionName}
           </span>
         </div>
-        <h2 class="text-lg md:text-xl font-bold text-slate-900 mb-5 leading-snug">
+        <h2 class="text-lg md:text-2xl font-black text-slate-900 mb-6 leading-snug tracking-tight">
           ${q.question}
         </h2>
-        <div class="space-y-3" id="options-container">
+        <div class="space-y-3.5" id="options-container">
           ${q.options
             .map((opt, idx) => {
               const isSelected = prevSelectedIdx === idx;
               const activeClass = isSelected
-                ? "border-sky-500 bg-sky-50/80 text-sky-950 ring-1 ring-sky-400 font-semibold shadow-sm"
-                : "border-slate-200 bg-white hover:border-sky-300 hover:bg-slate-50 text-slate-800 shadow-sm";
+                ? "border-sky-500 bg-sky-50/90 text-sky-950 ring-2 ring-sky-300 font-bold shadow-md scale-[1.01]"
+                : "border-slate-200 bg-white hover:border-sky-300 hover:bg-slate-50 text-slate-800 shadow-xs hover:shadow-sm";
               const letterActiveClass = isSelected
-                ? "border-sky-600 bg-sky-600 text-white"
-                : "border-slate-300 text-slate-500 group-hover:border-sky-400 group-hover:text-sky-700 bg-slate-50";
+                ? "border-sky-600 bg-sky-600 text-white shadow-xs"
+                : "border-slate-300 text-slate-600 group-hover:border-sky-400 group-hover:text-sky-700 bg-slate-100";
 
               return `
                 <button 
                   type="button"
                   data-index="${idx}"
                   data-penalty="${opt.penalty}"
-                  class="option-btn w-full text-left p-4 rounded-xl border ${activeClass} transition-all flex items-start gap-3.5 group min-h-[52px]">
-                  <span class="w-6 h-6 rounded-full border ${letterActiveClass} flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5 transition-colors">
+                  class="option-btn w-full text-left p-4 sm:p-5 rounded-2xl border ${activeClass} transition-all duration-150 flex items-start gap-4 group touch-press min-h-[56px]">
+                  <span class="w-8 h-8 rounded-xl border ${letterActiveClass} flex items-center justify-center text-sm font-black font-mono flex-shrink-0 mt-0.5 transition-colors">
                     ${String.fromCharCode(65 + idx)}
                   </span>
-                  <span class="text-sm md:text-base leading-relaxed font-normal">${opt.label}</span>
+                  <span class="text-sm sm:text-base leading-relaxed font-semibold flex-grow">${opt.label}</span>
                 </button>
               `;
             })

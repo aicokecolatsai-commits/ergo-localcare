@@ -278,9 +278,7 @@ class BodyMapComponent {
           if (deepDiveBox) {
             deepDiveBox.classList.remove("hidden");
             this.updateDeepDiveSelections(this.activeFocusZone);
-            setTimeout(() => {
-              deepDiveBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
-            }, 50);
+            deepDiveBox.scrollIntoView({ behavior: "auto", block: "nearest" });
           }
           this.updateVisuals();
           this.onChange(this.selectedZones, this.zoneDetails);

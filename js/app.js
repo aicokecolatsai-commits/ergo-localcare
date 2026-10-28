@@ -104,37 +104,15 @@ function initApp() {
     ERGO_CONFIG.roles.forEach((role) => {
       const card = document.createElement("button");
       card.type = "button";
-      card.className =
-        "w-full text-left p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-between group touch-press relative overflow-hidden shadow-xs hover:shadow-md hover:-translate-y-0.5";
-      card.style.background = role.morandi.bg;
-      card.style.borderColor = role.morandi.border;
+      card.className = "role-choice";
       card.innerHTML = `
-        <div class="w-full">
-          <div class="flex items-start justify-between gap-3 mb-2">
-            <div class="flex items-center gap-3">
-              <span class="text-base sm:text-lg font-black px-2.5 py-1 rounded-xl font-mono flex-shrink-0 shadow-xs" style="color: ${role.morandi.seqColor}; background: ${role.morandi.badgeBg}; border: 1px solid ${role.morandi.border};">
-                ${role.seq}
-              </span>
-              <div>
-                <h3 class="text-base sm:text-lg font-black flex items-center gap-2" style="color: ${role.morandi.titleColor}">
-                  <span class="text-xl sm:text-2xl">${role.icon}</span>
-                  <span>${role.name}</span>
-                </h3>
-                <p class="text-xs sm:text-sm font-semibold opacity-90 mt-0.5" style="color: ${role.morandi.descColor}">${role.subtitle}</p>
-              </div>
-            </div>
-            <span class="text-xs px-2.5 py-1 rounded-lg font-bold border flex-shrink-0 shadow-xs" style="background: ${role.morandi.badgeBg}; color: ${role.morandi.badgeText}; border-color: ${role.morandi.border};">
-              ${role.badge}
-            </span>
-          </div>
-          <p class="text-xs sm:text-sm leading-relaxed mt-2 pl-0.5 font-medium" style="color: ${role.morandi.descColor}">${role.desc}</p>
-        </div>
-        <div class="mt-3.5 pt-2.5 border-t flex items-center justify-between text-xs sm:text-sm font-bold" style="border-color: ${role.morandi.border}; color: ${role.morandi.color}">
-          <span class="opacity-80 font-medium">🎯 專屬作業型態檢核題庫</span>
-          <span class="group-hover:translate-x-1.5 transition-transform flex items-center gap-1 font-black bg-white/80 px-3 py-1 rounded-lg shadow-xs border border-white/60">
-            開始檢測 ➔
-          </span>
-        </div>
+        <span class="role-choice-number" aria-hidden="true">${role.seq}</span>
+        <span class="role-choice-content">
+          <span class="role-choice-title">${role.name}</span>
+          <span class="role-choice-subtitle">${role.subtitle}</span>
+          <span class="role-choice-description">${role.desc}</span>
+        </span>
+        <span class="role-choice-arrow" aria-hidden="true">→</span>
       `;
       card.addEventListener("click", () => startBodymapStep(role.id));
       elRoleContainer.appendChild(card);
@@ -2050,7 +2028,7 @@ function initApp() {
             <span class="text-xl">📊</span>
             <div>
               <div class="font-black text-xs md:text-sm">個人 A4 人因戰情室・全畫面預覽</div>
-              <div class="text-[10px] text-sky-300">支援左右滑動與一鍵適配手機寬度</div>
+              <div class="text-[10px] text-sky-300">左右滑動可查看完整報告，也可切換全幅適應</div>
             </div>
           </div>
           <div class="flex items-center gap-1.5">
@@ -2061,7 +2039,7 @@ function initApp() {
             <button type="button" id="btn-preview-download" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs flex items-center gap-1 shadow-sm">
               <span>📥 下載 PDF</span>
             </button>
-            <button type="button" id="btn-preview-close" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-base">
+            <button type="button" id="btn-preview-close" aria-label="關閉預覽" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-base">
               ✕
             </button>
           </div>
@@ -2097,7 +2075,7 @@ function initApp() {
     document.body.appendChild(modal);
 
     // 適配縮放狀態控制
-    let isFitMode = window.innerWidth < 768;
+    let isFitMode = false;
     const scrollContainer = modal.querySelector("#warroom-scroll-container");
     const scaleWrapper = modal.querySelector("#warroom-scale-wrapper");
     const previewInner = modal.querySelector("#warroom-preview-inner");

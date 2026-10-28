@@ -130,10 +130,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 1. 計算平均分數
     const sumScore = list.reduce((acc, cur) => acc + (cur.totalScore || 0), 0);
-    const avg = Math.round((sumScore / total) * 10) / 10;
-    elAvgScore.innerText = avg;
+    const avg = sumScore / total;
+    elAvgScore.innerText = Math.round(avg * 10) / 10;
 
-    const tier = ERGO_CONFIG.scoreTiers.find((t) => avg >= t.min && avg <= t.max) || ERGO_CONFIG.scoreTiers[ERGO_CONFIG.scoreTiers.length - 1];
+    // 平均數以未四捨五入的值，比對由高至低的級距下限。
+    const tier = ERGO_CONFIG.scoreTiers.find((t) => avg >= t.min) || ERGO_CONFIG.scoreTiers[ERGO_CONFIG.scoreTiers.length - 1];
     elStatusBadge.innerText = tier.title;
     elStatusBadge.className = `px-3 py-0.5 rounded-full text-xs font-bold border ${tier.badgeColor}`;
 

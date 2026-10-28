@@ -82,7 +82,14 @@ function doPost(e) {
   }
 }`;
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  if (window.ERGO_FIREBASE_PREVIEW) {
+    if (!window.ErgoCloud) { alert('雲端服務無法啟動，請重新整理。'); return; }
+    await window.ErgoCloud.requireAdmin();
+    ['btn-sync-gsheet','btn-quick-sync','btn-open-gsheet-modal','gsheet-status-bar','btn-generate-demo','btn-clear-session'].forEach(id => {
+      const element = document.getElementById(id); if (element) element.style.display = 'none';
+    });
+  }
   const elSessionInput = document.getElementById("session-id-input");
   const elBtnCreate = document.getElementById("btn-create-session");
   const elQrDisplay = document.getElementById("admin-qr-code");
@@ -189,9 +196,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // 5. 數據集建構器 (繁體中文表頭與在地化轉換)
   // ==========================================
-  function buildSessionExportData(sessionId) {
+  function buildSessionExportData(sessionId, cloudList) {
     const bridge = new DataBridge(sessionId);
-    const list = bridge.getLocalSubmissions();
+    const list = cloudList || bridge.getLocalSubmissions();
 
     const headers = [
       "填答編號",
@@ -351,8 +358,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==========================================
   // 6. 匯出中文 CSV 報表
   // ==========================================
-  elBtnExportCsv.addEventListener("click", () => {
-    const { headers, rows, count } = buildSessionExportData(currentSession);
+  elBtnExportCsv.addEventListener("click", async () => {
+    let cloudList;
+    try { if (window.ERGO_FIREBASE_PREVIEW) cloudList = await window.ErgoCloud.read(currentSession); }
+    catch (error) { alert('無法取得雲端資料，請確認連線後再試。'); return; }
+    const { headers, rows, count } = buildSessionExportData(currentSession, cloudList);
     if (count === 0) {
       alert("此場次目前尚無作答數據！");
       return;

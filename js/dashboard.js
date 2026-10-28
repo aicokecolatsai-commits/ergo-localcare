@@ -3,7 +3,14 @@
  * 整合全場 NMQ 向量人體熱力圖、左右側單側負載對稱性分析與即時排行
  */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  if (window.ERGO_FIREBASE_PREVIEW) {
+    if (!window.ErgoCloud) { alert('雲端服務無法啟動，請重新整理。'); return; }
+    await window.ErgoCloud.requireAdmin();
+    ['dashboard-shortcut-header', 'dashboard-shortcut-footer'].forEach(id => {
+      const element = document.getElementById(id); if (element) element.style.display = 'none';
+    });
+  }
   const sessionId = APP_CONFIG.getSessionId();
   const dataBridge = new DataBridge(sessionId);
 
@@ -34,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // 生成 QR Code
-  const studentUrl = `${window.location.origin}${window.location.pathname.replace("dashboard.html", "index.html").replace("dashboard", "")}?session=${sessionId}`;
+  const studentUrl = `${window.location.origin}${window.location.pathname.replace("dashboard.html", "index.html").replace("dashboard", "")}?session=${encodeURIComponent(sessionId)}`;
   if (elQrContainer && window.QRCode) {
     elQrContainer.innerHTML = "";
     new QRCode(elQrContainer, {
@@ -82,11 +89,23 @@ document.addEventListener("DOMContentLoaded", () => {
   // 監聽即時數據變更
   dataBridge.onDataChange((submissions) => {
     cachedSubmissions = submissions || [];
+    const connection = document.getElementById('dash-connection');
+    if (connection) connection.textContent = window.ERGO_FIREBASE_PREVIEW ? '● 雲端資料已連線' : '● 本機資料';
     updateDashboard(cachedSubmissions);
+  }, error => {
+    elStatusInsight.textContent = '無法取得雲端資料，請確認網路與講師登入狀態。';
+    elStatusBadge.textContent = '連線失敗';
+    const connection = document.getElementById('dash-connection');
+    if (connection) connection.textContent = '● 連線失敗';
+    console.error(error);
+  }, status => {
+    const connection = document.getElementById('dash-connection');
+    if (connection && status === 'cache') connection.textContent = '● 連線中斷，資料可能過期';
   });
 
   // 快捷鍵支援：按 'D' 注入模擬數據測試，按 'C' 清空
   window.addEventListener("keydown", (e) => {
+    if (window.ERGO_FIREBASE_PREVIEW) return;
     if (e.key === "D" || e.key === "d") {
       dataBridge.generateDemoData(25);
     } else if (e.key === "C" || e.key === "c") {

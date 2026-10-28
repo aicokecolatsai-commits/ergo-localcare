@@ -107,6 +107,13 @@ class DataBridge {
     localStorage.setItem(this.storageKey, JSON.stringify(currentList));
     this.channel.postMessage({ type: "NEW_SUBMISSION", payload, all: currentList });
 
+    if (window.ERGO_FIREBASE_PREVIEW) {
+      if (!window.ErgoCloud) throw new Error('雲端服務無法啟動，資料僅保留於本機');
+      const cloudData = { ...data };
+      await window.ErgoCloud.submit(this.sessionId, cloudData);
+      return payload;
+    }
+
     // 2. 若啟用 Firebase，同步至 Firestore
     if (this.isFirebase && window.db) {
       try {
@@ -131,7 +138,11 @@ class DataBridge {
   }
 
   // 監聽即時數據變更 (大螢幕看板使用)
-  onDataChange(callback) {
+  onDataChange(callback, onError, onStatus) {
+    if (window.ERGO_FIREBASE_PREVIEW) {
+      if (!window.ErgoCloud) { if (onError) onError(new Error('雲端服務無法啟動')); return; }
+      return window.ErgoCloud.watch(this.sessionId, callback, onError || console.error, onStatus);
+    }
     // 初始載入本地已有數據
     callback(this.getLocalSubmissions());
 

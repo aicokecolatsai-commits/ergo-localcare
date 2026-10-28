@@ -47,8 +47,8 @@
       <div>
         <h1 class="text-base md:text-lg font-black tracking-tight text-white flex items-center gap-2">
           <span>人因小管家 • 即時人因大數據看板</span>
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-950 text-emerald-300 border border-emerald-700">
-            ● LIVE 即時連線
+          <span id="dash-connection" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-950 text-emerald-300 border border-emerald-700">
+            ● 連線狀態確認中
           </span>
         </h1>
         <div class="flex items-center gap-2 text-xs md:text-sm text-slate-400 font-medium">
@@ -65,7 +65,7 @@
         <span id="filter-status-indicator">🛡️ 防亂點過濾：ON</span>
       </button>
 
-      <div class="hidden xl:flex items-center gap-2 text-xs text-slate-400 font-medium">
+      <div id="dashboard-shortcut-header" class="hidden xl:flex items-center gap-2 text-xs text-slate-400 font-medium">
         <span>快捷鍵: <kbd class="px-2 py-0.5 bg-slate-800 rounded-md border border-slate-700 text-slate-200">D</kbd> 模擬 / <kbd class="px-2 py-0.5 bg-slate-800 rounded-md border border-slate-700 text-slate-200">C</kbd> 清空</span>
       </div>
       <button onclick="document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs md:text-sm font-bold text-slate-200 border border-slate-700 transition-colors touch-press min-h-[40px]">
@@ -205,7 +205,7 @@
       <span class="text-slate-600">｜</span>
       <span>人因工學智財保護・未經授權禁止抄襲商用</span>
     </div>
-    <div class="text-slate-400 font-medium">
+    <div id="dashboard-shortcut-footer" class="text-slate-400 font-medium">
       快捷控制：按 <kbd class="px-2 py-0.5 bg-slate-800 text-slate-200 rounded border border-slate-700">D</kbd> 注入模擬數據，按 <kbd class="px-2 py-0.5 bg-slate-800 text-slate-200 rounded border border-slate-700">C</kbd> 清空
     </div>
   </footer>

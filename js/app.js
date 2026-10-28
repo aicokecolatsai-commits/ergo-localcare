@@ -436,7 +436,13 @@ function initApp() {
       isRetest: isRetest
     };
 
-    await dataBridge.submitAssessment(submissionData);
+    try {
+      await dataBridge.submitAssessment(submissionData);
+    } catch (error) {
+      if (!window.ERGO_FIREBASE_PREVIEW) throw error;
+      alert('目前無法確認雲端是否收到作答。資料可能稍後送達；請勿重複送出，請保留此頁並聯絡講師確認。');
+      console.error('雲端送出失敗', error);
+    }
     showResult(totalScore, tierInfo, nmqData, personalizedGuides, userBodymapDetails);
   }
 

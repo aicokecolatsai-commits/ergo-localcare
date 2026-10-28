@@ -1,0 +1,37 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function admin() {
+      return request.auth != null && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com'
+        && exists(/databases/$(database)/documents/previewAdmins/$(request.auth.uid));
+    }
+    match /previewAdmins/{uid} {
+      allow get: if request.auth != null && request.auth.uid == uid
+        && request.auth.token.email_verified == true
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
+      allow list, create, update, delete: if false;
+    }
+    match /previewSessions/{session}/submissions/{submission} {
+      allow read: if admin();
+      allow create: if request.auth != null
+        && request.auth.token.firebase.sign_in_provider == 'anonymous'
+        && submission.matches(request.auth.uid + '_[A-Za-z0-9_-]{10,80}')
+        && request.resource.data.keys().hasOnly(['owner', 'sessionId', 'timestamp', 'role', 'totalScore', 'tier', 'nmqData', 'nmqDetails', 'traps', 'durationSeconds', 'qualityFlag', 'isRetest'])
+        && request.resource.data.keys().hasAll(['owner', 'sessionId', 'timestamp', 'role', 'totalScore', 'tier', 'nmqData', 'nmqDetails', 'traps', 'durationSeconds', 'qualityFlag', 'isRetest'])
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.sessionId is string && request.resource.data.sessionId.size() > 0 && request.resource.data.sessionId.size() <= 100
+        && request.resource.data.timestamp is int && request.resource.data.timestamp > 0
+        && request.resource.data.role in ['office', 'student', 'standing', 'repetitive_hand', 'material_handling']
+        && request.resource.data.totalScore is number && request.resource.data.totalScore >= 0 && request.resource.data.totalScore <= 100
+        && request.resource.data.tier in ['tier_green', 'tier_yellow', 'tier_orange', 'tier_red']
+        && request.resource.data.nmqData is map && request.resource.data.nmqData.size() <= 15
+        && request.resource.data.nmqDetails is map && request.resource.data.nmqDetails.size() <= 15
+        && request.resource.data.traps is map && request.resource.data.traps.size() <= 10
+        && request.resource.data.durationSeconds is int && request.resource.data.durationSeconds >= 1
+        && request.resource.data.qualityFlag in ['Valid', 'Speedrun', 'Extreme', 'Retest']
+        && request.resource.data.isRetest is bool;
+      allow update, delete: if false;
+    }
+  }
+}

@@ -115,14 +115,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const total = list.length;
-    animateValue(elTotalCount, parseInt(elTotalCount.innerText) || 0, total, 400);
+    elTotalCount.textContent = String(total);
 
     if (total === 0) {
       elAvgScore.innerText = "--";
       elStatusBadge.innerText = rawTotal > 0 ? "所有資料皆被標記異常" : "等待學員連線中...";
       elStatusBadge.className = "px-3 py-0.5 rounded-full text-xs font-semibold border border-slate-700 bg-slate-800 text-slate-400";
       elStatusInsight.innerText = rawTotal > 0
-        ? `目前 ${rawTotal} 筆資料皆為極速作答（<8秒），如需檢視請將上方「防亂點過濾」設為 OFF。`
+        ? `目前 ${rawTotal} 筆資料皆被標記為極速或異常作答，如需檢視請將上方「防亂點過濾」設為 OFF。`
         : "請全場掃描左側 QR Code，開始 60 秒工作站人因檢核。";
       renderEmptyState();
       return;
@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
       : "";
 
     elStatusInsight.innerHTML = `
-      <div>🚨 <strong class="text-rose-400">現場統計警示：</strong> 全場高達 <span class="text-sky-400 font-bold">${topPercent}%</span> 的學員在「<strong>${topName}</strong>」出現顯著過載！整體作業風險落在「${tier.subtitle}」。</div>
+      <div>${topPercent > 0 ? `全場有 <span class="text-sky-400 font-bold">${topPercent}%</span> 的作答在「<strong>${topName}</strong>」標記不適。` : "目前沒有標記不適部位。"} 整體評估：${tier.subtitle}。</div>
       ${medNotice}
       ${filterNotice}
     `;
@@ -307,7 +307,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const ctx = elRolePieContainer;
     if (!ctx) return;
 
-    const roleCounts = { office: 0, student: 0, standing: 0, technician: 0 };
+    const roleCounts = { office: 0, student: 0, standing: 0, repetitive_hand: 0, material_handling: 0, technician: 0 };
     list.forEach((s) => {
       if (roleCounts[s.role] !== undefined) roleCounts[s.role]++;
     });
@@ -316,6 +316,8 @@ document.addEventListener("DOMContentLoaded", () => {
       roleCounts.office,
       roleCounts.student,
       roleCounts.standing,
+      roleCounts.repetitive_hand,
+      roleCounts.material_handling,
       roleCounts.technician
     ];
 
@@ -328,11 +330,11 @@ document.addEventListener("DOMContentLoaded", () => {
     rolePieChart = new Chart(ctx, {
       type: "doughnut",
       data: {
-        labels: ["電腦久坐族", "學生研讀族", "站立服務族", "技術操作族"],
+        labels: ["電腦久坐族", "學生研讀族", "站立服務族", "手部高頻操作族", "重物搬運與物流族", "技術操作族（舊資料）"],
         datasets: [
           {
             data: dataValues,
-            backgroundColor: ["#38bdf8", "#34d399", "#fbbf24", "#a78bfa"],
+            backgroundColor: ["#38bdf8", "#34d399", "#fbbf24", "#a78bfa", "#f97316", "#94a3b8"],
             borderColor: "#0f172a",
             borderWidth: 2
           }
@@ -352,21 +354,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function animateValue(obj, start, end, duration) {
-    if (!obj || start === end) return;
-    let startTimestamp = null;
-    const step = (timestamp) => {
-      if (!startTimestamp) startTimestamp = timestamp;
-      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-      obj.innerHTML = Math.floor(progress * (end - start) + start);
-      if (progress < 1) {
-        window.requestAnimationFrame(step);
-      }
-    };
-    window.requestAnimationFrame(step);
-  }
-
   function renderEmptyState() {
+    if (dashBodyMap) dashBodyMap.setAggregateHeatmap({});
+    if (rolePieChart) { rolePieChart.data.datasets[0].data = [0, 0, 0, 0, 0, 0]; rolePieChart.update(); }
     elPainRankList.innerHTML = `<div class="text-center py-2 text-slate-500 text-xs">尚無作答數據，等待連線...</div>`;
     elAsymmetryList.innerHTML = `<div class="text-center py-2 text-slate-500 text-xs">數據收集中...</div>`;
     elTrapsList.innerHTML = `<div class="text-center py-2 text-slate-500 text-xs col-span-2">數據收集中...</div>`;

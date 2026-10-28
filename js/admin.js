@@ -428,11 +428,15 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify(payload)
       });
 
-      let result = null;
+      if (!response.ok) throw new Error(`伺服器回應錯誤（${response.status}）`);
+      let result;
       try {
         result = await response.json();
       } catch (e) {
-        result = { status: "success" };
+        throw new Error("無法確認試算表回應，請檢查 Apps Script 部署與權限");
+      }
+      if (!result || result.status !== "success") {
+        throw new Error((result && result.message) || "試算表未回報同步成功");
       }
 
       if (result && result.status === "error") {
@@ -494,11 +498,15 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify(payload)
       });
 
-      let result = null;
+      if (!response.ok) throw new Error(`伺服器回應錯誤（${response.status}）`);
+      let result;
       try {
         result = await response.json();
       } catch (e) {
-        result = { status: "success" };
+        throw new Error("無法確認試算表回應，請檢查 Apps Script 部署與權限");
+      }
+      if (!result || result.status !== "success") {
+        throw new Error((result && result.message) || "試算表未回報同步成功");
       }
 
       if (result && result.status === "error") {

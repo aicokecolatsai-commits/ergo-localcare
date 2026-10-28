@@ -224,3 +224,22 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 #warroom-scale-wrapper { flex: 0 0 auto; }
 #btn-preview-close { min-width: 48px; }
+
+/* 場次管理與看板的手機排版 */
+.ergo-dashboard { background: #0b0f19; color: #f1f5f9; }
+.ergo-admin #gsheet-status-bar > div { min-width: 0; max-width: 100%; }
+.ergo-admin #gsheet-url-preview { min-width: 0; overflow-wrap: anywhere; white-space: normal; }
+.ergo-admin input { min-width: 0; }
+@media (max-width: 480px) {
+  .ergo-admin header > div, .ergo-dashboard header > div { min-width: 0; max-width: 100%; }
+  .ergo-admin header > div:last-child, .ergo-dashboard header > div:last-child { flex-wrap: wrap; }
+  .ergo-admin header a, .ergo-dashboard header button, .ergo-dashboard header a { min-height: 48px; }
+  .ergo-admin #link-student, .ergo-admin #link-dashboard { flex-basis: 100%; font-size: 16px; }
+  .ergo-admin #link-student + button, .ergo-admin #link-dashboard + button { min-height: 48px; }
+  .ergo-admin #link-student, .ergo-admin #link-dashboard { width: 100%; }
+  .ergo-admin #link-student, .ergo-admin #link-dashboard { max-width: 100%; }
+  .ergo-admin div:has(> #link-student), .ergo-admin div:has(> #link-dashboard) { flex-wrap: wrap; }
+  .ergo-admin #gsheet-status-bar > div { flex-wrap: wrap; }
+  .ergo-dashboard header h1, .ergo-dashboard header h1 + div { flex-wrap: wrap; }
+  .ergo-dashboard main, .ergo-dashboard main > div, .ergo-dashboard main .grid { min-width: 0; }
+}

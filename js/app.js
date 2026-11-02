@@ -358,7 +358,10 @@ function initApp() {
   }
 
   // 7. 計算總分與產出評估報告 (NMQ 人體圖負載 + 環境檢核)
+  let assessmentSubmitting = false;
   async function finishAssessment() {
+    if (assessmentSubmitting) return;
+    assessmentSubmitting = true;
     let totalScore = 100;
     
     // 計算 NMQ 人體圖扣分 (1分=1分, 2分=3分, 3分=6分, 4分=9分, 5分=12分，上限 40 分)
@@ -440,10 +443,13 @@ function initApp() {
       await dataBridge.submitAssessment(submissionData);
     } catch (error) {
       if (!window.ERGO_FIREBASE_PREVIEW) throw error;
-      alert('目前無法確認雲端是否收到作答。資料可能稍後送達；請勿重複送出，請保留此頁並聯絡講師確認。');
+      alert(error.message === '資料已保留待送'
+        ? '資料尚未確認送達，已保留於此裝置待送。請查看結果頁狀態，並勿清除瀏覽器資料。'
+        : '無法建立或讀取待送資料，無法保證雲端收到作答。請保留此頁並聯絡講師。');
       console.error('雲端送出失敗', error);
     }
     showResult(totalScore, tierInfo, nmqData, personalizedGuides, userBodymapDetails);
+    assessmentSubmitting = false;
   }
 
   // 8. 渲染個人評估結果報告

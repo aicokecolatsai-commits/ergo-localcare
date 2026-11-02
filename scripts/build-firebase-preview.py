@@ -21,6 +21,7 @@ for name in ('assets', 'css', 'js'):
 for name in ('index.html', 'admin.html', 'dashboard.html', 'manifest.json'):
     shutil.copy2(ROOT / name, public / name)
 injection = '''<script>window.ERGO_FIREBASE_PREVIEW = true;</script>
+<script src="js/pending-submissions.js"></script>
 <script src="/__/firebase/8.10.1/firebase-app.js"></script>
 <script src="/__/firebase/8.10.1/firebase-auth.js"></script>
 <script src="/__/firebase/8.10.1/firebase-firestore.js"></script>

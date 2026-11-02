@@ -16,7 +16,8 @@ service cloud.firestore {
       allow read: if admin();
       allow create: if request.auth != null
         && request.auth.token.firebase.sign_in_provider == 'anonymous'
-        && submission.matches(request.auth.uid + '_[A-Za-z0-9_-]{10,80}')
+        && (submission.matches(request.auth.uid + '_[A-Za-z0-9_-]{10,80}')
+            || submission.matches('[a-f0-9]{32}'))
         && request.resource.data.keys().hasOnly(['owner', 'sessionId', 'timestamp', 'role', 'totalScore', 'tier', 'nmqData', 'nmqDetails', 'traps', 'durationSeconds', 'qualityFlag', 'isRetest'])
         && request.resource.data.keys().hasAll(['owner', 'sessionId', 'timestamp', 'role', 'totalScore', 'tier', 'nmqData', 'nmqDetails', 'traps', 'durationSeconds', 'qualityFlag', 'isRetest'])
         && request.resource.data.owner == request.auth.uid
@@ -31,7 +32,12 @@ service cloud.firestore {
         && request.resource.data.durationSeconds is int && request.resource.data.durationSeconds >= 1
         && request.resource.data.qualityFlag in ['Valid', 'Speedrun', 'Extreme', 'Retest']
         && request.resource.data.isRetest is bool;
-      allow update, delete: if false;
+      // 僅允許原匿名身分重送完全一致的資料，避免逾時重試造成重複。
+      allow update: if request.auth != null
+        && request.auth.token.firebase.sign_in_provider == 'anonymous'
+        && resource.data.owner == request.auth.uid
+        && request.resource.data == resource.data;
+      allow delete: if false;
     }
   }
 }

@@ -3,34 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>人因小管家・工作站與肌肉骨骼人因檢測系統</title>
+  <title>不痛生活改造局・工作站與肌肉骨骼人因檢測系統</title>
   <!-- 瀏覽器分頁與行動裝置主畫面 App 圖示 (Favicon & PWA Icons) -->
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-192.png">
-  <link rel="shortcut icon" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand-icon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand-icon-192.png">
+  <link rel="shortcut icon" href="assets/brand-icon-32.png">
 
   <!-- Apple iOS Safari「加入主畫面」專用 1:1 正方形 App 圖示 -->
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="assets/apple-touch-icon.png">
-  <link rel="apple-touch-icon" sizes="167x167" href="assets/apple-touch-icon.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
-  <link rel="apple-touch-icon-precomposed" href="assets/apple-touch-icon.png">
+  <link rel="apple-touch-icon" href="assets/brand-icon-180.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/brand-icon-180.png">
+  <link rel="apple-touch-icon-precomposed" href="assets/brand-icon-180.png">
 
   <!-- Android Chrome / PWA 行動應用程式設定檔與主題色 -->
   <link rel="manifest" href="manifest.json">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="人因小管家">
-  <meta name="application-name" content="人因小管家">
-  <meta name="theme-color" content="#0284c7">
+  <meta name="apple-mobile-web-app-title" content="不痛生活改造局">
+  <meta name="application-name" content="不痛生活改造局">
+  <meta name="theme-color" content="#1e5641">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- html2pdf CDN for PDF generation (比照 KIM 2019 官方規格) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <link rel="stylesheet" href="css/custom.css?v=20261028_mobile2">
+  <link rel="stylesheet" href="css/custom.css?v=20261102_brand1">
   <script>
     if (typeof tailwind !== 'undefined') {
       tailwind.config = {
@@ -50,23 +48,22 @@
     }
   </script>
 </head>
-<body class="bg-[#f8fafc] text-slate-800 min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
+<body class="ergo-student bg-[#f8fafc] text-slate-800 min-h-screen flex flex-col justify-between selection:bg-sky-500 selection:text-white">
 
   <!-- 開場品牌過場畫面 (Splash Screen) -->
   <div id="brand-splash-screen" class="fixed inset-0 z-[100] bg-white flex flex-col items-center justify-center p-6 transition-opacity duration-400 ease-out select-none cursor-pointer">
     <div class="flex flex-col items-center text-center space-y-3.5 max-w-xs">
       <div class="relative">
         <div class="absolute -inset-2 rounded-full bg-sky-100/80 filter blur-md animate-pulse"></div>
-        <img src="assets/logo.png" alt="人因小管家" class="w-24 h-24 md:w-28 md:h-28 object-contain drop-shadow-md relative">
+        <img src="assets/brand-logo.png" alt="不痛生活改造局" class="w-24 h-24 md:w-28 md:h-28 object-contain drop-shadow-md relative">
       </div>
       <div>
         <h1 class="text-xl md:text-2xl font-black text-slate-900 tracking-tight flex items-center justify-center gap-1.5">
-          <span>人因小管家</span>
-          <span class="text-xs px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 font-bold border border-sky-200">PRO</span>
+          <span>不痛生活改造局</span>
         </h1>
         <p class="text-xs md:text-sm font-bold text-sky-700 mt-0.5">工作站與肌肉骨骼人因檢測系統</p>
       </div>
-      <p class="text-xs text-slate-500 font-medium">人因小管家(Noah) 研發</p>
+      <p class="text-xs text-slate-500 font-medium">不痛生活改造局(Noah) 研發</p>
       <div class="w-40 bg-slate-100 h-1.5 rounded-full overflow-hidden mt-2">
         <div class="bg-gradient-to-r from-sky-500 to-indigo-600 h-full rounded-full w-full animate-pulse"></div>
       </div>
@@ -102,10 +99,10 @@
   <header class="border-b border-slate-200 bg-white/95 backdrop-blur sticky top-0 z-40 shadow-xs">
     <div class="max-w-xl mx-auto px-4 py-2.5 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <img src="assets/logo.png" alt="人因小管家" class="w-10 h-10 md:w-11 md:h-11 object-contain drop-shadow-sm flex-shrink-0">
+        <img src="assets/brand-logo.png" alt="不痛生活改造局" class="w-10 h-10 md:w-11 md:h-11 object-contain drop-shadow-sm flex-shrink-0">
         <div>
           <h1 class="text-sm md:text-base font-black tracking-tight text-slate-900 flex items-center gap-1.5">
-            <span>人因小管家</span>
+            <span>不痛生活改造局</span>
             <span class="text-[10px] md:text-xs px-2 py-0.5 rounded bg-sky-50 text-sky-800 border border-sky-200 font-bold">NMQ人因檢測</span>
           </h1>
           <p class="text-xs text-slate-500 font-medium">北歐肌肉骨骼問卷實證架構</p>
@@ -122,6 +119,7 @@
     
     <!-- 步驟 0：身分族群選擇 (莫蘭迪色卡與清楚層級) -->
     <section id="step-role" class="space-y-4">
+      <img class="brand-banner" src="assets/brand-banner.png" alt="不痛生活改造局：從姿勢、動作到生活空間" width="1024" height="319">
       <div class="space-y-1 text-center pb-1">
         <span class="text-xs font-bold text-[#2e6284] uppercase tracking-wider">
           步驟 1 / 4 ｜ 選擇平日主要作業型態
@@ -317,8 +315,8 @@
       <div class="ergo-card p-6 md:p-8 text-center border border-slate-200 bg-white shadow-xs relative overflow-hidden">
         <!-- 品牌浮水印標籤 -->
         <div class="flex items-center justify-center gap-2.5 mb-3.5 pb-2.5 border-b border-slate-100">
-          <img src="assets/logo.png" alt="人因小管家" class="w-8 h-8 object-contain">
-          <span class="text-xs md:text-sm font-bold text-sky-800 tracking-wide">人因小管家 (Noah) 專屬個人評估報告</span>
+          <img src="assets/brand-logo.png" alt="不痛生活改造局" class="w-8 h-8 object-contain">
+          <span class="text-xs md:text-sm font-bold text-sky-800 tracking-wide">不痛生活改造局 (Noah) 專屬個人評估報告</span>
         </div>
 
         <span id="res-score-badge" class="inline-block px-3.5 py-1 rounded-full text-xs md:text-sm font-bold border mb-2.5">
@@ -585,7 +583,7 @@
               <h4 class="text-xs sm:text-base font-black" style="color: #2b1901;">
                 德國主要關鍵指標法 KIM 2019 線上評估系統
               </h4>
-              <p class="text-xs font-medium mt-0.5" style="color: #4d330f;">人因小管家 參考職安署網站另行建置研發</p>
+              <p class="text-xs font-medium mt-0.5" style="color: #4d330f;">不痛生活改造局 參考職安署網站另行建置研發</p>
             </div>
           </div>
           <div class="flex items-center gap-2.5">
@@ -610,13 +608,13 @@
             </div>
             <div>
               <h4 class="text-xs sm:text-base font-black" style="color: #2e070e;">
-                人因工程部落格
+                不痛生活改造局部落格
               </h4>
               <p class="text-xs font-medium mt-0.5" style="color: #541c25;">深入解析工作站人因配置、姿勢生物力學與職場健康促進</p>
             </div>
           </div>
           <div class="flex items-center gap-2.5">
-            <img src="assets/qr-blog.png" alt="人因部落格 QR" class="w-10 h-10 rounded-lg border border-rose-300 bg-white p-0.5 block flex-shrink-0" title="掃描前往人因部落格">
+            <img src="assets/qr-blog.png" alt="不痛生活改造局部落格 QR" class="w-10 h-10 rounded-lg border border-rose-300 bg-white p-0.5 block flex-shrink-0" title="掃描前往不痛生活改造局部落格">
             <a href="https://ergopt.blogspot.com/" target="_blank" rel="noopener noreferrer" class="px-4 py-2 rounded-xl text-white text-xs md:text-sm font-bold transition-all shadow-xs flex items-center gap-1 touch-press flex-shrink-0 min-h-[40px]" style="background: #7a2333;">
               <span>閱讀部落格</span>
               <span>↗</span>
@@ -723,13 +721,13 @@
 
   <!-- 底部版權 -->
   <footer class="border-t border-slate-200 py-3.5 text-center text-xs text-slate-500 bg-white flex items-center justify-center">
-    <span>© 人因小管家(Noah) 研發</span>
+    <span>© 不痛生活改造局(Noah) 研發</span>
   </footer>
 
   <!-- 腳本引入 (加入強制版本號防快取) -->
-  <script src="js/config.js?v=20261028_mobile1"></script>
+  <script src="js/config.js?v=20261102_brand1"></script>
   <script src="js/bodymap.js?v=20261028_mobile1"></script>
   <script src="js/questions.js?v=20261028_mobile1"></script>
-  <script src="js/app.js?v=20261028_mobile1"></script>
+  <script src="js/app.js?v=20261102_brand1"></script>
 </body>
 </html>

@@ -243,3 +243,20 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .ergo-dashboard header h1, .ergo-dashboard header h1 + div { flex-wrap: wrap; }
   .ergo-dashboard main, .ergo-dashboard main > div, .ergo-dashboard main .grid { min-width: 0; }
 }
+
+/* 不痛生活改造局：沿用部落格的暖白與深綠，保留原有評估內容。 */
+body.ergo-student, body.ergo-admin { background: #faf8f5; color: #2c302e; }
+.brand-banner { display: block; width: 100%; height: auto; border-radius: 12px; }
+.ergo-student header, .ergo-admin header { background: #faf8f5; border-color: #e7ded1; }
+.ergo-student header h1, .ergo-admin header h1 { color: #1e5641; }
+.ergo-student .role-choice { border-color: #e5ded4; color: #2c302e; }
+.ergo-student .role-choice:hover { border-color: #1e5641; background: #f0f6f1; }
+.ergo-student .role-choice-number, .ergo-student .role-choice-arrow { color: #1e5641; }
+.ergo-student .role-choice-subtitle, .ergo-student .role-choice-description { color: #505b54; }
+.ergo-student #btn-bodymap-next, .ergo-admin #btn-create-session { background: #1e5641; }
+.ergo-student #btn-bodymap-next:hover, .ergo-admin #btn-create-session:hover { background: #174536; }
+.ergo-student button:focus-visible, .ergo-admin button:focus-visible,
+.ergo-student a:focus-visible, .ergo-admin a:focus-visible,
+.ergo-student input:focus-visible, .ergo-admin input:focus-visible { outline-color: #1e5641; }
+/* 空看板的預設 canvas 寬度不得撐破小手機畫面。 */
+.ergo-dashboard #rolePieChart { max-width: 100%; }

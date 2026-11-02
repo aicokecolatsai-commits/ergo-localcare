@@ -4,7 +4,7 @@
  */
 
 const GAS_TEMPLATE_CODE = `/**
- * 【人因小管家】Google 試算表自動多分頁同步腳本
+ * 【不痛生活改造局】Google 試算表自動多分頁同步腳本
  * Noah / 蔡健儀 專屬人因研習數據中心
  */
 function doPost(e) {
@@ -498,7 +498,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         action: "test_ping",
         sessionName: "系統連線測試",
         headers: ["狀態", "測試時間", "連線診斷"],
-        rows: [["🟢 連線正常", new Date().toLocaleString("zh-TW"), "人因小管家後台已成功對接 Google 試算表！"]],
+        rows: [["🟢 連線正常", new Date().toLocaleString("zh-TW"), "不痛生活改造局後台已成功對接 Google 試算表！"]],
         summary: { avgScore: 100 }
       };
 

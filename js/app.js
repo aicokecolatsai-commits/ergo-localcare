@@ -998,7 +998,7 @@ function initApp() {
           <div class="p-2 rounded-lg bg-white/90 border border-amber-200 text-[10.5px] space-y-1">
             <div class="text-amber-900 font-bold">⚡ 潛在影響與好發酸痛部位：</div>
             <div class="text-slate-700">下午常感<strong>肩胛骨內側（膏肓盲區）</strong>酸脹、後頸僵硬。若未及時伸展，容易惡化為圓肩與滑鼠手。</div>
-            <div class="text-amber-800 font-semibold pt-0.5">🛠️ 人因小管家解法：定時進行雙手背後互扣牽拉，放鬆提肩胛肌。</div>
+            <div class="text-amber-800 font-semibold pt-0.5">🛠️ 不痛生活改造局解法：定時進行雙手背後互扣牽拉，放鬆提肩胛肌。</div>
           </div>
         </div>
       `,
@@ -1066,7 +1066,7 @@ function initApp() {
           <div class="p-2 rounded-lg bg-white/90 border border-amber-200 text-[10.5px] space-y-1">
             <div class="text-amber-900 font-bold">⚡ 潛在影響與好發酸痛部位：</div>
             <div class="text-slate-700">久坐若超過 60 分鐘，骨盆易不自覺向後滑移塌陷，引起下腰深處酸脹。</div>
-            <div class="text-amber-800 font-semibold pt-0.5">🛠️ 人因小管家解法：座椅請加裝腰靠支撐，坐姿時膝蓋保持 90 度腳踏實地。</div>
+            <div class="text-amber-800 font-semibold pt-0.5">🛠️ 不痛生活改造局解法：座椅請加裝腰靠支撐，坐姿時膝蓋保持 90 度腳踏實地。</div>
           </div>
         </div>
       `,
@@ -1614,13 +1614,13 @@ function initApp() {
         <table style="width: 100%; border-collapse: collapse; table-layout: fixed; border-bottom: 2.5px solid #0284c7; padding-bottom: 4px; margin-bottom: 6px;">
           <tr>
             <td style="vertical-align: middle; width: 84px; text-align: center;">
-              <img src="assets/logo.png" style="width: 75px; height: 50px; aspect-ratio: 3/2; object-fit: contain; display: block; margin: 0 auto;">
+              <img src="assets/brand-logo.png" style="width: 75px; height: 50px; aspect-ratio: 3/2; object-fit: contain; display: block; margin: 0 auto;">
             </td>
             <td style="vertical-align: middle; padding-left: 6px;">
               <div style="font-size: 15px; font-weight: 900; color: #0f172a; letter-spacing: -0.2px;">
-                人因小管家 - 人體老化指標戰情室
+                不痛生活改造局｜人因檢核報告
                 <span style="font-size: 8.5px; font-weight: bold; padding: 1.5px 6px; border-radius: 4px; background: #0284c7; color: #ffffff; vertical-align: middle; margin-left: 5px;">
-                  個人戰情儀表板
+                  個人檢核結果
                 </span>
               </div>
               <div style="font-size: 9.5px; color: #0369a1; font-weight: bold; margin-top: 2px;">
@@ -1829,7 +1829,7 @@ function initApp() {
         <!-- 第六層：法律免責與官方認證 Footer -->
         <div style="border-top: 1px solid #cbd5e1; padding-top: 3px; font-size: 7.5px; color: #64748b; line-height: 1.25; text-align: center;">
           ⚠️ 免責聲明：本報告係依據北歐肌肉骨骼問卷 (NMQ) 與人因工程人體測量學原理設計之自我檢核指標，非屬醫療診斷行為。<br>
-          人因小管家(Noah) 研發
+          不痛生活改造局(Noah) 研發
         </div>
 
       </div>
@@ -1875,8 +1875,8 @@ function initApp() {
       habits.push("👀 20-20-20 護眼法則：每看螢幕 20 分鐘，遠眺 20 呎外 20 秒。");
     }
 
-    const title = "⏰ 人因小管家・職場健康微習慣與疲勞消除微伸展";
-    const details = `人因小管家(Noah) 為您量身定制的每日職場微習慣：\n\n` +
+    const title = "⏰ 不痛生活改造局・職場健康微習慣與疲勞消除微伸展";
+    const details = `不痛生活改造局(Noah) 為您量身定制的每日職場微習慣：\n\n` +
       (habits.length > 0 ? habits.join("\n\n") : "維持良好坐姿與視線平視螢幕！\n") +
       `\n\n您的個人健康戰情室與知識庫：https://ergopt.blogspot.com/`;
 
@@ -1917,7 +1917,7 @@ function initApp() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "人因小管家_每日職場微習慣提醒.ics";
+        a.download = "不痛生活改造局_每日職場微習慣提醒.ics";
         document.body.appendChild(a);
         a.click();
         setTimeout(() => {
@@ -2224,7 +2224,7 @@ function initApp() {
       await new Promise(r => setTimeout(r, 150));
 
       const dateStr = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '');
-      const fileName = `人因小管家PRO_A4戰情室評估報告_${dateStr}.pdf`;
+      const fileName = `不痛生活改造局_A4人因檢核報告_${dateStr}.pdf`;
 
       // 設定 html2pdf 純淨標準選項 (完全杜絕自訂寬度導致的 offset 裁切 bug)
       const opt = {
@@ -2249,14 +2249,14 @@ function initApp() {
         // 分享模式
         if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
           await navigator.share({
-            title: '人因小管家 PRO 個人 A4 人因戰情室報告',
-            text: `人因小管家(Noah) 研發・我的健康得分：${currentReportState.score}分`,
+            title: '不痛生活改造局｜個人人因檢核報告',
+            text: `不痛生活改造局(Noah) 研發・我的健康得分：${currentReportState.score}分`,
             files: [pdfFile]
           });
         } else if (navigator.share) {
           await navigator.share({
-            title: '人因小管家 PRO 個人 A4 人因戰情室報告',
-            text: `人因小管家(Noah) 研發・我的健康得分：${currentReportState.score}分\n報告網址：${window.location.href}`,
+            title: '不痛生活改造局｜個人人因檢核報告',
+            text: `不痛生活改造局(Noah) 研發・我的健康得分：${currentReportState.score}分\n報告網址：${window.location.href}`,
             url: window.location.href
           });
         } else {

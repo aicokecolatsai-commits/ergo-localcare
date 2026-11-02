@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>【人因小管家】場次管理與專屬 QR Code 控制台</title>
+  <title>【不痛生活改造局】場次管理與專屬 QR Code 控制台</title>
   <!-- 瀏覽器分頁與行動裝置主畫面 App 圖示 (Favicon & PWA Icons) -->
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="192x192" href="assets/app-icon-192.png">
-  <link rel="shortcut icon" href="assets/favicon-32.png">
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/brand-icon-32.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/brand-icon-192.png">
+  <link rel="shortcut icon" href="assets/brand-icon-32.png">
+  <link rel="apple-touch-icon" href="assets/brand-icon-180.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/brand-icon-180.png">
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-title" content="人因小管家">
-  <meta name="theme-color" content="#0284c7">
+  <meta name="apple-mobile-web-app-title" content="不痛生活改造局">
+  <meta name="theme-color" content="#1e5641">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- QRCode.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <link rel="stylesheet" href="css/custom.css?v=20261028_mobile2">
+  <link rel="stylesheet" href="css/custom.css?v=20261102_brand1">
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -41,10 +41,10 @@
   <!-- 頂部導航 -->
   <header class="border-b border-slate-200 bg-white/95 backdrop-blur px-4 md:px-8 py-3 flex flex-wrap items-center justify-between gap-3 sticky top-0 z-50 shadow-xs">
     <div class="flex items-center gap-3">
-      <img src="assets/logo.png" alt="人因小管家" class="w-11 h-11 object-contain drop-shadow-sm flex-shrink-0">
+      <img src="assets/brand-logo.png" alt="不痛生活改造局" class="w-11 h-11 object-contain drop-shadow-sm flex-shrink-0">
       <div>
         <h1 class="text-base md:text-lg font-black text-slate-900 flex items-center gap-2">
-          <span>人因小管家 • 場次管理控制台</span>
+          <span>不痛生活改造局 • 場次管理控制台</span>
         </h1>
         <p class="text-xs text-slate-500 font-medium">蔡健儀 專屬研習系統・QR Code 生成、即時連線與 NMQ 數據匯出</p>
       </div>
@@ -229,7 +229,7 @@
             <span>🚀</span> 3 步驟超快速建置說明（只需設定一次，永久全場次適用）：
           </h4>
           <ol class="list-decimal list-inside space-y-2 text-slate-600 bg-teal-50/40 p-4 rounded-xl border border-teal-100 text-xs md:text-sm">
-            <li>打開或新建一份 Google 試算表（例如命名為<strong>「人因小管家_全場次研習總資料庫」</strong>）。</li>
+            <li>打開或新建一份 Google 試算表（例如命名為<strong>「不痛生活改造局_全場次研習總資料庫」</strong>）。</li>
             <li>點擊頂部選單<strong>「擴充功能」->「Apps Script」</strong>，將預設內容清空，並貼上下方<strong>「專屬 Apps Script 程式碼」</strong>。</li>
             <li>點擊右上角<strong>「部署」->「新增部署作業」</strong>，左側齒輪選<strong>「網頁應用程式」</strong>，並將<strong>「誰可以存取」</strong>改為<strong>「所有人 (Anyone)」</strong>，點擊部署並複製產生的網址貼至上方！</li>
           </ol>
@@ -285,13 +285,13 @@
 
   <!-- 底部版權 -->
   <footer class="border-t border-slate-200 py-4 text-center text-xs text-slate-500 bg-white flex flex-col sm:flex-row items-center justify-center gap-1">
-    <span>© 人因小管家 (Noah) 蔡健儀 專屬研發</span>
+    <span>© 不痛生活改造局 (Noah) 蔡健儀 專屬研發</span>
     <span class="hidden sm:inline">｜</span>
     <span>人因工學智慧財產權保護・未經授權禁止商用翻拷</span>
   </footer>
 
   <!-- 腳本引入 (加入強制版本號防快取) -->
-  <script src="js/config.js?v=20260921_v2"></script>
-  <script src="js/admin.js?v=20261028_fix1"></script>
+  <script src="js/config.js?v=20261102_brand1"></script>
+  <script src="js/admin.js?v=20261102_brand1"></script>
 </body>
 </html>

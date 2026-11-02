@@ -4,7 +4,7 @@
  */
 
 const APP_CONFIG = {
-  appName: "人因工程・身體伺服器評估系統",
+  appName: "不痛生活改造局・人因檢測",
   version: "1.0.0",
   defaultSessionId: "demo_session",
 

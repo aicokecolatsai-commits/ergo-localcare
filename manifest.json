@@ -1,25 +1,25 @@
 {
-  "name": "人因小管家 PRO・人因工程檢測系統",
-  "short_name": "人因小管家",
+  "name": "不痛生活改造局・人因檢測",
+  "short_name": "不痛生活改造局",
   "description": "工作站人體工學與北歐肌肉骨骼問卷 (NMQ) 臨床人因工程評估體系",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ffffff",
-  "theme_color": "#0284c7",
+  "background_color": "#faf8f5",
+  "theme_color": "#1e5641",
   "icons": [
     {
-      "src": "assets/app-icon-192.png",
+      "src": "assets/brand-icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "assets/app-icon-512.png",
+      "src": "assets/brand-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     }
   ]
 }

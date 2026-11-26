@@ -2310,13 +2310,14 @@ function initApp() {
 
   // 11. 首頁與全局一鍵重置 (清除初評/複評/作答紀錄)
   function handleGlobalReset() {
-    const confirmReset = confirm("⚠️ 確定要清除本場次的所有初評、複評與作答紀錄嗎？\n\n・點擊「確定」：徹底清除紀錄並回到全新評估狀態\n・點擊「取消」：保留現有紀錄");
+    const confirmReset = confirm("⚠️ 確定要重置目前場次的本機評估紀錄嗎？\n\n將清除這個瀏覽器中本場次的初評與最近一次報告，並重置目前作答。\n其他場次、姓名、使用者代碼及已送出的資料不會清除。\n\n點擊「取消」可保留紀錄。");
     if (!confirmReset) return;
 
+    let storageCleared = true;
     try {
       localStorage.removeItem("ergo_last_report_" + sessionId);
       localStorage.removeItem("ergo_baseline_" + sessionId);
-    } catch (e) {}
+    } catch (e) { storageCleared = false; }
 
     userBodymapData = {};
     userBodymapDetails = {};
@@ -2343,7 +2344,7 @@ function initApp() {
     if (stepRetestBanner) stepRetestBanner.classList.add("hidden");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
-    alert("✅ 已成功重置所有紀錄！您可以重新選擇作業型態開始檢測。");
+    alert(storageCleared ? "✅ 已清除本場次的本機初評與最近一次報告，並重置目前作答。其他資料不受影響。" : "⚠️ 目前作答已重置，但無法確認本機紀錄是否全部清除；請檢查瀏覽器儲存空間設定後再試。");
   }
 
   // 12. 檢測報告歷史還原與課堂快速通道
